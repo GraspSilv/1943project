@@ -21,6 +21,7 @@ To Do
 #include"Counter.h"
 #include"GraphElement.h"
 #include "Player.h"
+#include "Bullet.h"
 #include "Powerup.h"
 
 //screen attributes
@@ -95,10 +96,13 @@ int main(int argc, char * argv[]) {
 						gameRunning = false;
 						break;
 					case SDLK_z:
+						elements.push_back(new Bullet(newPlayer.getXPos()+16,newPlayer.getYPos(),0,-.5));
+						elements.push_back(new Bullet(newPlayer.getXPos()+5,newPlayer.getYPos(),0,-.5));
 						score.increment(1);
 						break;
 					case SDLK_x:
 						score.increment(10);
+
 						break;
 					default:
 						break;
