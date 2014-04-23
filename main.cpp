@@ -21,6 +21,7 @@ To Do
 #include"Counter.h"
 #include"GraphElement.h"
 #include "Player.h"
+#include "Powerup.h"
 
 //screen attributes
 const int WINDOW_WIDTH = 480;
@@ -73,6 +74,9 @@ int main(int argc, char * argv[]) {
 	std::vector<GraphElement *> elements;	
 
 	Player newPlayer(0,0);
+	Powerup newPowerUp(100,100,COWP);
+	newPowerUp.setYVel(.1);
+	elements.push_back(&newPowerUp);
 	elements.push_back(&newPlayer);
 	
 	while (gameRunning) {
@@ -121,10 +125,14 @@ int main(int argc, char * argv[]) {
         
 		SDL_BlitSurface(scoreSurface, NULL, screen, &scoreLocation);
 	
-		newPlayer.setXPos(newPlayer.getXPos()+newPlayer.getXVel());
-		newPlayer.setYPos(newPlayer.getYPos()+newPlayer.getYVel());
 
-		applySurface(newPlayer.getXPos(),newPlayer.getYPos(),spriteSheet, screen, &newPlayer.getSprite());        
+
+		for (int x = 0; x < elements.size(); x++){
+			elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
+			elements[x]->setYPos(elements[x]->getYPos()+elements[x]->getYVel());
+			applySurface(elements[x]->getXPos(),elements[x]->getYPos(),spriteSheet, screen, &elements[x]->getSprite());        
+		}
+			
        SDL_Flip(screen);
     }
     

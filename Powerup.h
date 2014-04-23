@@ -25,12 +25,12 @@ typedef enum {
 } powerupSpriteType;
 
 typedef enum {
-			POW,
-			SPREAD,
-			MISSILE,
-			BEAM,
-			AUTO,
-			COW
+			POWP,
+			SPREADP,
+			MISSILEP,
+			BEAMP,
+			AUTOP,
+			COWP
 } powerType;
 
 class Powerup : public GraphElement{
