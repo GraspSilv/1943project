@@ -65,6 +65,6 @@ SDL_Rect Powerup::getSprite() {
 	return sprites[power];
 }
 
-powerType getPower() {
+powerType Powerup::getPower() {
 	return power;
 }

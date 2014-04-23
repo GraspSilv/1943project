@@ -8,7 +8,7 @@ History
 	03/31/14	Bill Gowans		Create, declare constructor, Sprite(), scoreCntr(), healthCntr(), ammoCntr(), livesCntr(), get[XY](), get[XY]Vel(), and private variables [xy]_vel
 	04/09/14	Jon Richelsen	Start standardization
 	04/22/14 Jon Richelsen	Finish standardization, define spriteType and weaponType enums, sprite, and weapon, fix typos, remove get[XY]Vel() and private variables [xy]Vel, rename spriteType to playerSpriteType
-	04/22/14 Jon Richelsen	Declare add50_IncAmmo(), sub1_IncAmmo(), add4_IncHealth(), sub1_IncHealth(), and private variables ammo and health
+	04/23/14 Jon Richelsen	Declare add50_IncAmmo(), sub1_IncAmmo(), add4_IncHealth(), sub1_IncHealth(), and private variables ammo and health
 To Do
 	Decide where to put spriteType and weaponType enums
 */
