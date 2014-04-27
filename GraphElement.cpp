@@ -14,9 +14,9 @@ History
 #include<algorithm>
 #include<string>
 #include<vector>
+#include<iostream>
 #include"SDL/SDL.h"
 
-std::vector<void *> GraphElement::GE_Ptrs;
 
 GraphElement::GraphElement(double xP, double yP, GEType t) { //nondefault constructor, sets position and type [xPos, yPos, type]
 	xPos = xP;
@@ -24,7 +24,6 @@ GraphElement::GraphElement(double xP, double yP, GEType t) { //nondefault constr
 	xVel = 0;
 	yVel = 0;
 	type = t;
-	GE_Ptrs.push_back(this);
 }
 
 GraphElement::GraphElement(double xP, double yP, double xV, double yV, GEType t) { //nondefault constructor, sets position, velocity, and type [xPos, yPos, xVel, yVel, type]
@@ -33,7 +32,6 @@ GraphElement::GraphElement(double xP, double yP, double xV, double yV, GEType t)
 	xVel = xV;
 	yVel = yV;
 	type = t;
-	GE_Ptrs.push_back(this);
 }
 
 void GraphElement::addSprite(SDL_Rect clip) { //adds sprite struct to sprites array [name, clip]
@@ -77,5 +75,5 @@ void GraphElement::setYVel(double yV) {
 }
 
 GraphElement::~GraphElement() { //deconstructor, removes this pointer from pointers vector
-	GE_Ptrs.erase(std::remove(GE_Ptrs.begin(), GE_Ptrs.end(), this), GE_Ptrs.end());
+
 }

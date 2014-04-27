@@ -42,9 +42,8 @@ class GraphElement {
 		void setXVel(double);
 		void setYVel(double);
 		std::vector<SDL_Rect> sprites;
-		~GraphElement(); //deconstructor, removes this pointer from pointers vector
+		virtual ~GraphElement(); //deconstructor, removes this pointer from pointers vector
 	private:
-		static std::vector<void *> GE_Ptrs;
 		GEType type;
 		double xPos;
 		double yPos;

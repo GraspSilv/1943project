@@ -18,10 +18,14 @@ typedef enum {
 class Bullet : public GraphElement{
 	public:
 		Bullet(double, double, double, double); //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
+		~Bullet();
 		SDL_Rect getSprite();
+		int getCount();
+		static int count;
 
 	private:
 		bulletSpriteType sprite; //enum that stores player plane's sprite
+		
 
 };
 

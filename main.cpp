@@ -45,6 +45,7 @@ SDL_Color textColor = {255, 255, 255};
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
+bool checkCollide(SDL_Rect A, SDL_Rect B);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
@@ -81,6 +82,10 @@ int main(int argc, char * argv[]) {
 
 	
 	elements.push_back(new Enemy(200, 200, red));
+	elements.push_back(new Enemy(200, 250, red));
+	elements.push_back(new Enemy(200, 150, red));
+	elements.push_back(new Enemy(200, 100, red));
+	elements.push_back(new Enemy(200, 300, red));
 	elements.push_back(&newPowerUp);
 	elements.push_back(&newPlayer);
 	
@@ -100,9 +105,11 @@ int main(int argc, char * argv[]) {
 						gameRunning = false;
 						break;
 					case SDLK_z:
-						elements.push_back(new Bullet(newPlayer.getXPos()+16,newPlayer.getYPos(),0,-.5));
-						elements.push_back(new Bullet(newPlayer.getXPos()+5,newPlayer.getYPos(),0,-.5));
-						score.increment(1);
+						if (Bullet::count < 8){
+							elements.push_back(new Bullet(newPlayer.getXPos()+16,newPlayer.getYPos(),0,-.5));
+							elements.push_back(new Bullet(newPlayer.getXPos()+5,newPlayer.getYPos(),0,-.5));
+							score.increment(1);
+						}
 						break;
 					case SDLK_x:
 						score.increment(10);
@@ -173,7 +180,18 @@ int main(int argc, char * argv[]) {
 		for (int x = 0; x < elements.size(); x++){
 			//THIS IS OUR LOOP FOR EVERYTHING
 			if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
+				delete elements[x];
 				elements.erase(elements.begin()+x);
+				continue;
+			}
+
+								//maybe change this V to (y < x) for efficiency?
+			for (int y = 0; y < x; y++){
+				if (elements[x]->getType() == elements[y]->getType()) continue;
+				// std::cout << "checking" << std::endl;
+				if (x != y && checkCollide(elements[x]->getSprite(), elements[y]->getSprite()) == true){
+					// std::cout << "Colliding!" << std::endl;
+				}
 			}
 
 			elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
@@ -197,6 +215,25 @@ void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect 
 	offset.y = y;
 	
 	SDL_BlitSurface(src, clip, dest, &offset); //blit clipped surface
+}
+
+bool checkCollide(SDL_Rect A, SDL_Rect B){
+	int leftA, leftB, rightA, rightB, topA, topB, bottomA, bottomB;
+	leftA = A.x;
+	rightA = A.x + A.w;
+	topA = A.y;
+	bottomA = A.y + A.h;
+
+	leftB = B.x;
+	rightB = B.x + B.w;
+	topB = B.y;
+	bottomB = B.y + B.h;
+
+	if (bottomA <= topB || topA >= bottomB || rightA <= leftB || leftA >= rightB){
+		return false;
+	}
+	return true;
+
 }
 
 

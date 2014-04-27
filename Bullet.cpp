@@ -1,8 +1,11 @@
 // Bullet.cpp
 #include"Bullet.h"
 #include<vector>
+#include<iostream>
 #include"SDL/SDL.h"
 #include"GraphElement.h"
+
+int Bullet::count = 0;
 
 Bullet::Bullet(double xP, double yP, double xV, double yV) :
 	GraphElement(xP, yP, BULLET) {
@@ -48,10 +51,20 @@ Bullet::Bullet(double xP, double yP, double xV, double yV) :
 
 	setXVel(xV);
 	setYVel(yV);
+
+	count++;
 }
 
 SDL_Rect Bullet::getSprite() {
 	
 	return sprites[sprite];
+}
+
+int Bullet::getCount(){
+	return count;
+}
+
+Bullet::~Bullet(){
+	count--;
 }
 
