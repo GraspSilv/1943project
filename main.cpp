@@ -112,17 +112,52 @@ int main(int argc, char * argv[]) {
 
 		//Begin testing movement
 		Uint8 * keystates = SDL_GetKeyState(NULL);
+
+		int xm = newPlayer.getXMom();
+		int ym = newPlayer.getYMom();
+
 		if(keystates[SDLK_UP] && newPlayer.getYPos() > 1) {
-			newPlayer.setYVel(newPlayer.getYVel() - .1);
+			if (ym < -100){
+				newPlayer.setYVel(newPlayer.getYVel() - .2);
+			} else {
+				newPlayer.setYMom(ym - 1);
+				newPlayer.setYVel(newPlayer.getYVel() - .1);
+			}
+		} else {
+			newPlayer.setYMom(ym + 1);
 		}
+
 		if(keystates[SDLK_DOWN] && newPlayer.getYPos() < (WINDOW_HEIGHT - 10)) {
-			newPlayer.setYVel(newPlayer.getYVel() + .1);
+			if (ym > 100){
+				newPlayer.setYVel(newPlayer.getYVel() + .2);
+			} else {
+				newPlayer.setYVel(newPlayer.getYVel() + .1);
+				newPlayer.setYMom(ym + 1);
+			}
+		} else {
+			newPlayer.setYMom(ym - 1);
 		}
+
 		if(keystates[SDLK_LEFT] && newPlayer.getXPos() > 1) {
-			newPlayer.setXVel(newPlayer.getXVel() - .1);
+			if (xm < -100){
+				newPlayer.setXVel(newPlayer.getXVel() - .2);
+			} else {
+				newPlayer.setXVel(newPlayer.getXVel() - .1);
+				newPlayer.setXMom(xm - 2);
+			}
+		} else {
+			newPlayer.setXMom(xm + 1);
 		}
+
 		if(keystates[SDLK_RIGHT] && newPlayer.getXPos() < (WINDOW_WIDTH - 10)) {
-			newPlayer.setXVel(newPlayer.getXVel() + .1);
+			if (xm > 100){
+				newPlayer.setXVel(newPlayer.getXVel() + .2);
+			} else {
+				newPlayer.setXVel(newPlayer.getXVel() + .1);
+				newPlayer.setXMom(xm + 2);
+			}
+		} else {
+			newPlayer.setXMom(xm - 1);
 		}
 
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));

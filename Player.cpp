@@ -23,6 +23,8 @@ Player::Player(double xP, double yP) :
 	health(100, 100, 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
 	weapon = STANDARD;
+	xMom = 0;
+	yMom = 0;
 
 	SDL_Rect rect_plyr_hlthy_fRollLeft; //sprite of healthy player full roll left
 		rect_plyr_hlthy_fRollLeft.x = 15;
@@ -156,6 +158,22 @@ SDL_Rect Player::getSprite() {
 	}
 	
 	return sprites[sprite];
+}
+
+int Player::getXMom(){
+	return xMom;
+}
+
+int Player::getYMom(){
+	return yMom;
+}
+
+void Player::setYMom(int n){
+	yMom = n;
+}
+
+void Player::setXMom(int n){
+	xMom = n;
 }
 
 void Player::add50_IncAmmo() {

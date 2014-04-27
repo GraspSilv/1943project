@@ -56,11 +56,18 @@ class Player : public GraphElement{
 		void sub1_IncAmmo();
 		void add4_IncHealth();
 		void sub1_IncHealth();
+		int getYMom();
+		int getXMom();
+		void setYMom(int);
+		void setXMom(int);
+
 	private:
 		playerSpriteType sprite; //enum that stores player plane's sprite
 		weaponType weapon; //enum that stores player plane's current weapon
 		Counter ammo; //[xPos = 100, yPos = 300, value = 100, min = 0, max = 100, interval = 1]
 		Counter health; //[xPos = 100, yPos = 100, value = 100, min = 0, max = 100, interval = 5]
+		int yMom;
+		int xMom;
 };
 
 #endif //PLAYER_H
