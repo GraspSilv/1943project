@@ -9,6 +9,7 @@ History
 	04/09/14	Jon Richelsen	Start standardization
 	04/22/14 Jon Richelsen	Finish standardization, define spriteType and weaponType enums, sprite, and weapon, fix typos, remove get[XY]Vel() and private variables [xy]Vel, rename spriteType to playerSpriteType
 	04/23/14 Jon Richelsen	Declare add50_IncAmmo(), sub1_IncAmmo(), add4_IncHealth(), sub1_IncHealth(), and private variables ammo and health
+	04/27/14	Jon Richelsen	Change description of nondefault constructor to include type
 To Do
 	Decide where to put spriteType and weaponType enums
 */
@@ -49,7 +50,7 @@ typedef enum {
 
 class Player : public GraphElement{
 	public:
-		Player(double, double); //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
+		Player(double, double); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos]
 		SDL_Rect getSprite();
 		void add50_IncAmmo();
 		void sub1_IncAmmo();

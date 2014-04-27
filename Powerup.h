@@ -7,6 +7,7 @@ Powerup.h
 History
 	04/22/14 Jon Richelsen	Create, copying everything from player, remove get[XY]Vel() and private variables [xy]Vel, rename spriteType to powerupSpriteType, fix typos
 	04/23/14	Jon Richelsen	Declare getPower() and private variable power
+	04/27/14	Jon Richelsen	Declare new nondefault constructor to set velocity, change descriptions of nondefault constructors to include type
 To Do
 */
 #ifndef POWERUP_H
@@ -35,7 +36,8 @@ typedef enum {
 
 class Powerup : public GraphElement{
 	public:
-		Powerup(double, double, powerType); //nondefault constructor, passes position to GraphElement constructor [xPos, yPos, power]
+		Powerup(double, double, powerType); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos, power]
+		Powerup(double, double, double, double, powerType); //nondefault constructor, passes position, velocity, and type to GraphElement constructor [xPos, yPos, xVel, yVel, power]
 		SDL_Rect getSprite();
 		powerType getPower();
 	private:

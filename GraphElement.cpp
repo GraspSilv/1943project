@@ -8,6 +8,7 @@ History
 	03/31/14	Bill Gowans		Define constructor and SDL_graph_function()
 	04/09/14	Jon Richelsen	Standardize, combine with Sprite class, define constructor, addSprite(), getSprite(), get[XY](), and set[XY]()
 	04/22/14	Jon Richelsen	Define deconstructor, fix typos, implement GE_Ptrs vector, and simplify addSprite() function with enum, rename get[XY]() and set[XY] to get[XY]Pos() and set[XY]Pos, define get[XY]Vel() and setVel[XY]
+	04/27/14	Jon Richelsen	Define new nondefault constructor to set velocity, add type declaration to nondefault constructors, declare getType
 */
 #include"GraphElement.h"
 #include<algorithm>
@@ -17,14 +18,30 @@ History
 
 std::vector<void *> GraphElement::GE_Ptrs;
 
-GraphElement::GraphElement(double xP, double yP) { //nondefault constructor, sets position [xPos, yPos]
+GraphElement::GraphElement(double xP, double yP, GEType t) { //nondefault constructor, sets position and type [xPos, yPos, type]
 	xPos = xP;
 	yPos = yP;
+	xVel = 0;
+	yVel = 0;
+	type = t;
+	GE_Ptrs.push_back(this);
+}
+
+GraphElement::GraphElement(double xP, double yP, double xV, double yV, GEType t) { //nondefault constructor, sets position, velocity, and type [xPos, yPos, xVel, yVel, type]
+	xPos = xP;
+	yPos = yP;
+	xVel = xV;
+	yVel = yV;
+	type = t;
 	GE_Ptrs.push_back(this);
 }
 
 void GraphElement::addSprite(SDL_Rect clip) { //adds sprite struct to sprites array [name, clip]
 	sprites.push_back(clip);
+}
+
+GEType GraphElement::getType() {
+	return type;
 }
 
 double GraphElement::getXPos() {

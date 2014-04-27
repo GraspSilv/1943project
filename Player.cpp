@@ -9,6 +9,7 @@ History
 	04/09/14	Jon Richelsen	Start standardization
 	04/22/14 Jon Richelsen	Finish standardization, add intro sprites, simplify getSprite using enum spriteType, fix typos, remove definitions for get[XY]Vel()
 	04/23/14 Jon Richelsen	Define add50_IncAmmo(), sub1_IncAmmo(), add4_IncHealth(), and sub1_IncHealth(), add ammo and health member initialization to constructor
+	04/27/14	Jon Richelsen	Add type declaration to nondefault constructor
 */
 #include"Player.h"
 #include<vector>
@@ -17,7 +18,7 @@ History
 #include"Counter.h"
 
 Player::Player(double xP, double yP) :
-	GraphElement(xP, yP),
+	GraphElement(xP, yP, PLAYER),
 	ammo(100, 300, 100, 0, 100, 1),
 	health(100, 100, 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
