@@ -190,7 +190,7 @@ int main(int argc, char * argv[]) {
 				if (elements[x]->getType() == elements[y]->getType()) continue;
 				// std::cout << "checking" << std::endl;
 				if (x != y && checkCollide(elements[x]->getSprite(), elements[y]->getSprite()) == true){
-					// std::cout << "Colliding!" << std::endl;
+					std::cout << "Colliding!" << std::endl;
 				}
 			}
 
