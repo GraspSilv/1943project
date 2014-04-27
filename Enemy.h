@@ -14,23 +14,62 @@ To Do
 #define ENEMY_H
 
 #include<string>
-#include"Counter.h"
-#include"Sprite.h"
+#include "GraphElement.h"
 
-class Enemy {
+typedef enum {
+	rect_red_N,
+	rect_red_NE,
+	rect_red_E,
+	rect_red_SE,
+	rect_red_S,
+	rect_red_SW,
+	rect_red_W,
+	rect_red_NW,
+	rect_lilGray_N,
+	rect_lilGray_NE,
+	rect_lilGray_E,
+	rect_lilGray_SE,
+	rect_lilGray_S,
+	rect_lilGray_SW,
+	rect_lilGray_W,
+	rect_lilGray_NW,
+	rect_singGreen_straight,
+	rect_singGreen_hVert,
+	rect_singGreen_fVert,
+	rect_singGreen_updown,
+	rect_doubGreen_straight,
+	rect_doubGreen_roll1,
+	rect_doubGreen_roll2,
+	rect_doubGreen_roll3,
+	rect_doubGreen_roll4,
+	rect_doubGreen_roll5,
+	rect_doubGreen_roll6,
+	rect_doubGreen_roll7,
+	rect_purp4,
+	rect_purp3,
+	rect_purp2,
+	rect_purp1,
+	rect_bigGray
+} enemySpriteType;
+
+typedef enum {
+	red,
+	lilGray,
+	singGreen,
+	doubGreen,
+	purp,
+	bigGray
+} enemyType;
+
+class Enemy : public GraphElement {
 	public:
-		Player ();
-		Sprite forward(string, string);
-		Sprite slightR(string, int, int);
-		Sprite sharpR(string, int, int);
-		Sprite slightL(string, int, int);
-		Sprite sharpR(string, int, int);
-		int getX();
-		int getY();
-		int getXVel();
-		int getYVel();		
+		Enemy (double, double, enemyType);
+		// Enemy (double, double, double, double, enemyType);
+		SDL_Rect getSprite();
+		enemyType getEnemyType();	
 	private:
-		Counter healthCntr;
+		enemySpriteType sprite;
+		enemyType enemy;
 };
 
 #endif //ENEMY_H

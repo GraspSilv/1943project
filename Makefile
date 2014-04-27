@@ -4,7 +4,7 @@ RM := rm -f
 LDLIBS := -lSDL -lSDL_image -lSDL_ttf
 EXEC := Blitz
 
-OBJS := main.o Counter.o GraphElement.o Player.o Powerup.o Bullet.o
+OBJS := main.o Counter.o GraphElement.o Player.o Powerup.o Bullet.o Enemy.o
 
 all: $(EXEC)
 
@@ -28,6 +28,9 @@ Powerup.o: Powerup.h Powerup.cpp
 
 Bullet.o: Bullet.h Bullet.cpp
 	$(CXX) $(CXXFLAGS) -c Bullet.cpp
+
+Enemy.o: Enemy.h Enemy.cpp
+	$(CXX) $(CXXFLAGS) -c Enemy.cpp
 
 clean:
 	$(RM) *.o $(EXEC)

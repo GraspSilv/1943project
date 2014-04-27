@@ -23,6 +23,7 @@ To Do
 #include "Player.h"
 #include "Bullet.h"
 #include "Powerup.h"
+#include "Enemy.h"
 
 //screen attributes
 const int WINDOW_WIDTH = 480;
@@ -77,6 +78,9 @@ int main(int argc, char * argv[]) {
 	Player newPlayer(0,0);
 	Powerup newPowerUp(100,100,COWP);
 	newPowerUp.setYVel(.1);
+
+	
+	elements.push_back(new Enemy(200, 200, red));
 	elements.push_back(&newPowerUp);
 	elements.push_back(&newPlayer);
 	
@@ -159,7 +163,6 @@ int main(int argc, char * argv[]) {
 		} else if (!keystates[SDLK_LEFT]) {
 			newPlayer.setXMom(0);
 		}
-		std::cout << newPlayer.getXMom() << ", " << newPlayer.getYMom() << std::endl;
 
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
         
@@ -168,6 +171,11 @@ int main(int argc, char * argv[]) {
 
 
 		for (int x = 0; x < elements.size(); x++){
+			//THIS IS OUR LOOP FOR EVERYTHING
+			if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
+				elements.erase(elements.begin()+x);
+			}
+
 			elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
 			elements[x]->setYPos(elements[x]->getYPos()+elements[x]->getYVel());
 			applySurface(elements[x]->getXPos(),elements[x]->getYPos(),spriteSheet, screen, &elements[x]->getSprite());        

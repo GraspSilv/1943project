@@ -54,3 +54,4 @@ SDL_Rect Bullet::getSprite() {
 	
 	return sprites[sprite];
 }
+
