@@ -117,48 +117,49 @@ int main(int argc, char * argv[]) {
 		int ym = newPlayer.getYMom();
 
 		if(keystates[SDLK_UP] && newPlayer.getYPos() > 1) {
-			if (ym < -100){
+			if (ym < -1000){
 				newPlayer.setYVel(newPlayer.getYVel() - .2);
 			} else {
 				newPlayer.setYMom(ym - 1);
 				newPlayer.setYVel(newPlayer.getYVel() - .1);
 			}
-		} else {
-			newPlayer.setYMom(ym + 1);
+		} else if (!keystates[SDLK_DOWN]) {
+			newPlayer.setYMom(0);
 		}
 
 		if(keystates[SDLK_DOWN] && newPlayer.getYPos() < (WINDOW_HEIGHT - 10)) {
-			if (ym > 100){
+			if (ym > 1000){
 				newPlayer.setYVel(newPlayer.getYVel() + .2);
 			} else {
 				newPlayer.setYVel(newPlayer.getYVel() + .1);
 				newPlayer.setYMom(ym + 1);
 			}
-		} else {
-			newPlayer.setYMom(ym - 1);
+		} else if (!keystates[SDLK_UP]) {
+			newPlayer.setYMom(0);
 		}
 
 		if(keystates[SDLK_LEFT] && newPlayer.getXPos() > 1) {
-			if (xm < -100){
+			if (xm < -1000){
 				newPlayer.setXVel(newPlayer.getXVel() - .2);
 			} else {
 				newPlayer.setXVel(newPlayer.getXVel() - .1);
-				newPlayer.setXMom(xm - 2);
+				newPlayer.setXMom(xm - 1);
 			}
-		} else {
-			newPlayer.setXMom(xm + 1);
+		} else if (!keystates[SDLK_RIGHT]) {
+			newPlayer.setXMom(0);
 		}
 
 		if(keystates[SDLK_RIGHT] && newPlayer.getXPos() < (WINDOW_WIDTH - 10)) {
-			if (xm > 100){
+			if (xm > 1000){
 				newPlayer.setXVel(newPlayer.getXVel() + .2);
 			} else {
 				newPlayer.setXVel(newPlayer.getXVel() + .1);
-				newPlayer.setXMom(xm + 2);
+				newPlayer.setXMom(xm + 1);
 			}
-		} else {
-			newPlayer.setXMom(xm - 1);
+		} else if (!keystates[SDLK_LEFT]) {
+			newPlayer.setXMom(0);
 		}
+		std::cout << newPlayer.getXMom() << ", " << newPlayer.getYMom() << std::endl;
 
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
         

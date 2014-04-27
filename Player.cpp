@@ -150,9 +150,17 @@ Player::Player(double xP, double yP) :
 
 SDL_Rect Player::getSprite() {
 	if(getXVel() < 0) { //if plane is moving left,
-		sprite = SPR_PLYR_HLTHY_FROLLLEFT;
+		if (getXMom() < -100){
+			sprite = SPR_PLYR_HLTHY_FROLLLEFT;
+		} else {
+		sprite = SPR_PLYR_HLTHY_HROLLLEFT;
+		}
 	} else if(getXVel() > 0) { //if plane is moving right,
-		sprite = SPR_PLYR_HLTHY_FROLLRIGHT;
+		if (getXMom() > 100) {
+			sprite = SPR_PLYR_HLTHY_FROLLRIGHT;
+		} else {
+		sprite = SPR_PLYR_HLTHY_HROLLRIGHT;
+		}
 	} else {
 		sprite = SPR_PLYR_HLTHY_STRAIGHT;
 	}
