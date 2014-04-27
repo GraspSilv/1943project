@@ -5,7 +5,7 @@
 #include"GraphElement.h"
 
 Bullet::Bullet(double xP, double yP, double xV, double yV) :
-	GraphElement(xP, yP) {
+	GraphElement(xP, yP, BULLET) {
 
 	sprite = rect_blt_nrm;
 

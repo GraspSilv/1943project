@@ -22,8 +22,9 @@ To Do
 typedef enum {
 	PLAYER,
 	POWERUP,
-	ENEMY
-} GEType
+	ENEMY,
+	BULLET
+} GEType;
 
 class GraphElement {
 	public:
