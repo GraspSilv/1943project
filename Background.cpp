@@ -4,35 +4,26 @@ CSE20212
 1943_Project
 Background.cpp
 	Implementation of background class (display scrolling background)
-History
-	03/31/14	Bill Gowans		Create
-	04/08/14	Jon Richelsen	Standardize
-	04/16/14	Jon Richelsen	update header to remove To Do section
-	04/23/14	Bill Gowan		Define nondefault constructor, load_image(), apply_surface(), init(), load_files(), and clean_up()
-	04/28/14	Jon Richelsen	Update header to include all changes
 */
 
+#include "Background.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include <string>
-#include "Background.h"
-#include "Timer.h"
-
-using namespace std;
 
 const int SCREEN_WIDTH = 480;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
 const int FRAMES_PER_SECOND = 20;
 
-Background::Background (string filename)
+Background::Background(std::string bF)
 {
-	file = filename;
+	backFile = bF;
 	background = NULL;
 	screen = NULL;
 }
 
-SDL_Surface * Background::load_image( std::string filename )
+SDL_Surface * Background::load_image(std::string filename)
 {
     //The image that's loaded
     SDL_Surface* loadedImage = NULL;
@@ -88,7 +79,7 @@ void Background::apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* 
     SDL_BlitSurface( source, clip, destination, &offset );
 }
 
-bool Background::init()
+int Background::init()
 {
     //Initialize all SDL subsystems
     if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
@@ -105,17 +96,14 @@ bool Background::init()
         return false;
     }
 
-    //Set the window caption
-    SDL_WM_SetCaption( "Background", NULL );
-
     //If everything initialized fine
     return true;
 }
 
-bool Background::load_files()
+int Background::load_files()
 {
     //Load the background
-    background = load_image(file);
+    background = load_image(backFile);
 
     //If there was a problem in loading the background
     if( background == NULL )

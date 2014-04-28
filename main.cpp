@@ -4,14 +4,6 @@ CSE20212
 1943_Project
 main.cpp
 	Driver for Blitz game
-History
-	03/26/14	Jack Magiera	Create, insert basic structure from Lazy Foo' SDL Tutorials
-	04/08/14	Jack Magiera	Add functionality to adjust counter using arrow keys
-	04/08/14	Jack Magiera	Implement simply flying plane sprite (does not use classes)
-	04/14/14	Jack Magiera	Edit to make compatible with GraphElement
-	04/16/14	Jon Richelsen	Start standardization
-	04/22/14 Jon Richelsen	Add default case to counter case structure, continue standardization,
-To Do
 */
 #include<algorithm>
 #include<iostream>
@@ -59,6 +51,7 @@ int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 
 Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
+
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
 	
@@ -74,30 +67,30 @@ int main(int argc, char * argv[]) {
 
 	SDL_Event event; //event structure for all user input
 	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
+	
 	Background bg("testback.png");
 	int bgX = 0, bgY = 0;
 
-    if( bg.init() == false )
-    {
-        return 1;
-    }
+	//initialize background
+	if(!bg.init()) {
+		return 1;
+	}
 
-    //Load the files
-    if( bg.load_files() == false )
-    {
-        return 1;
-    }
+	//Load background files
+	if(!bg.load_files()) {
+		return 1;
+	}
 
-	//create and initialize score and health counters
-	
-	Counter health(5, (WINDOW_HEIGHT - 50), 100, 0, 100, -5);
-	
-	SDL_Surface * scoreSurface = score.render(font, textColor);
-	SDL_Surface * healthSurface = health.render(font, textColor);
+	//create counter surfaces
+	SDL_Surface * ammoSurface;
+	SDL_Surface * healthSurface;
+	SDL_Surface * scoreSurface;
 
+	int nLives = 10;
 	Player * currentPlayer = new Player(0,0);
 	elements.push_back(currentPlayer);
-
+	
+	//create test enemies and powerup
 	elements.push_back(new Enemy(200, 200, RED));
 	elements.push_back(new Enemy(200, 250, RED));
 	elements.push_back(new Enemy(200, 150, RED));
@@ -109,32 +102,21 @@ int main(int argc, char * argv[]) {
 	int frameTime = 1000 / GAME_FPS;
 	
 	while(gameRunning) {
-
-
-		bgY += 1;
-
-        //If the background has gone too far
-        if( bgY >= bg.background->h )
-        {
-            //Reset the offset
-            bgY = 0;
-        }
-
-        //Show the background
-        SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
-        bg.apply_surface( bgX, bgY, bg.background, bg.screen );
-        bg.apply_surface( bgX, bgY - bg.background->h, bg.background, bg.screen );
-
-
 		//reset player's velocity
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
-			//render all counters
-			scoreSurface = score.render(font, textColor);
-			healthSurface = health.render(font, textColor);
-		
+			bgY += 1;
+			if(bgY >= bg.background->h) {//if background has scrolled too far,
+				bgY = 0; //reset the offset
+			}
+
+			//show background
+			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
+			bg.apply_surface(bgX, bgY, bg.background, bg.screen);
+			bg.apply_surface(bgX, bgY - bg.background->h, bg.background, bg.screen);
+			
 			if(SDL_PollEvent(&event)) { //if there is event to handle, (can change to while to make faster?)
 				if(event.type == SDL_QUIT) { //if user has Xed out of window,
 					gameRunning = 0; //quit game
@@ -204,12 +186,6 @@ int main(int argc, char * argv[]) {
 			} else if(!keystates[SDLK_LEFT]) {
 				currentPlayer->setXMom(0);
 			}
-
-			
-        
-			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
-			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
-
 			
 			for (int x = 0; x < elements.size(); x++) { //for every element,
 				GEType xType = elements[x]->getType();
@@ -228,6 +204,17 @@ int main(int argc, char * argv[]) {
 				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
 				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
 			}		     
+			//render all counters
+			ammoSurface = currentPlayer->ammo.render(font, textColor);
+			healthSurface = currentPlayer->health.render(font, textColor);
+			scoreSurface = score.render(font, textColor);
+			
+			//apply all counters to screen
+			applySurface(currentPlayer->ammo.getXPos(), currentPlayer->ammo.getYPos(), ammoSurface, screen);
+			applySurface(currentPlayer->health.getXPos(), currentPlayer->health.getYPos(), healthSurface, screen);
+			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
+			
+			
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
