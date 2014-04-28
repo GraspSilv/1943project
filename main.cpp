@@ -19,6 +19,7 @@ To Do
 #include"SDL/SDL.h"
 #include"SDL/SDL_image.h"
 #include"SDL/SDL_ttf.h"
+#include"SDL/SDL_mixer.h"
 #include"Bullet.h"
 #include"Counter.h"
 #include"Enemy.h"
@@ -39,6 +40,7 @@ SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
 
 TTF_Font * font;
+Mix_Music *music = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
@@ -107,6 +109,10 @@ int main(int argc, char * argv[]) {
 	
 	Timer gameTimer;
 	int frameTime = 1000 / GAME_FPS;
+
+	if (Mix_PlayMusic(music,5) == -1){
+		return 1;
+	}
 	
 	while(gameRunning) {
 
@@ -464,6 +470,10 @@ int init() {
 	if(TTF_Init() == -1) {
 		return 0;
 	}
+
+	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1){
+		return 0;
+	}
 	
 	SDL_WM_SetCaption(WINDOW_TITLE.c_str(), NULL); //set window caption
 	
@@ -482,6 +492,11 @@ int loadFiles(){
 	spriteSheet = loadImage("sprites.png");
 	if(!spriteSheet) {
 		std::cout << "Could not load sprites.png" << std::endl;
+		return 0;
+	}
+	music = Mix_LoadMUS("starship.wav");
+
+	if (music == NULL){
 		return 0;
 	}
 	
