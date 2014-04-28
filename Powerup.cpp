@@ -8,6 +8,7 @@ History
 	04/22/14 Jon Richelsen	Create, copying everything from player, remove definitions for get[XY]Vel()
 	04/23/14	Jon Richelsen	Define getPower()
 	04/27/14	Jon Richelsen	Define new nondefault constructor to set velocity, add type declaration to nondefault constructors
+	04/27/14	Jack Magiera	Fix type declaration in nondefault constructor
 */
 #include"Powerup.h"
 #include<vector>
