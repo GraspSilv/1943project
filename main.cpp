@@ -13,6 +13,7 @@ History
 	04/22/14 Jon Richelsen	Add default case to counter case structure, continue standardization,
 To Do
 */
+#include<algorithm>
 #include<iostream>
 #include<string>
 #include"SDL/SDL.h"
@@ -27,7 +28,6 @@ To Do
 #include"Timer.h"
 #include"Background.h"
 
-//screen attributes
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
 const int WINDOW_BPP = 32;
@@ -35,13 +35,11 @@ const std::string WINDOW_TITLE = "Blitz";
 
 const int GAME_FPS = 1;
 
-//surfaces that will be used
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
 
-TTF_Font * font; //font that will be used
+TTF_Font * font;
 
-//colors that will be used
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
 SDL_Color textColor = {255, 255, 255};
@@ -49,7 +47,13 @@ SDL_Color textColor = {255, 255, 255};
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
-bool checkCollide(int Ax, int Ay, int Bx, int By, SDL_Rect A, SDL_Rect B);
+//the following functions deal with consequences for both objects, including whether the operand specified by the first argument or second argument (1 or 2) was destroyed
+int checkCollide(GraphElement * a, GraphElement * b);
+int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr);
+int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr);
+int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
+int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
+int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
@@ -106,6 +110,7 @@ int main(int argc, char * argv[]) {
 	
 	while(gameRunning) {
 
+
 		bgY += 1;
 
         //If the background has gone too far
@@ -120,29 +125,29 @@ int main(int argc, char * argv[]) {
         bg.apply_surface( bgX, bgY, bg.background, bg.screen );
         bg.apply_surface( bgX, bgY - bg.background->h, bg.background, bg.screen );
 
+
+		//reset player's velocity
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
-		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame
+		
+		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
 			//render all counters
 			scoreSurface = score.render(font, textColor);
 			healthSurface = health.render(font, textColor);
 		
-			if(SDL_PollEvent(&event)) { //can change to while to make faster?
-				if(event.type == SDL_QUIT) {
-					gameRunning = 0;
+			if(SDL_PollEvent(&event)) { //if there is event to handle, (can change to while to make faster?)
+				if(event.type == SDL_QUIT) { //if user has Xed out of window,
+					gameRunning = 0; //quit game
 				}
-				else if(event.type == SDL_KEYDOWN) {
-					SDLKey keyPressed = event.key.keysym.sym;
-					switch (keyPressed){
+				else if(event.type == SDL_KEYDOWN) { //else, if user pressed key
+					switch (event.key.keysym.sym){ //inspect which key was pressed
 						case SDLK_ESCAPE:
 							gameRunning = 0;
 							break;
 						case SDLK_z:
-							if(Bullet::count < 8) { //why is this variable public?
-								elements.push_back(new Bullet(currentPlayer->getXPos() + 16, currentPlayer->getYPos(), 0, -0.5));
-								elements.push_back(new Bullet(currentPlayer->getXPos() + 5, currentPlayer->getYPos(), 0, -0.5));
-								score.increment(1);
-							}
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -0.5, PLAYERO));
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -0.5, PLAYERO));
+							score.increment(1);
 							break;
 						default:
 							break;
@@ -205,48 +210,24 @@ int main(int argc, char * argv[]) {
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
 
-			for (int x = 0; x < elements.size(); x++){
-				bool toErase = false;
-				//THIS IS OUR LOOP FOR EVERYTHING
-				// Lot of really important shit goes here
-
-				if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
-					delete elements[x];
-					elements.erase(elements.begin()+x);
-					continue;
-				}
-
-								//maybe change this V to (y < x) for efficiency?
-				for (int y = 0; y < x; y++){
-					if (elements[x]->getType() == elements[y]->getType()) continue;
-					// std::cout << "checking" << std::endl;
-					if (x != y && checkCollide(elements[x]->getXPos(), elements[x]->getYPos(), elements[y]->getXPos(), elements[y]->getYPos(), elements[x]->getSprite(), elements[y]->getSprite()) == true){
-						//std::cout << "Colliding!" << std::endl;
-						if (elements[x]->getType() == BULLET){
-							if (elements[y]->getType() == ENEMY){
-								delete elements[y];
-								elements.erase(elements.begin()+y);
-								std::cout << "okay 1" << std::endl;
-								toErase = true;
+			
+			for (int x = 0; x < elements.size(); x++) { //for every element,
+				GEType xType = elements[x]->getType();
+				for (int y = x + 1; y < elements.size(); y++) { //for every following element,
+					GEType yType = elements[y]->getType();
+					if(xType != yType) {
+						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
+							int xDeleted = collide(elements[x], elements[y], xType, yType, &elements);
+							if(xDeleted) {
 								break;
 							}
 						}
 					}
 				}
-				if (toErase){
-					std::cout << "okay 2" << std::endl;
-					//delete elements[x];
-					std::cout << "okay 3" << std::endl;
-	
-					elements.erase(elements.begin()+x);
-					std::cout << "okay 4" << std::endl;
-					break;
-				}
-	
-				elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
-				elements[x]->setYPos(elements[x]->getYPos()+elements[x]->getYVel());
-				applySurface(elements[x]->getXPos(),elements[x]->getYPos(),spriteSheet, screen, &elements[x]->getSprite());        
-			}
+				elements[x]->setXPos(elements[x]->getXPos() + elements[x]->getXVel());
+				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
+				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
+			}		     
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
@@ -264,23 +245,23 @@ void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect 
 	SDL_BlitSurface(src, clip, dest, &offset); //blit clipped surface
 }
 
-bool checkCollide(int Ax, int Ay, int Bx, int By, SDL_Rect A, SDL_Rect B){
-	int leftA, leftB, rightA, rightB, topA, topB, bottomA, bottomB;
-	leftA = Ax;
-	rightA = Ax + A.w;
-	topA = Ay;
-	bottomA = Ay + A.h;
+int checkCollide(GraphElement * a, GraphElement * b) {
+	SDL_Rect aClip = a->getSprite();
+	SDL_Rect bClip = b->getSprite();
+	
+	int leftA = a->getXPos();
+	int leftB = b->getXPos();
+	int rightA = leftA + aClip.w;
+	int rightB = leftB + bClip.w;
+	int bottomA = a->getYPos();
+	int bottomB = b->getYPos();
+	int topA = bottomA + aClip.h;
+	int topB = bottomB + bClip.h;
 
-	leftB = Bx;
-	rightB = Bx + B.w;
-	topB = By;
-	bottomB = By + B.h;
-
-	if (bottomA <= topB || topA >= bottomB || rightA <= leftB || leftA >= rightB){
-		return false;
+	if(leftA >= rightB || rightA <= leftB || bottomA >= topB || topA <= bottomB) {
+		return 0;
 	}
-	return true;
-
+	return 1;
 }
 
 
@@ -289,6 +270,182 @@ void cleanUp() {
 	TTF_CloseFont(font); //close font
 	TTF_Quit(); //quit SDL_ttf
 	SDL_Quit(); //quit SDL
+}
+
+
+int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr) {
+	int GE1Destroyed = 0;
+	switch(type1) {
+		case BULLET:
+			switch(type2) {
+				case BULLET:
+					std::cout << "Error: Trying to collide two bullets" << std::endl;
+					break;
+				case ENEMY:
+					GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
+					break;
+				case PLAYER:
+					GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
+					break;
+				case POWERUP:
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}
+			break;
+		case ENEMY:
+			switch(type2) {
+				case BULLET:
+					GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
+					break;
+				case ENEMY:
+					std::cout << "Error: Trying to collide two enemies" << std::endl;
+					break;
+				case PLAYER:
+					GE1Destroyed = collideEnemyPlayer(1, GE1, GE2, elemPtr);
+					break;
+				case POWERUP:
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}		
+			break;
+		case PLAYER:
+			switch(type2) {
+				case BULLET:
+					GE1Destroyed = collideBulletPlayer(2, GE2, GE1, elemPtr);
+					break;
+				case ENEMY:
+					GE1Destroyed = collideEnemyPlayer(2, GE2, GE1, elemPtr);
+					break;
+				case PLAYER:
+					std::cout << "Error: Trying to collide two players" << std::endl;
+					break;
+				case POWERUP:
+					GE1Destroyed = collidePlayerPowerup(1, GE1, GE2, elemPtr);
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}			
+			break;
+		case POWERUP:
+			switch(type2) {
+				case BULLET:
+					break;
+				case ENEMY:
+					break;
+				case PLAYER:
+					GE1Destroyed = collidePlayerPowerup(2, GE2, GE1, elemPtr);
+					break;
+				case POWERUP:
+					std::cout << "Error: Trying to collide two powerups" << std::endl;
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}			
+			break;
+		default:
+			std::cout << "Error: type of element[x] not defined" << std::endl;
+	}
+	return GE1Destroyed;
+}
+
+
+int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr) {
+	b = (Bullet *) b;
+	e = (Enemy *) e; 
+	
+	int bDestroyed = 0;
+	int eDestroyed = 0;
+	
+	delete b;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
+	bDestroyed = 1;
+	
+	delete e;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
+	eDestroyed = 1;
+	
+	
+	if(xArg == 1) {
+		return bDestroyed;
+	} else if(xArg == 2) {
+		return eDestroyed;
+	} else {
+		std::cout << "Error in collideBulletEnemy" << std::endl;
+	}
+}
+
+
+int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
+	b = static_cast<Bullet *>(b);
+	pl = (Player *) pl;
+	
+	int bDestroyed = 0;
+	int plDestroyed = 0;
+	
+	if(b->getOrigin() == ENEMY) {
+		delete b;
+		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
+		bDestroyed = 1;
+	//pl->sub1_IncHealth();
+	}
+	
+	if(xArg == 1) {
+		return bDestroyed;
+	} else if(xArg == 2) {
+		return plDestroyed;
+	} else {
+		std::cout << "Error in collideBulletPlayer" << std::endl;
+	}
+}
+
+
+int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
+	e = (Enemy *) e; 
+	pl = (Player *) pl;
+	
+	int eDestroyed = 0;
+	int plDestroyed = 0;
+	
+	delete e;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
+	eDestroyed = 1;
+	//pl->sub1_IncHealth();
+	
+	if(xArg == 1) {
+		return eDestroyed;
+	} else if(xArg == 2) {
+		return plDestroyed;
+	} else {
+		std::cout << "Error in collideEnemyPlayer" << std::endl;
+	}
+}
+
+
+int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr) {
+	pl = (Player *) pl;
+	po = (Powerup *) po;
+	
+	int plDestroyed = 0;
+	int poDestroyed = 0;
+	
+	delete po;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), po), elemPtr->end());
+	poDestroyed = 1;
+	//pl->add4_IncHealth();
+	
+	if(xArg == 1) {
+		return plDestroyed;
+	} else if(xArg == 2) {
+		return poDestroyed;
+	} else {
+		std::cout << "Error in collidePlayerPowerup" << std::endl;
+	}
 }
 
 
@@ -325,7 +482,7 @@ int loadFiles(){
 	//load spriteSheet
 	spriteSheet = loadImage("sprites.png");
 	if(!spriteSheet) {
-		std::cerr << "Could not load sprites.png" << std::endl;
+		std::cout << "Could not load sprites.png" << std::endl;
 		return 0;
 	}
 	

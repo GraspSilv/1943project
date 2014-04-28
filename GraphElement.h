@@ -22,10 +22,10 @@ To Do
 #include"SDL/SDL.h"
 
 typedef enum {
-	PLAYER,
-	POWERUP,
+	BULLET,
 	ENEMY,
-	BULLET
+	PLAYER,
+	POWERUP
 } GEType;
 
 class GraphElement {

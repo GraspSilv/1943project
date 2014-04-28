@@ -16,10 +16,10 @@ History
 
 int Bullet::count = 0;
 
-Bullet::Bullet(double xP, double yP, double xV, double yV) :
+Bullet::Bullet(double xP, double yP, double xV, double yV, bulletOriginType o) :
 	GraphElement(xP, yP, BULLET) {
-
-	sprite = rect_blt_nrm;
+	sprite = SPR_BLT_NRM;
+	origin = o;
 
 	SDL_Rect rect_blt_nrm; //sprite of normal bullet
 	rect_blt_nrm.x = 13;
@@ -65,8 +65,11 @@ Bullet::Bullet(double xP, double yP, double xV, double yV) :
 }
 
 SDL_Rect Bullet::getSprite() {
-	
 	return sprites[sprite];
+}
+
+bulletOriginType Bullet::getOrigin() {
+	return origin;
 }
 
 int Bullet::getCount(){
@@ -74,6 +77,6 @@ int Bullet::getCount(){
 }
 
 Bullet::~Bullet(){
-	std::cout<<"Bullet dead"<<std::endl;
+	std::cout << "Bullet dead" << std::endl;
 	count--;
 }
