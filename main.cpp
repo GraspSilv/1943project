@@ -25,6 +25,7 @@ To Do
 #include"Player.h"
 #include"Powerup.h"
 #include"Timer.h"
+#include"Background.h"
 
 //screen attributes
 const int WINDOW_WIDTH = 480;
@@ -69,7 +70,20 @@ int main(int argc, char * argv[]) {
 
 	SDL_Event event; //event structure for all user input
 	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
-	
+	Background bg("testback.png");
+	int bgX = 0, bgY = 0;
+
+    if( bg.init() == false )
+    {
+        return 1;
+    }
+
+    //Load the files
+    if( bg.load_files() == false )
+    {
+        return 1;
+    }
+
 	//create and initialize score and health counters
 	Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
 	Counter health(5, (WINDOW_HEIGHT - 50), 100, 0, 100, -5);
@@ -91,6 +105,21 @@ int main(int argc, char * argv[]) {
 	int frameTime = 1000 / GAME_FPS;
 	
 	while(gameRunning) {
+
+		bgY += 1;
+
+        //If the background has gone too far
+        if( bgY >= bg.background->h )
+        {
+            //Reset the offset
+            bgY = 0;
+        }
+
+        //Show the background
+        SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
+        bg.apply_surface( bgX, bgY, bg.background, bg.screen );
+        bg.apply_surface( bgX, bgY - bg.background->h, bg.background, bg.screen );
+
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame
@@ -171,7 +200,7 @@ int main(int argc, char * argv[]) {
 				currentPlayer->setXMom(0);
 			}
 
-			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
+			
         
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);

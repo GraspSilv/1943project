@@ -3,13 +3,14 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include <string>
+#include <iostream>
 #include "Background.h"
 #include "Timer.h"
 
 const int SCREEN_WIDTH = 480;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
-const int FRAMES_PER_SECOND = 20;
+const int FRAMES_PER_SECOND = 30;
 
 SDL_Event event;
 
@@ -23,7 +24,7 @@ int main( int argc, char* args[] )
 
     //The frame rate regulator
     Timer fps;
-    Background bg("water_bg.jpg");
+    Background bg("testback.png");
 
     //Initialize
     if( bg.init() == false )
@@ -55,7 +56,7 @@ int main( int argc, char* args[] )
         }
 
         //Scroll background
-        bgY += 2;
+        bgY += 4;
 
         //If the background has gone too far
         if( bgY >= bg.background->h )

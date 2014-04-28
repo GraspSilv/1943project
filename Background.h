@@ -25,6 +25,7 @@ class Background {
 	public:
 		Background (string filename);
 		SDL_Surface *load_image(string filename);
+		SDL_Surface *getBG(int x, int y);
 		void apply_surface(int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip = NULL);
 		bool init();
 		bool load_files();
