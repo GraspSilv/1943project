@@ -58,7 +58,7 @@ int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 
-
+Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
 	
@@ -89,7 +89,7 @@ int main(int argc, char * argv[]) {
     }
 
 	//create and initialize score and health counters
-	Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
+	
 	Counter health(5, (WINDOW_HEIGHT - 50), 100, 0, 100, -5);
 	
 	SDL_Surface * scoreSurface = score.render(font, textColor);
@@ -145,8 +145,8 @@ int main(int argc, char * argv[]) {
 							gameRunning = 0;
 							break;
 						case SDLK_z:
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -0.5, PLAYERO));
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -0.5, PLAYERO));
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -0.5, 1));
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -0.5, 1));
 							score.increment(1);
 							break;
 						default:
@@ -162,21 +162,21 @@ int main(int argc, char * argv[]) {
 			int yMom = currentPlayer->getYMom();
 
 			if(keystates[SDLK_UP] && currentPlayer->getYPos() > 1) {
-				if(yMom < -1000) {
-					currentPlayer->setYVel(currentPlayer->getYVel() - .2);
+				if(yMom < -600) {
+					currentPlayer->setYVel(currentPlayer->getYVel() - .4);
 				} else {
 					currentPlayer->setYMom(yMom - 1);
-					currentPlayer->setYVel(currentPlayer->getYVel() - .1);
+					currentPlayer->setYVel(currentPlayer->getYVel() - .2);
 				}
 			} else if (!keystates[SDLK_DOWN]) {
 				currentPlayer->setYMom(0);
 			}
 
 			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() < 620) {
-				if(yMom > 1000) {
-					currentPlayer->setYVel(currentPlayer->getYVel() + .2);
+				if(yMom > 600) {
+					currentPlayer->setYVel(currentPlayer->getYVel() + .4);
 				} else {
-					currentPlayer->setYVel(currentPlayer->getYVel() + .1);
+					currentPlayer->setYVel(currentPlayer->getYVel() + .2);
 					currentPlayer->setYMom(yMom + 1);
 				}
 			} else if(!keystates[SDLK_UP]) {
@@ -184,10 +184,10 @@ int main(int argc, char * argv[]) {
 			}
 
 			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() > 1) {
-				if(xMom < -1000) {
-					currentPlayer->setXVel(currentPlayer->getXVel() - .2);
+				if(xMom < -600) {
+					currentPlayer->setXVel(currentPlayer->getXVel() - .4);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() - .1);
+					currentPlayer->setXVel(currentPlayer->getXVel() - .2);
 					currentPlayer->setXMom(xMom - 1);
 				}
 			} else if(!keystates[SDLK_RIGHT]) {
@@ -195,10 +195,10 @@ int main(int argc, char * argv[]) {
 			}
 
 			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() < 460) {
-				if(xMom > 1000) {
-					currentPlayer->setXVel(currentPlayer->getXVel() + .2);
+				if(xMom > 600) {
+					currentPlayer->setXVel(currentPlayer->getXVel() + .4);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() + .1);
+					currentPlayer->setXVel(currentPlayer->getXVel() + .2);
 					currentPlayer->setXMom(xMom + 1);
 				}
 			} else if(!keystates[SDLK_LEFT]) {
@@ -282,10 +282,15 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					std::cout << "Error: Trying to collide two bullets" << std::endl;
 					break;
 				case ENEMY:
-					GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
+					if (GE1->getOrigin()){
+						GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
+						score.increment(100);
+					}
 					break;
 				case PLAYER:
-					GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
+					if (GE1->getOrigin() == 0){
+						GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
+					}
 					break;
 				case POWERUP:
 					break;
@@ -297,7 +302,10 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 		case ENEMY:
 			switch(type2) {
 				case BULLET:
-					GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
+					if (GE2->getOrigin()){
+						GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
+						score.increment(100);
+					}
 					break;
 				case ENEMY:
 					std::cout << "Error: Trying to collide two enemies" << std::endl;
@@ -315,7 +323,9 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 		case PLAYER:
 			switch(type2) {
 				case BULLET:
-					GE1Destroyed = collideBulletPlayer(2, GE2, GE1, elemPtr);
+					if (GE2->getOrigin() == 0){
+						GE1Destroyed = collideBulletPlayer(2, GE2, GE1, elemPtr);
+					}
 					break;
 				case ENEMY:
 					GE1Destroyed = collideEnemyPlayer(2, GE2, GE1, elemPtr);

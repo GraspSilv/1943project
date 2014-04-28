@@ -99,9 +99,10 @@ GraphElement::~GraphElement() { //deconstructor, removes this pointer from point
 
 }
 
-//bulletOriginType GraphElement::getOrigin() {
-//	std::cout << "You should be in this getOrigin()!" << std::endl;
-//}
+int GraphElement::getOrigin() {
+	std::cout << "You should be in this getOrigin()!" << std::endl;
+	return 0;
+}
 
 //void GraphElement::sub1_IncHealth() {
 //	std::cout << "You should be in this sub1_IncHealth()!" << std::endl;

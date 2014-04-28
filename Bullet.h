@@ -28,16 +28,16 @@ typedef enum {
 	ENEMYO
 } bulletOriginType;
 
-class Bullet : public GraphElement{
+class Bullet : public GraphElement {
 	public:
-		Bullet(double, double, double, double, bulletOriginType); //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin]
+		Bullet(double, double, double, double, int); //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin]
 		~Bullet();
 		SDL_Rect getSprite();
-		bulletOriginType getOrigin();
+		int getOrigin();
 		int getCount();
 	private:
 		bulletSpriteType sprite; //enum that stores player bullet's sprite
-		bulletOriginType origin; //enum that store's bullet's origin
+		int origin; //enum that store's bullet's origin
 		static int count;
 };
 

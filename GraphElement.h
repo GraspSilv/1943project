@@ -19,7 +19,8 @@ To Do
 
 #include<string>
 #include<vector>
-#include"SDL/SDL.h"
+#include "SDL/SDL.h"
+
 
 typedef enum {
 	BULLET,
@@ -48,7 +49,7 @@ class GraphElement {
 		virtual ~GraphElement(); //deconstructor, removes this pointer from pointers vector
 		
 		//following are functions that we were forced to virtualize
-		//virtual bulletOriginType getOrigin();
+		virtual int getOrigin();
 		//virtual void sub1_IncHealth();
 		//virtual void add4_IncHealth();
 	private:

@@ -16,10 +16,11 @@ History
 
 int Bullet::count = 0;
 
-Bullet::Bullet(double xP, double yP, double xV, double yV, bulletOriginType o) :
+Bullet::Bullet(double xP, double yP, double xV, double yV, int o) :
 	GraphElement(xP, yP, BULLET) {
 	sprite = SPR_BLT_NRM;
 	origin = o;
+	// 1 for player, 0 for enemy
 
 	SDL_Rect rect_blt_nrm; //sprite of normal bullet
 	rect_blt_nrm.x = 13;
@@ -61,14 +62,14 @@ Bullet::Bullet(double xP, double yP, double xV, double yV, bulletOriginType o) :
 	setXVel(xV);
 	setYVel(yV);
 
-	count++;
+	if (origin) count++;
 }
 
 SDL_Rect Bullet::getSprite() {
 	return sprites[sprite];
 }
 
-bulletOriginType Bullet::getOrigin() {
+int Bullet::getOrigin() {
 	return origin;
 }
 
