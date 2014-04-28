@@ -98,3 +98,15 @@ int GraphElement::isOnScreen() {
 GraphElement::~GraphElement() { //deconstructor, removes this pointer from pointers vector
 
 }
+
+bulletOriginType GraphElement::getOrigin() {
+	std::cout << "You should be in this getOrigin()!" << std::endl;
+}
+
+void GraphElement::sub1_IncHealth() {
+	std::cout << "You should be in this sub1_IncHealth()!" << std::endl;
+}
+
+void GraphElement::add4_IncHealth() {
+	std::cout << "You should be in this add4_IncHealth()!" << std::endl;
+}

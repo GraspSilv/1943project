@@ -15,7 +15,6 @@ To Do
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
-
 typedef enum {
 	SPR_BLT_NRM,
 	SPR_BLT_OPN,

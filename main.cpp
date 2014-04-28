@@ -325,9 +325,6 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 
 
 int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr) {
-	b = (Bullet *) b;
-	e = (Enemy *) e; 
-	
 	int bDestroyed = 0;
 	int eDestroyed = 0;
 	
@@ -351,9 +348,6 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 
 
 int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
-	b = static_cast<Bullet *>(b);
-	pl = (Player *) pl;
-	
 	int bDestroyed = 0;
 	int plDestroyed = 0;
 	
@@ -361,7 +355,8 @@ int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vect
 		delete b;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 		bDestroyed = 1;
-	//pl->sub1_IncHealth();
+		
+		pl->sub1_IncHealth();
 	}
 	
 	if(xArg == 1) {
@@ -375,16 +370,13 @@ int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vect
 
 
 int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
-	e = (Enemy *) e; 
-	pl = (Player *) pl;
-	
 	int eDestroyed = 0;
 	int plDestroyed = 0;
 	
 	delete e;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
 	eDestroyed = 1;
-	//pl->sub1_IncHealth();
+	pl->sub1_IncHealth();
 	
 	if(xArg == 1) {
 		return eDestroyed;
@@ -397,16 +389,13 @@ int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vecto
 
 
 int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr) {
-	pl = (Player *) pl;
-	po = (Powerup *) po;
-	
 	int plDestroyed = 0;
 	int poDestroyed = 0;
 	
 	delete po;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), po), elemPtr->end());
 	poDestroyed = 1;
-	//pl->add4_IncHealth();
+	pl->add4_IncHealth();
 	
 	if(xArg == 1) {
 		return plDestroyed;
