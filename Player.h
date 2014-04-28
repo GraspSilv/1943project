@@ -10,6 +10,8 @@ History
 	04/22/14 Jon Richelsen	Finish standardization, define spriteType and weaponType enums, sprite, and weapon, fix typos, remove get[XY]Vel() and private variables [xy]Vel, rename spriteType to playerSpriteType
 	04/23/14 Jon Richelsen	Declare add50_IncAmmo(), sub1_IncAmmo(), add4_IncHealth(), sub1_IncHealth(), and private variables ammo and health
 	04/27/14	Jon Richelsen	Change description of nondefault constructor to include type
+	04/27/14	Jack Magiera	Declare getXMom(), getYMom(), setXMom(), setYMom(), and private variables xMom and yMom
+	04/28/14	Jon Richelsen	Update header to include all changes, fix typos
 To Do
 	Decide where to put spriteType and weaponType enums
 */
@@ -56,18 +58,18 @@ class Player : public GraphElement{
 		void sub1_IncAmmo();
 		void add4_IncHealth();
 		void sub1_IncHealth();
-		int getYMom();
 		int getXMom();
-		void setYMom(int);
+		int getYMom();
 		void setXMom(int);
-
+		void setYMom(int);
+		
 	private:
 		playerSpriteType sprite; //enum that stores player plane's sprite
 		weaponType weapon; //enum that stores player plane's current weapon
 		Counter ammo; //[xPos = 100, yPos = 300, value = 100, min = 0, max = 100, interval = 1]
 		Counter health; //[xPos = 100, yPos = 100, value = 100, min = 0, max = 100, interval = 5]
-		int yMom;
 		int xMom;
+		int yMom;
 };
 
 #endif //PLAYER_H

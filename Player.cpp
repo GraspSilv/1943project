@@ -10,6 +10,8 @@ History
 	04/22/14 Jon Richelsen	Finish standardization, add intro sprites, simplify getSprite using enum spriteType, fix typos, remove definitions for get[XY]Vel()
 	04/23/14 Jon Richelsen	Define add50_IncAmmo(), sub1_IncAmmo(), add4_IncHealth(), and sub1_IncHealth(), add ammo and health member initialization to constructor
 	04/27/14	Jon Richelsen	Add type declaration to nondefault constructor
+	04/27/14	Jack Magiera	Add xMom and yMom to constructor, define getXMom(), getYMom(), setXMom(), and setYMom(), and implement momentum int0 getSprite()
+	04/28/14	Jon Richelsen	Update header to include all changes
 */
 #include"Player.h"
 #include<vector>
