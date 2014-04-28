@@ -10,9 +10,12 @@ History
 	04/27/14	Jack Magiera	Define nondefault constructor, getSprite(), and getEnemyType()
 */
 #include"Enemy.h"
+#include <stdlib.h>
+#include <iostream>
 #include<vector>
 #include"SDL/SDL.h"
 #include"GraphElement.h"
+#include <cmath>
 
 Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
 	enemy = e;
@@ -248,6 +251,9 @@ Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
 	addSprite(rect_purp2);
 	addSprite(rect_purp1);
 	addSprite(rect_bigGray);
+
+	setYVel(.3);
+	setXVel(.3);
 }
 
 /*Enemy::Enemy(double xP, double yP, double xV, double yV, enemyType e) : Enemy(xP,yP,e) {
@@ -256,7 +262,25 @@ Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
 }*/
 
 SDL_Rect Enemy::getSprite(){
-	return sprites[enemy];
+	if (enemy == RED){
+		double xv = getXVel();
+		double yv = getYVel();
+		std::cout << xv << ", " << yv << std::endl;
+		if (std::abs(xv) - std::abs(yv) >=  .15) {
+			if (xv > 0) return sprites[RECT_RED_E];
+			else return sprites[RECT_RED_W];
+		} else if (std::abs(xv) - std::abs(yv) <= -.15){
+			std::cout << yv << std::endl;
+			if (yv > 0) return sprites[RECT_RED_S];
+			else return sprites[RECT_RED_N];
+		} else {
+			if (yv > 0 && xv > 0) return sprites[RECT_RED_SE];
+			if (yv < 0 && xv > 0) return sprites[RECT_RED_NE];
+			if (yv > 0 && xv < 0) return sprites[RECT_RED_SW];
+			if (yv < 0 && xv < 0) return sprites[RECT_RED_NW];
+		}
+	}
+	return sprites[RECT_RED_N];
 }
 
 enemyType Enemy::getEnemyType(){

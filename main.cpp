@@ -34,6 +34,7 @@ SDL_Surface * screen = NULL;
 
 TTF_Font * font;
 Mix_Music *music = NULL;
+Mix_Chunk *gunfire = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
@@ -94,11 +95,9 @@ int main(int argc, char * argv[]) {
 	elements.push_back(currentPlayer);
 	
 	//create test enemies and powerup
-	elements.push_back(new Enemy(200, 200, RED));
-	elements.push_back(new Enemy(200, 250, RED));
-	elements.push_back(new Enemy(200, 150, RED));
-	elements.push_back(new Enemy(200, 100, RED));
-	elements.push_back(new Enemy(200, 300, RED));
+	elements.push_back(new Enemy(200, -50, RED));
+	elements.push_back(new Enemy(280, -50, RED));
+
 	elements.push_back(new Powerup(200, 200, 0.1, 0.1, COWP));
 	elements.push_back(new Explosion(300, 300));
 	
@@ -138,6 +137,7 @@ int main(int argc, char * argv[]) {
 							gameRunning = 0;
 							break;
 						case SDLK_z:
+							Mix_PlayChannel(-1, gunfire, 0);
 							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -0.5, 1));
 							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -0.5, 1));
 							score.increment(1);
@@ -270,8 +270,11 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 void cleanUp() {
 	SDL_FreeSurface(spriteSheet); //free surface
 	TTF_CloseFont(font); //close font
+	Mix_FreeMusic(music);
+	Mix_CloseAudio();
 	TTF_Quit(); //quit SDL_ttf
 	SDL_Quit(); //quit SDL
+
 }
 
 
@@ -517,10 +520,13 @@ int loadFiles(){
 		return 0;
 	}
 	music = Mix_LoadMUS("starship.wav");
+	gunfire = Mix_LoadWAV("gunfire.wav");
 
-	if (music == NULL){
+	if (music == NULL || gunfire == NULL){
+		std::cout << "Could not load sounds." << std::endl;
 		return 0;
 	}
+
 	
 	return 1;
 }
