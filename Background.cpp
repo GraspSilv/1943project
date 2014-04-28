@@ -6,7 +6,10 @@ Background.cpp
 	Implementation of background class (display scrolling background)
 History
 	03/31/14	Bill Gowans		Create
-	04/02/14	Jon Richelsen	Standardize
+	04/08/14	Jon Richelsen	Standardize
+	04/16/14	Jon Richelsen	update header to remove To Do section
+	04/23/14	Bill Gowan		Define nondefault constructor, load_image(), apply_surface(), init(), load_files(), and clean_up()
+	04/28/14	Jon Richelsen	Update header to include all changes
 */
 
 #include "SDL/SDL.h"

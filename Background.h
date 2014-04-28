@@ -7,6 +7,8 @@ Background.h
 History
 	03/31/14	Bill Gowans		Create
 	04/02/14	Jon Richelsen	Standardize
+	04/23/14	Bill Gowan		Declare nondefault constructor, load_image(), apply_surface(), init(), load_files(), clean_up(), public variables background and screen, and private variable file
+	04/28/14	Jon Richelsen	Update header to include all changes
 To Do
 */
 #ifndef BACKGROUND_H
