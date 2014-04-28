@@ -190,7 +190,7 @@ int main(int argc, char * argv[]) {
 					if (elements[x]->getType() == elements[y]->getType()) continue;
 					// std::cout << "checking" << std::endl;
 					if (x != y && checkCollide(elements[x]->getXPos(), elements[x]->getYPos(), elements[y]->getXPos(), elements[y]->getYPos(), elements[x]->getSprite(), elements[y]->getSprite()) == true){
-						std::cout << "Colliding!" << std::endl;
+						//std::cout << "Colliding!" << std::endl;
 						if (elements[x]->getType() == BULLET){
 							if (elements[y]->getType() == ENEMY){
 								delete elements[y];
@@ -204,10 +204,10 @@ int main(int argc, char * argv[]) {
 				}
 				if (toErase){
 					std::cout << "okay 2" << std::endl;
-					delete elements[x];
+					//delete elements[x];
 					std::cout << "okay 3" << std::endl;
 	
-					// elements.erase(elements.begin()+x);
+					elements.erase(elements.begin()+x);
 					std::cout << "okay 4" << std::endl;
 					break;
 				}
