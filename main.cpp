@@ -94,11 +94,9 @@ int main(int argc, char * argv[]) {
 	elements.push_back(currentPlayer);
 	
 	//create test enemies and powerup
-	elements.push_back(new Enemy(200, 200, RED));
-	elements.push_back(new Enemy(200, 250, RED));
-	elements.push_back(new Enemy(200, 150, RED));
-	elements.push_back(new Enemy(200, 100, RED));
-	elements.push_back(new Enemy(200, 300, RED));
+	elements.push_back(new Enemy(200, -50, RED));
+	elements.push_back(new Enemy(280, -50, RED));
+
 	elements.push_back(new Powerup(200, 200, 0.1, 0.1, COWP));
 	
 	Timer gameTimer;
