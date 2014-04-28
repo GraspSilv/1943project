@@ -7,6 +7,7 @@ Enemy.cpp
 History
 	03/31/14	Bill Gowans		Create
 	04/16/14	Jon Richelsen	Standardize
+	04/27/14	Jack Magiera	Define nondefault constructor, getSprite(), and getEnemyType()
 */
 #include"Enemy.h"
 #include<vector>

@@ -7,8 +7,9 @@ Enemy.h
 History
 	03/31/14	Bill Gowans		Create, declare default constructor, forward(), slightR(), sharpR(), slightL(), sharpR(), getX(), getY(), getXVel(), getYVel(), and private variable healthCntr
 	04/16/14	Jon Richelsen	Standardize
+	04/27/14	Jack Magiera	Define enemySpriteType and enemyType sprites, remove default constructor, forward(), slightR(), sharpR(), slightL(), sharpR(), getX(), getY(), getXVel(), getYVel(), declare nondefault constructor, getSprite(), getEnemyType(), and private variables sprite and enemy
+	04/28/14	Jon Richelsen	Capitalize enums
 To Do
-	Completely revamp class
 */
 #ifndef ENEMY_H
 #define ENEMY_H
@@ -17,48 +18,48 @@ To Do
 #include "GraphElement.h"
 
 typedef enum {
-	rect_red_N,
-	rect_red_NE,
-	rect_red_E,
-	rect_red_SE,
-	rect_red_S,
-	rect_red_SW,
-	rect_red_W,
-	rect_red_NW,
-	rect_lilGray_N,
-	rect_lilGray_NE,
-	rect_lilGray_E,
-	rect_lilGray_SE,
-	rect_lilGray_S,
-	rect_lilGray_SW,
-	rect_lilGray_W,
-	rect_lilGray_NW,
-	rect_singGreen_straight,
-	rect_singGreen_hVert,
-	rect_singGreen_fVert,
-	rect_singGreen_updown,
-	rect_doubGreen_straight,
-	rect_doubGreen_roll1,
-	rect_doubGreen_roll2,
-	rect_doubGreen_roll3,
-	rect_doubGreen_roll4,
-	rect_doubGreen_roll5,
-	rect_doubGreen_roll6,
-	rect_doubGreen_roll7,
-	rect_purp4,
-	rect_purp3,
-	rect_purp2,
-	rect_purp1,
-	rect_bigGray
+	RECT_RED_N,
+	RECT_RED_NE,
+	RECT_RED_E,
+	RECT_RED_SE,
+	RECT_RED_S,
+	RECT_RED_SW,
+	RECT_RED_W,
+	RECT_RED_NW,
+	RECT_LILGRAY_N,
+	RECT_LILGRAY_NE,
+	RECT_LILGRAY_E,
+	RECT_LILGRAY_SE,
+	RECT_LILGRAY_S,
+	RECT_LILGRAY_SW,
+	RECT_LILGRAY_W,
+	RECT_LILGRAY_NW,
+	RECT_SINGGREEN_STRAIGHT,
+	RECT_SINGGREEN_HVERT,
+	RECT_SINGGREEN_FVERT,
+	RECT_SINGGREEN_UPDOWN,
+	RECT_DOUBGREEN_STRAIGHT,
+	RECT_DOUBGREEN_ROLL1,
+	RECT_DOUBGREEN_ROLL2,
+	RECT_DOUBGREEN_ROLL3,
+	RECT_DOUBGREEN_ROLL4,
+	RECT_DOUBGREEN_ROLL5,
+	RECT_DOUBGREEN_ROLL6,
+	RECT_DOUBGREEN_ROLL7,
+	RECT_PURP4,
+	RECT_PURP3,
+	RECT_PURP2,
+	RECT_PURP1,
+	RECT_BIGGRAY
 } enemySpriteType;
 
 typedef enum {
-	red,
-	lilGray,
-	singGreen,
-	doubGreen,
-	purp,
-	bigGray
+	RED,
+	LITTLEGRAY,
+	SINGLEGREEN,
+	DOUBLEGREEN,
+	PURPLE,
+	BIGGRAY
 } enemyType;
 
 class Enemy : public GraphElement {
