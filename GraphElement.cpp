@@ -108,6 +108,10 @@ int GraphElement::isDone() {
 	return 0;
 }
 
+void GraphElement::update(){
+	
+}
+
 //void GraphElement::sub1_IncHealth() {
 //	std::cout << "You should not be in this sub1_IncHealth()!" << std::endl;
 //}

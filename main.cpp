@@ -118,6 +118,10 @@ int main(int argc, char * argv[]) {
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
+<<<<<<< HEAD
+=======
+
+>>>>>>> ea45f85aa874bb7634dd75cabbbde0e806f101bc
 			bgY += 1;
 			if(bgY >= bg.background->h) {//if background has scrolled too far,
 				bgY = 0; //reset the offset
@@ -154,19 +158,33 @@ int main(int argc, char * argv[]) {
 			int xMom = currentPlayer->getXMom();
 			int yMom = currentPlayer->getYMom();
 
+<<<<<<< HEAD
 			if(keystates[SDLK_UP] && currentPlayer->getYPos() >= WINDOW_BUFF) { //if up is pressed and player is not about to fly off top of screen,
 				if(yMom < -600) { //if y-momentum is significant,
 					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed2); //make the y-velocity be 4 pixels/frame upwards (greater than it currently is, 0)
 				} else { //otherwise,
 					currentPlayer->setYMom(yMom - 1); //give player more y-momentum upwards
 					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed1); //make the y-velocity be 2 pixels/frame upwards (greater than it currently is, 0)
+=======
+			if(keystates[SDLK_UP] && currentPlayer->getYPos() > 1) {
+				if(yMom < -60) {
+					currentPlayer->setYVel(currentPlayer->getYVel() - 4);
+				} else {
+					currentPlayer->setYMom(yMom - 1);
+					currentPlayer->setYVel(currentPlayer->getYVel() - 2);
+>>>>>>> ea45f85aa874bb7634dd75cabbbde0e806f101bc
 				}
 			} else if (!keystates[SDLK_DOWN]) { //if down is pressed when up is not pressed,
 				currentPlayer->setYMom(0); //reset player's y-momentum
 			}
 
+<<<<<<< HEAD
 			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() <= (WINDOW_HEIGHT - WINDOW_BUFF - currentPlayer->getSprite().h)) {
 				if(yMom > 600) {
+=======
+			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() < 620) {
+				if(yMom > 60) {
+>>>>>>> ea45f85aa874bb7634dd75cabbbde0e806f101bc
 					currentPlayer->setYVel(currentPlayer->getYVel() + 4);
 				} else {
 					currentPlayer->setYVel(currentPlayer->getYVel() + 2);
@@ -176,8 +194,13 @@ int main(int argc, char * argv[]) {
 				currentPlayer->setYMom(0);
 			}
 
+<<<<<<< HEAD
 			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() >= WINDOW_BUFF) {
 				if(xMom < -600) {
+=======
+			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() > 1) {
+				if(xMom < -60) {
+>>>>>>> ea45f85aa874bb7634dd75cabbbde0e806f101bc
 					currentPlayer->setXVel(currentPlayer->getXVel() - 4);
 				} else {
 					currentPlayer->setXVel(currentPlayer->getXVel() - 2);
@@ -188,7 +211,7 @@ int main(int argc, char * argv[]) {
 			}
 
 			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() < 460) {
-				if(xMom > 600) {
+				if(xMom > 60) {
 					currentPlayer->setXVel(currentPlayer->getXVel() + 4);
 				} else {
 					currentPlayer->setXVel(currentPlayer->getXVel() + 2);
@@ -212,6 +235,9 @@ int main(int argc, char * argv[]) {
 				GEType xType = elements[x]->getType();
 				for (int y = x + 1; y < elements.size(); y++) { //for every following element,
 					GEType yType = elements[y]->getType();
+					if(xType == ENEMY){
+						elements[x]->update();
+					}
 					if(xType != yType) {
 						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
 							int xDeleted = collide(elements[x], elements[y], xType, yType, &elements);
@@ -226,6 +252,7 @@ int main(int argc, char * argv[]) {
 					//elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
 					//break;
 				//}
+				
 				elements[x]->setXPos(elements[x]->getXPos() + elements[x]->getXVel());
 				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
 				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
