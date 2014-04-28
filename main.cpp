@@ -26,7 +26,6 @@ To Do
 #include"Powerup.h"
 #include"Timer.h"
 
-//screen attributes
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
 const int WINDOW_BPP = 32;
@@ -34,13 +33,11 @@ const std::string WINDOW_TITLE = "Blitz";
 
 const int GAME_FPS = 1;
 
-//surfaces that will be used
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
 
-TTF_Font * font; //font that will be used
+TTF_Font * font;
 
-//colors that will be used
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
 SDL_Color textColor = {255, 255, 255};
@@ -91,27 +88,28 @@ int main(int argc, char * argv[]) {
 	int frameTime = 1000 / GAME_FPS;
 	
 	while(gameRunning) {
+		//reset player's velocity
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
-		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame
+		
+		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
 			//render all counters
 			scoreSurface = score.render(font, textColor);
 			healthSurface = health.render(font, textColor);
 		
-			if(SDL_PollEvent(&event)) { //can change to while to make faster?
-				if(event.type == SDL_QUIT) {
-					gameRunning = 0;
+			if(SDL_PollEvent(&event)) { //if there is event to handle, (can change to while to make faster?)
+				if(event.type == SDL_QUIT) { //if user has Xed out of window,
+					gameRunning = 0; //quit game
 				}
-				else if(event.type == SDL_KEYDOWN) {
-					SDLKey keyPressed = event.key.keysym.sym;
-					switch (keyPressed){
+				else if(event.type == SDL_KEYDOWN) { //else, if user pressed key
+					switch (event.key.keysym.sym){ //inspect which key was pressed
 						case SDLK_ESCAPE:
 							gameRunning = 0;
 							break;
 						case SDLK_z:
-							if(Bullet::count < 8) { //why is this variable public?
-								elements.push_back(new Bullet(currentPlayer->getXPos() + 16, currentPlayer->getYPos(), 0, -0.5));
-								elements.push_back(new Bullet(currentPlayer->getXPos() + 5, currentPlayer->getYPos(), 0, -0.5));
+							if(Bullet::count < 8) { //(why is this variable public?)
+								elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -0.5));
+								elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -0.5));
 								score.increment(1);
 							}
 							break;
@@ -177,9 +175,9 @@ int main(int argc, char * argv[]) {
 			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
 
 			for (int x = 0; x < elements.size(); x++){
-				bool toErase = false;
+				int toErase = 0;
 				//THIS IS OUR LOOP FOR EVERYTHING
-				// Lot of really important shit goes here
+				// Lot of really important stuff goes here
 
 				if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
 					delete elements[x];
