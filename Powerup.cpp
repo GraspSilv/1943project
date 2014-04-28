@@ -63,7 +63,7 @@ Powerup::Powerup(double xP, double yP, powerType p) : GraphElement(xP, yP, POWER
 	addSprite(rect_pwrup_cow);
 }
 
-Powerup::Powerup(double xP, double yP, double xV, double yV, powerType p) : GraphElement(xP, yP, POWERUP) { //nondefault constructor, passes position and velocity to GraphElement constructor [xPos, yPos, xVel, yVel, power]
+Powerup::Powerup(double xP, double yP, double xV, double yV, powerType p) : GraphElement(xP, yP, xV, yV, POWERUP) { //nondefault constructor, passes position and velocity to GraphElement constructor [xPos, yPos, xVel, yVel, power]
 	power = p;
 	
 	SDL_Rect rect_pwrup_pow; //sprite of POW powerup

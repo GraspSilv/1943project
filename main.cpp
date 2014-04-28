@@ -25,27 +25,37 @@ main.cpp
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
 const int WINDOW_BPP = 32;
+const int WINDOW_BUFF = 5;
 const std::string WINDOW_TITLE = "Blitz";
 
 const int GAME_FPS = 80;
 
+const int playerSpeed1 = 2;
+const int playerSpeed2 = 4;
+const int playerSpeed3 = 6;
+const int momThresh = 600;
+
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
+SDL_Surface * ammoSurface = NULL;
+SDL_Surface * healthSurface = NULL;
+SDL_Surface * scoreSurface = NULL;
 
-TTF_Font * font;
-Mix_Music *music = NULL;
-Mix_Chunk *gunfire = NULL;
+TTF_Font * font = NULL;
+Mix_Music * music = NULL;
+Mix_Chunk * gunfire = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
 SDL_Color textColor = {255, 255, 255};
 
+Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
-//the following functions deal with consequences for both objects, including whether the operand specified by the first argument or second argument (1 or 2) was destroyed
 int checkCollide(GraphElement * a, GraphElement * b);
 int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr);
+//the following collide functions deal with consequences for both objects, including whether the operand specified by the first argument or second argument (1 or 2) was destroyed
 int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr);
 int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
 int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
@@ -54,7 +64,6 @@ int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 
-Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
 
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
@@ -69,7 +78,7 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
-	SDL_Event event; //event structure for all user input
+	SDL_Event event; //event structure for checking if user has exited and generating bullets
 	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
 	
 	Background bg("testback.png");
@@ -80,31 +89,24 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
-	//Load background files
+	//load background files
 	if(!bg.load_files()) {
 		return 1;
 	}
 
-	//create counter surfaces
-	SDL_Surface * ammoSurface;
-	SDL_Surface * healthSurface;
-	SDL_Surface * scoreSurface;
-
 	int nLives = 10;
-	Player * currentPlayer = new Player(0,0);
+	Player * currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
 	elements.push_back(currentPlayer);
 	
 	//create test enemies and powerup
 	elements.push_back(new Enemy(200, -50, RED));
 	elements.push_back(new Enemy(280, -50, RED));
-
-	elements.push_back(new Powerup(200, 200, 0.1, 0.1, COWP));
+	elements.push_back(new Powerup(200, 200, 1, 1, COWP));
 	elements.push_back(new Explosion(300, 300));
 	
 	Timer gameTimer;
 	gameTimer.start();
 	int frameTime = 1000 / GAME_FPS;
-	std::cout << frameTime << std::endl;
 	
 	if (Mix_PlayMusic(music,5) == -1){
 		return 1;
@@ -116,7 +118,6 @@ int main(int argc, char * argv[]) {
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
-			std::cout << "Hey, I'm starting a frame!" << std::endl;
 			bgY += 1;
 			if(bgY >= bg.background->h) {//if background has scrolled too far,
 				bgY = 0; //reset the offset
@@ -127,45 +128,44 @@ int main(int argc, char * argv[]) {
 			bg.apply_surface(bgX, bgY, bg.background, bg.screen);
 			bg.apply_surface(bgX, bgY - bg.background->h, bg.background, bg.screen);
 			
-			if(SDL_PollEvent(&event)) { //if there is event to handle, (can change to while to make faster?)
+			if(SDL_PollEvent(&event)) { //if there is event to handle,
 				if(event.type == SDL_QUIT) { //if user has Xed out of window,
 					gameRunning = 0; //quit game
 				}
 				else if(event.type == SDL_KEYDOWN) { //else, if user pressed key
 					switch (event.key.keysym.sym){ //inspect which key was pressed
-						case SDLK_ESCAPE:
-							gameRunning = 0;
+						case SDLK_ESCAPE: //if pressed escape,
+							gameRunning = 0; //quit game
 							break;
-						case SDLK_z:
-							Mix_PlayChannel(-1, gunfire, 0);
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1));
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1));
-							score.increment(1);
+						case SDLK_z: //if pressed Z
+							Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1)); //create left bullet
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1)); //create right bullet
 							break;
-						default:
-							break;
+						default: //if other key,
+							break; //do nothing
 					}
 				}
 			}
 
-			//begin testing movement
+			//begin testing keys to control player movement
 			Uint8 * keystates = SDL_GetKeyState(NULL);
 
 			int xMom = currentPlayer->getXMom();
 			int yMom = currentPlayer->getYMom();
 
-			if(keystates[SDLK_UP] && currentPlayer->getYPos() > 1) {
-				if(yMom < -600) {
-					currentPlayer->setYVel(currentPlayer->getYVel() - 4);
-				} else {
-					currentPlayer->setYMom(yMom - 1);
-					currentPlayer->setYVel(currentPlayer->getYVel() - 2);
+			if(keystates[SDLK_UP] && currentPlayer->getYPos() >= WINDOW_BUFF) { //if up is pressed and player is not about to fly off top of screen,
+				if(yMom < -600) { //if y-momentum is significant,
+					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed2); //make the y-velocity be 4 pixels/frame upwards (greater than it currently is, 0)
+				} else { //otherwise,
+					currentPlayer->setYMom(yMom - 1); //give player more y-momentum upwards
+					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed1); //make the y-velocity be 2 pixels/frame upwards (greater than it currently is, 0)
 				}
-			} else if (!keystates[SDLK_DOWN]) {
-				currentPlayer->setYMom(0);
+			} else if (!keystates[SDLK_DOWN]) { //if down is pressed when up is not pressed,
+				currentPlayer->setYMom(0); //reset player's y-momentum
 			}
 
-			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() < 620) {
+			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() <= (WINDOW_HEIGHT - WINDOW_BUFF - currentPlayer->getSprite().h)) {
 				if(yMom > 600) {
 					currentPlayer->setYVel(currentPlayer->getYVel() + 4);
 				} else {
@@ -176,7 +176,7 @@ int main(int argc, char * argv[]) {
 				currentPlayer->setYMom(0);
 			}
 
-			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() > 1) {
+			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() >= WINDOW_BUFF) {
 				if(xMom < -600) {
 					currentPlayer->setXVel(currentPlayer->getXVel() - 4);
 				} else {
