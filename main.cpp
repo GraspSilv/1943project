@@ -382,12 +382,12 @@ int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vect
 	int bDestroyed = 0;
 	int plDestroyed = 0;
 	
-	if(b->getOrigin() == ENEMY) {
+	if(1) {
 		delete b;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 		bDestroyed = 1;
 		
-		pl->sub1_IncHealth();
+		//pl->sub1_IncHealth();
 	}
 	
 	if(xArg == 1) {
@@ -407,7 +407,7 @@ int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vecto
 	delete e;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
 	eDestroyed = 1;
-	pl->sub1_IncHealth();
+	//pl->sub1_IncHealth();
 	
 	if(xArg == 1) {
 		return eDestroyed;
@@ -426,7 +426,7 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 	delete po;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), po), elemPtr->end());
 	poDestroyed = 1;
-	pl->add4_IncHealth();
+	//pl->add4_IncHealth();
 	
 	if(xArg == 1) {
 		return plDestroyed;
