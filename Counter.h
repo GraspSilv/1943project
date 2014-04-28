@@ -15,8 +15,8 @@ To Do
 #ifndef COUNTER_H
 #define COUNTER_H
 
-#include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
+#include"SDL/SDL.h"
+#include"SDL/SDL_ttf.h"
 
 class Counter {
 	public:

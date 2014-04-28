@@ -18,12 +18,12 @@ To Do
 #include"SDL/SDL.h"
 #include"SDL/SDL_image.h"
 #include"SDL/SDL_ttf.h"
+#include"Bullet.h"
 #include"Counter.h"
+#include"Enemy.h"
 #include"GraphElement.h"
-#include "Player.h"
-#include "Bullet.h"
-#include "Powerup.h"
-#include "Enemy.h"
+#include"Player.h"
+#include"Powerup.h"
 
 //screen attributes
 const int WINDOW_WIDTH = 480;
@@ -64,35 +64,29 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
-	Counter score;
-	score.increment(5);
-    
-	// Pass zero for width and height to draw the whole surface
-	SDL_Rect scoreLocation = {5, (WINDOW_HEIGHT - 100), 0, 0};
-
-	SDL_Event event;
+	SDL_Event event; //event structure for all user input
+	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
+	
+	//create and initialize score and health counters
+	Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
+	Counter health(5, (WINDOW_HEIGHT - 200), 100, 0, 100, -5);
 	
 	SDL_Surface * scoreSurface = score.render(font, textColor);
+	SDL_Surface * healthSurface = health.render(font, textColor);
 
-	std::vector<GraphElement *> elements;	
+	currentPlayer = new Player(0,0);
+	elements.push_back(currentPlayer);
 
-	Player newPlayer(0,0);
-	Powerup newPowerUp(100,100,COWP);
-	newPowerUp.setYVel(.1);
-
+	elements.push_back(new Enemy(200, 200, RED));
+	elements.push_back(new Enemy(200, 250, RED));
+	elements.push_back(new Enemy(200, 150, RED));
+	elements.push_back(new Enemy(200, 100, RED));
+	elements.push_back(new Enemy(200, 300, RED));
+	elements.push_back(new Powerup(200, 200, 0.1, 0.1 COW));
 	
-	elements.push_back(new Enemy(200, 200, red));
-	elements.push_back(new Enemy(200, 250, red));
-	elements.push_back(new Enemy(200, 150, red));
-	elements.push_back(new Enemy(200, 100, red));
-	elements.push_back(new Enemy(200, 300, red));
-	elements.push_back(&newPowerUp);
-	elements.push_back(&newPlayer);
-	
-	while (gameRunning) {
-		newPlayer.setXVel(0);
-		newPlayer.setYVel(0);
+	while(gameRunning) {
 		scoreSurface = score.render(font, textColor);
+		healthSurface = health.render(font, textColor);
 		
 		if(SDL_PollEvent(&event)) { //can change to while to make faster?
 			if(event.type == SDL_QUIT) {
@@ -173,9 +167,8 @@ int main(int argc, char * argv[]) {
 
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
         
-		SDL_BlitSurface(scoreSurface, NULL, screen, &scoreLocation);
-	
-
+		applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
+		applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
 
 		for (int x = 0; x < elements.size(); x++){
 			bool toErase = false;

@@ -20,7 +20,7 @@ History
 #include"Counter.h"
 
 Player::Player(double xP, double yP) :
-	GraphElement(xP, yP, PLAYER),
+	GraphElement(xP, yP, 0, 0, PLAYER),
 	ammo(100, 300, 100, 0, 100, 1),
 	health(100, 100, 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
