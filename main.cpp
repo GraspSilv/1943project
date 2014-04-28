@@ -12,21 +12,22 @@ main.cpp
 #include"SDL/SDL_image.h"
 #include"SDL/SDL_ttf.h"
 #include"SDL/SDL_mixer.h"
+#include"Background.h"
 #include"Bullet.h"
 #include"Counter.h"
 #include"Enemy.h"
+#include"Explosion.h"
 #include"GraphElement.h"
 #include"Player.h"
 #include"Powerup.h"
 #include"Timer.h"
-#include"Background.h"
 
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
 const int WINDOW_BPP = 32;
 const std::string WINDOW_TITLE = "Blitz";
 
-const int GAME_FPS = 1;
+const int GAME_FPS = 80;
 
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
@@ -99,10 +100,13 @@ int main(int argc, char * argv[]) {
 	elements.push_back(new Enemy(200, 100, RED));
 	elements.push_back(new Enemy(200, 300, RED));
 	elements.push_back(new Powerup(200, 200, 0.1, 0.1, COWP));
+	elements.push_back(new Explosion(300, 300));
 	
 	Timer gameTimer;
+	gameTimer.start();
 	int frameTime = 1000 / GAME_FPS;
-
+	std::cout << frameTime << std::endl;
+	
 	if (Mix_PlayMusic(music,5) == -1){
 		return 1;
 	}
@@ -113,6 +117,7 @@ int main(int argc, char * argv[]) {
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
+			std::cout << "Hey, I'm starting a frame!" << std::endl;
 			bgY += 1;
 			if(bgY >= bg.background->h) {//if background has scrolled too far,
 				bgY = 0; //reset the offset
@@ -193,6 +198,16 @@ int main(int argc, char * argv[]) {
 				currentPlayer->setXMom(0);
 			}
 			
+			//render all counters
+			ammoSurface = currentPlayer->ammo.render(font, textColor);
+			healthSurface = currentPlayer->health.render(font, textColor);
+			scoreSurface = score.render(font, textColor);
+			
+			//apply all counters to screen
+			applySurface(currentPlayer->ammo.getXPos(), currentPlayer->ammo.getYPos(), ammoSurface, screen);
+			applySurface(currentPlayer->health.getXPos(), currentPlayer->health.getYPos(), healthSurface, screen);
+			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
+			
 			for (int x = 0; x < elements.size(); x++) { //for every element,
 				GEType xType = elements[x]->getType();
 				for (int y = x + 1; y < elements.size(); y++) { //for every following element,
@@ -206,21 +221,15 @@ int main(int argc, char * argv[]) {
 						}
 					}
 				}
+				//if(elements[x]->isDone()) {
+					//delete elements[x];
+					//elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
+					//break;
+				//}
 				elements[x]->setXPos(elements[x]->getXPos() + elements[x]->getXVel());
 				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
 				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
 			}		     
-			//render all counters
-			ammoSurface = currentPlayer->ammo.render(font, textColor);
-			healthSurface = currentPlayer->health.render(font, textColor);
-			scoreSurface = score.render(font, textColor);
-			
-			//apply all counters to screen
-			applySurface(currentPlayer->ammo.getXPos(), currentPlayer->ammo.getYPos(), ammoSurface, screen);
-			applySurface(currentPlayer->health.getXPos(), currentPlayer->health.getYPos(), healthSurface, screen);
-			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
-			
-			
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
@@ -280,6 +289,8 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 						score.increment(100);
 					}
 					break;
+				case EXPLOSION:
+					break;
 				case PLAYER:
 					if (GE1->getOrigin() == 0){
 						GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
@@ -303,6 +314,8 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 				case ENEMY:
 					std::cout << "Error: Trying to collide two enemies" << std::endl;
 					break;
+				case EXPLOSION:
+					break;
 				case PLAYER:
 					GE1Destroyed = collideEnemyPlayer(1, GE1, GE2, elemPtr);
 					break;
@@ -313,6 +326,23 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					break;
 			}		
 			break;
+		case EXPLOSION:
+			switch(type2) {
+				case BULLET:
+					break;
+				case ENEMY:
+					break;
+				case EXPLOSION:
+					break;
+				case PLAYER:
+					break;
+				case POWERUP:
+					std::cout << "Error: Trying to collide two explosions" << std::endl;
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}
 		case PLAYER:
 			switch(type2) {
 				case BULLET:
@@ -322,6 +352,8 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					break;
 				case ENEMY:
 					GE1Destroyed = collideEnemyPlayer(2, GE2, GE1, elemPtr);
+					break;
+				case EXPLOSION:
 					break;
 				case PLAYER:
 					std::cout << "Error: Trying to collide two players" << std::endl;
@@ -339,6 +371,8 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 				case BULLET:
 					break;
 				case ENEMY:
+					break;
+				case EXPLOSION:
 					break;
 				case PLAYER:
 					GE1Destroyed = collidePlayerPowerup(2, GE2, GE1, elemPtr);
@@ -366,6 +400,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 	bDestroyed = 1;
 	
+	elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos()));
 	delete e;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
 	eDestroyed = 1;
