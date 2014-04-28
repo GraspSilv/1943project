@@ -220,8 +220,11 @@ int main(int argc, char * argv[]) {
 				GEType xType = elements[x]->getType(); //store that element's type
 				for(int y = x + 1; y < elements.size(); y++) { //for every following element,
 					GEType yType = elements[y]->getType(); //store that element's type
-					if(xType == ENEMY) { //if element is an enemy,
-						elements[x]->update(); //update the enemy's position
+					if(xType == ENEMY){
+						if(elements[x]->update()){
+							elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0));
+							elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0));
+						}
 					}
 					if(xType != yType) { //if the two elements are not of the same type
 						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,

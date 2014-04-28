@@ -68,10 +68,12 @@ class Enemy : public GraphElement {
 		// Enemy (double, double, double, double, enemyType);
 		SDL_Rect getSprite();
 		enemyType getEnemyType();
-		void update();	
+		int update();	
+		int canFire();
 	private:
 		enemySpriteType sprite;
 		enemyType enemy;
+		int AIcount;
 };
 
 #endif //ENEMY_H

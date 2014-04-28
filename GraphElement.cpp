@@ -108,8 +108,8 @@ int GraphElement::isDone() {
 	return 0;
 }
 
-void GraphElement::update(){
-	
+int GraphElement::update(){
+
 }
 
 //void GraphElement::sub1_IncHealth() {
