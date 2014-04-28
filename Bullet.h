@@ -1,4 +1,14 @@
-// Bullet.h
+/*
+Bill Gowans, Jack Magiera, Jon Richelsen
+CSE20212
+1943_Project
+Bullet.h
+	Interface of Bullet class (coordinate movement and sprites of player and enemy bullets)
+History
+	04/23/14	Jack Magiera	Create, define bulletSpriteType enum, declare nondefault constructor, getSprite(), and private variable sprite
+	04/27/14	Jack Magiera	Declare deconstructor, getCount(), and public variable count
+To Do
+*/
 #ifndef BULLET_H
 #define BULLET_H
 

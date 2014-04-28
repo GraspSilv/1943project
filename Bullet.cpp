@@ -1,4 +1,13 @@
-// Bullet.cpp
+/*
+Bill Gowans, Jack Magiera, Jon Richelsen
+CSE20212
+1943_Project
+Bullet.cpp
+	Implementation of Bullet class (coordinate movement and sprites of player and enemy bullets)
+History
+	04/23/14	Jack Magiera	Create, define nondefault constructor and getSprite()
+	04/27/14	Jack Magiera	Add type declaration to nondefault constructor, define deconstructor and getCount(), add count to nondefault constructor, add cout message to deconstructor
+*/
 #include"Bullet.h"
 #include<vector>
 #include<iostream>
@@ -68,4 +77,3 @@ Bullet::~Bullet(){
 	std::cout<<"Bullet dead"<<std::endl;
 	count--;
 }
-
