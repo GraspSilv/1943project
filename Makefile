@@ -1,7 +1,7 @@
 CXX := g++
 CXXFLAGS := -g -Wall
 RM := rm -f
-LDLIBS := -lSDL -lSDL_image -lSDL_ttf
+LDLIBS := -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
 EXEC := Blitz
 
 OBJS := main.o Bullet.o Counter.o Enemy.o GraphElement.o Player.o Powerup.o Timer.o Background.o
