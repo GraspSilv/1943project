@@ -33,7 +33,7 @@ const int GAME_FPS = 80;
 const int playerSpeed1 = 2;
 const int playerSpeed2 = 4;
 const int playerSpeed3 = 6;
-const int momThresh = 600;
+const int momThresh = 60;
 
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
@@ -154,70 +154,76 @@ int main(int argc, char * argv[]) {
 			int xMom = currentPlayer->getXMom();
 			int yMom = currentPlayer->getYMom();
 
+			//handle upward movement
 			if(keystates[SDLK_UP] && currentPlayer->getYPos() >= WINDOW_BUFF) { //if up is pressed and player is not about to fly off top of screen,
-				if(yMom < -600) { //if y-momentum is significant,
-					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed2); //make the y-velocity be 4 pixels/frame upwards (greater than it currently is, 0)
+				if(yMom < -momThresh) { //if y-momentum is significant,
+					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed2); //make the y-velocity be playerSpeed2 pixels/frame upwards (greater than it currently is, 0)
 				} else { //otherwise,
 					currentPlayer->setYMom(yMom - 1); //give player more y-momentum upwards
-					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed1); //make the y-velocity be 2 pixels/frame upwards (greater than it currently is, 0)
+					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed1); //make the y-velocity be playerSpeed1 pixels/frame upwards (greater than it currently is, 0)
 				}
 			} else if (!keystates[SDLK_DOWN]) { //if down is pressed when up is not pressed,
 				currentPlayer->setYMom(0); //reset player's y-momentum
 			}
 
+			//handle downward movement
 			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() <= (WINDOW_HEIGHT - WINDOW_BUFF - currentPlayer->getSprite().h)) {
-				if(yMom > 600) {
-
-					currentPlayer->setYVel(currentPlayer->getYVel() + 4);
+				if(yMom > momThresh) {
+					currentPlayer->setYVel(currentPlayer->getYVel() + playerSpeed2);
 				} else {
-					currentPlayer->setYVel(currentPlayer->getYVel() + 2);
+					currentPlayer->setYVel(currentPlayer->getYVel() + playerSpeed1);
 					currentPlayer->setYMom(yMom + 1);
 				}
 			} else if(!keystates[SDLK_UP]) {
 				currentPlayer->setYMom(0);
 			}
 
-
+			//handle left movment
 			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() >= WINDOW_BUFF) {
-				if(xMom < -600) {
-					currentPlayer->setXVel(currentPlayer->getXVel() - 4);
+				if(xMom < -momThresh) {
+					currentPlayer->setXVel(currentPlayer->getXVel() - playerSpeed2);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() - 2);
+					currentPlayer->setXVel(currentPlayer->getXVel() - playerSpeed1);
 					currentPlayer->setXMom(xMom - 1);
 				}
 			} else if(!keystates[SDLK_RIGHT]) {
 				currentPlayer->setXMom(0);
 			}
 
-			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() < 460) {
-				if(xMom > 60) {
-					currentPlayer->setXVel(currentPlayer->getXVel() + 4);
+			//handle right movement
+			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() <= (WINDOW_WIDTH - WINDOW_BUFF - currentPlayer->getSprite().w)) {
+				if(xMom > momThresh) {
+					currentPlayer->setXVel(currentPlayer->getXVel() + playerSpeed2);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() + 2);
+					currentPlayer->setXVel(currentPlayer->getXVel() + playerSpeed1);
 					currentPlayer->setXMom(xMom + 1);
 				}
 			} else if(!keystates[SDLK_LEFT]) {
 				currentPlayer->setXMom(0);
 			}
 			
+			//extract temporary versions of ammo and health counters from player
+			Counter tempAmmoCntr = currentPlayer->getAmmoCntr();
+			Counter tempHealthCntr = currentPlayer->getHealthCntr();
+			
 			//render all counters
-			ammoSurface = currentPlayer->ammo.render(font, textColor);
-			healthSurface = currentPlayer->health.render(font, textColor);
+			ammoSurface = tempAmmoCntr.render(font, textColor);
+			healthSurface = tempHealthCntr.render(font, textColor);
 			scoreSurface = score.render(font, textColor);
 			
 			//apply all counters to screen
-			applySurface(currentPlayer->ammo.getXPos(), currentPlayer->ammo.getYPos(), ammoSurface, screen);
-			applySurface(currentPlayer->health.getXPos(), currentPlayer->health.getYPos(), healthSurface, screen);
+			applySurface(tempAmmoCntr.getXPos(), tempAmmoCntr.getYPos(), ammoSurface, screen);
+			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 			
-			for (int x = 0; x < elements.size(); x++) { //for every element,
-				GEType xType = elements[x]->getType();
-				for (int y = x + 1; y < elements.size(); y++) { //for every following element,
-					GEType yType = elements[y]->getType();
-					if(xType == ENEMY){
-						elements[x]->update();
+			for(int x = 0; x < elements.size(); x++) { //for every element,
+				GEType xType = elements[x]->getType(); //store that element's type
+				for(int y = x + 1; y < elements.size(); y++) { //for every following element,
+					GEType yType = elements[y]->getType(); //store that element's type
+					if(xType == ENEMY) { //if element is an enemy,
+						elements[x]->update(); //update the enemy's position
 					}
-					if(xType != yType) {
+					if(xType != yType) { //if the two elements are not of the same type
 						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
 							int xDeleted = collide(elements[x], elements[y], xType, yType, &elements);
 							if(xDeleted) {

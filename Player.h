@@ -33,30 +33,33 @@ typedef enum {
 } playerSpriteType;
 
 typedef enum {
-			STANDARD,
-			SPREAD,
-			MISSILE,
-			BEAM,
-			AUTO
+			STANDARD_WEAP,
+			SPREAD_WEAP,
+			MISSILE_WEAP,
+			BEAM_WEAP,
+			AUTO_WEAP
 } weaponType;
 
 class Player : public GraphElement {
 	public:
 		Player(double, double); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos]
 		SDL_Rect getSprite();
-		void add50_IncAmmo();
-		void sub1_IncAmmo();
-		void add4_IncHealth();
-		void sub1_IncHealth();
+		Counter getAmmoCntr();
+		Counter getHealthCntr();
+		void newBullets();
+		void use2Bullets();
+		void newHealth();
+		void hitByBullet();
+		void hitByPlane();
 		int getXMom();
 		int getYMom();
 		void setXMom(int);
 		void setYMom(int);
+	private:
+		playerSpriteType sprite; //enum that stores player's sprite
+		weaponType weapon; //enum that stores player's current weapon
 		Counter ammo; //[xPos = 100, yPos = 300, value = 100, min = 0, max = 100, interval = 1]
 		Counter health; //[xPos = 100, yPos = 100, value = 100, min = 0, max = 100, interval = 5]
-	private:
-		playerSpriteType sprite; //enum that stores player plane's sprite
-		weaponType weapon; //enum that stores player plane's current weapon
 		int xMom;
 		int yMom;
 };

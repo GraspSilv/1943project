@@ -16,7 +16,7 @@ Player::Player(double xP, double yP) :
 	ammo(100, 300, 100, 0, 100, 1),
 	health(100, 100, 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
-	weapon = STANDARD;
+	weapon = STANDARD_WEAP;
 	xMom = 0;
 	yMom = 0;
 
@@ -162,6 +162,34 @@ SDL_Rect Player::getSprite() {
 	return sprites[sprite];
 }
 
+Counter Player::getAmmoCntr() {
+	return ammo;
+}
+
+Counter Player::getHealthCntr() {
+	return health;
+}
+
+void Player::newBullets() {
+	ammo.increment(100);
+}
+
+void Player::use2Bullets() {
+	ammo.increment(-2);
+}
+
+void Player::newHealth() {
+	health.increment(4);
+}
+
+void Player::hitByBullet() {
+	health.increment(-1);
+}
+
+void Player::hitByPlane() {
+	health.increment(-2);
+}
+
 int Player::getXMom(){
 	return xMom;
 }
@@ -176,20 +204,4 @@ void Player::setYMom(int n){
 
 void Player::setXMom(int n){
 	xMom = n;
-}
-
-void Player::add50_IncAmmo() {
-	ammo.increment(50);
-}
-
-void Player::sub1_IncAmmo() {
-	ammo.decrement(1);
-}
-
-void Player::add4_IncHealth() {
-	health.increment(4);
-}
-
-void Player::sub1_IncHealth() {
-	health.decrement(1);
 }
