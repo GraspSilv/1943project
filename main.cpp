@@ -13,6 +13,7 @@ History
 	04/22/14 Jon Richelsen	Add default case to counter case structure, continue standardization,
 To Do
 */
+#include<algorithm>
 #include<iostream>
 #include<string>
 #include"SDL/SDL.h"
@@ -45,17 +46,13 @@ SDL_Color textColor = {255, 255, 255};
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
-//the following functions deal with consequences for both objects, including whether the operand specified by the first argument (0 or 1) was destroyed
-int collideBulletBullet(int main, Bullet * b1, Bullet * b2, std::vector<GraphElement *> * elemPtr);
-int collideBulletEnemy(Bullet * b, Enemy * e, std::vector<GraphElement *> * elemPtr);
-int collideBulletPlayer(Bullet * b, Player * pl, std::vector<GraphElement *> * elemPtr);
-int collideBulletPowerup(Bullet * b, Powerup * po, std::vector<GraphElement *> * elemPtr);
-int collideEnemyEnemy(Enemy * e1, Enemy * e2, std::vector<GraphElement *> * elemPtr);
-int collideEnemyPlayer(Enemy * e, Player * pl, std::vector<GraphElement *> * elemPtr);
-int collideEnemyPowerup(Enemy * e, Powerup * po, std::vector<GraphElement *> * elemPtr);
-int collidePlayerPlayer(Player * pl1, Player * pl2, std::vector<GraphElement *> * elemPtr);
-int collidePlayerPowerup(Player * pl, Powerup * po, std::vector<GraphElement *> * elemPtr);
-int collidePowerupPowerup(Powerup * po1, Powerup * po2, std::vector<GraphElement *> * elemPtr);
+//the following functions deal with consequences for both objects, including whether the operand specified by the first argument or second argument (1 or 2) was destroyed
+int checkCollide(GraphElement * a, GraphElement * b);
+int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr);
+int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr);
+int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
+int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
+int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
@@ -185,128 +182,23 @@ int main(int argc, char * argv[]) {
 			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
 
 			
-			//HERE BEGINS JON'S COLLISION STUFF
 			for (int x = 0; x < elements.size(); x++) { //for every element,
 				GEType xType = elements[x]->getType();
 				for (int y = x + 1; y < elements.size(); y++) { //for every following element,
-					if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
-						GEType yType = elements[y]->getType();
-						switch(xType) {
-							case BULLET:
-								switch(yType) {
-									case BULLET: //BULLET and BULLET
-										xDestroyed = collideBulletBullet(elements[x], elements[y])
-										break;
-									case ENEMY: //BULLET and ENEMY
-										collideBulletEnemy
-										break;
-									case PLAYER: //BULLET and PLAYER
-										collideBulletPlayer
-										break;
-									case POWERUP: //BULLET and POWERUP
-										collideBulletPowerup
-										break;
-									default:
-										std::cout << "Error: type of element[y] not defined"
-										break;
-								}
-								break;
-							case ENEMY:
-								switch(yType) {
-									case BULLET: //ENEMY and BULLET (ALREADY DEFINED! COPY FROM ABOVE!)
-										break;
-									case ENEMY: //ENEMY and ENEMY
-										break;
-									case PLAYER: //ENEMY and PLAYER
-										break;
-									case POWERUP: //ENEMY and POWERUP
-										break;
-									default:
-										std::cout << "Error: type of element[y] not defined"
-										break;
-								}								
-								break;
-							case PLAYER:
-								switch(yType) {
-									case BULLET: //PLAYER and 
-										break;
-									case ENEMY: //PLAYER and 
-										break;
-									case PLAYER: //PLAYER and 
-										break;
-									case POWERUP: //PLAYER and 
-										break;
-									default:
-										std::cout << "Error: type of element[y] not defined"
-										break;
-								}								
-								break;
-							case POWERUP:
-								switch(yType) {
-									case BULLET: //BULLET and
-										break;
-									case ENEMY: //BULLET and
-										break;
-									case PLAYER: //BULLET and
-										break;
-									case POWERUP: //BULLET and
-										break;
-									default:
-										std::cout << "Error: type of element[y] not defined"
-										break;
-								}								
-								break;
-							default:
-								std::cout << "Error: type of element[x] not defined"
-						}
-					}
-				}
-			}
-			//HERE ENDS JON'S COLLISION STUFF
-			
-			for (int x = 0; x < elements.size(); x++){
-				int toErase = 0;
-				//THIS IS OUR LOOP FOR EVERYTHING
-				// Lot of really important stuff goes here
-
-				
-				if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
-					delete elements[x];
-					elements.erase(elements.begin()+x);
-					continue;
-				}
-
-								//maybe change this V to (y < x) for efficiency?
-				for (int y = 0; y < x; y++){
-					if (elements[x]->getType() == elements[y]->getType()) continue;
-					// std::cout << "checking" << std::endl;
-					if (x != y && checkCollide(elements[x], elements[y]) == true){
-						//std::cout << "Colliding!" << std::endl;
-						if (elements[x]->getType() == BULLET){
-							if (elements[y]->getType() == ENEMY){
-								delete elements[y];
-								elements.erase(elements.begin()+y);
-								std::cout << "okay 1" << std::endl;
-								toErase = true;
+					GEType yType = elements[y]->getType();
+					if(xType != yType) {
+						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
+							int xDeleted = collide(elements[x], elements[y], xType, yType, &elements);
+							if(xDeleted) {
 								break;
 							}
 						}
 					}
 				}
-				if (toErase){
-					std::cout << "okay 2" << std::endl;
-					//delete elements[x];
-					std::cout << "okay 3" << std::endl;
-	
-					elements.erase(elements.begin()+x);
-					std::cout << "okay 4" << std::endl;
-					break;
-				}
-	
-				elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
-				elements[x]->setYPos(elements[x]->getYPos()+elements[x]->getYVel());
-				applySurface(elements[x]->getXPos(),elements[x]->getYPos(),spriteSheet, screen, &elements[x]->getSprite());        
-			}
+				elements[x]->setXPos(elements[x]->getXPos() + elements[x]->getXVel());
+				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
+				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
+			}		     
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
@@ -338,19 +230,9 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 	int topB = bottomB + bClip.h;
 
 	if(leftA >= rightB || rightA <= leftB || bottomA >= topB || topA <= bottomB) {
-		return 0;switch(xType) {
-							case BULLET:
-								break;
-							case ENEMY:
-								break;
-							case PLAYER:
-								break;
-							case POWERUP:
-								break;
-							default:
-								std::cout << "Error: type of element[x] not defined"
+		return 0;
 	}
-	return true;
+	return 1;
 }
 
 
@@ -362,53 +244,160 @@ void cleanUp() {
 }
 
 
-int collideBulletBullet(Bullet * b1, Bullet * b2, std::vector<GraphElement *> * elemPtr) {
-
+int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr) {
+	int GE1Destroyed = 0;
+	switch(type1) {
+		case BULLET:
+			switch(type2) {
+				case BULLET:
+					std::cout << "Error: Trying to collide two bullets" << std::endl;
+					break;
+				case ENEMY:
+					GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
+					break;
+				case PLAYER:
+					GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
+					break;
+				case POWERUP:
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}
+			break;
+		case ENEMY:
+			switch(type2) {
+				case BULLET:
+					GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
+					break;
+				case ENEMY:
+					std::cout << "Error: Trying to collide two enemies" << std::endl;
+					break;
+				case PLAYER:
+					GE1Destroyed = collideEnemyPlayer(1, GE1, GE2, elemPtr);
+					break;
+				case POWERUP:
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}		
+			break;
+		case PLAYER:
+			switch(type2) {
+				case BULLET:
+					GE1Destroyed = collideBulletPlayer(2, GE2, GE1, elemPtr);
+					break;
+				case ENEMY:
+					GE1Destroyed = collideEnemyPlayer(2, GE2, GE1, elemPtr);
+					break;
+				case PLAYER:
+					std::cout << "Error: Trying to collide two players" << std::endl;
+					break;
+				case POWERUP:
+					GE1Destroyed = collidePlayerPowerup(1, GE1, GE2, elemPtr);
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}			
+			break;
+		case POWERUP:
+			switch(type2) {
+				case BULLET:
+					break;
+				case ENEMY:
+					break;
+				case PLAYER:
+					GE1Destroyed = collidePlayerPowerup(2, GE2, GE1, elemPtr);
+					break;
+				case POWERUP:
+					std::cout << "Error: Trying to collide two powerups" << std::endl;
+					break;
+				default:
+					std::cout << "Error: type of element[y] not defined" << std::endl;
+					break;
+			}			
+			break;
+		default:
+			std::cout << "Error: type of element[x] not defined" << std::endl;
+	}
+	return GE1Destroyed;
 }
 
 
-int collideBulletEnemy(Bullet * b, Enemy * e, std::vector<GraphElement *> * elemPtr) {
-
+int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr) {
+	int bDestroyed = 0;
+	int eDestroyed = 0;
+	
+	delete e;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
+	eDestroyed = 1;
+	
+	if(xArg == 1) {
+		return bDestroyed;
+	} else if(xArg == 2) {
+		return eDestroyed;
+	} else {
+		std::cout << "Error in collideBulletEnemy" << std::endl;
+	}
 }
 
 
-int collideBulletPlayer(Bullet * b, Player * pl, std::vector<GraphElement *> * elemPtr) {
-
+int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
+	int bDestroyed = 0;
+	int plDestroyed = 0;
+	
+	delete b;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
+	bDestroyed = 1;
+	//pl->sub1_IncHealth();
+	
+	if(xArg == 1) {
+		return bDestroyed;
+	} else if(xArg == 2) {
+		return plDestroyed;
+	} else {
+		std::cout << "Error in collideBulletPlayer" << std::endl;
+	}
 }
 
 
-int collideBulletPowerup(Bullet * b, Powerup * po, std::vector<GraphElement *> * elemPtr) {
-
+int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
+	int eDestroyed = 0;
+	int plDestroyed = 0;
+	
+	delete e;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
+	eDestroyed = 1;
+	//pl->sub1_IncHealth();
+	
+	if(xArg == 1) {
+		return eDestroyed;
+	} else if(xArg == 2) {
+		return plDestroyed;
+	} else {
+		std::cout << "Error in collideEnemyPlayer" << std::endl;
+	}
 }
 
 
-int collideEnemyEnemy(Enemy * e1, Enemy * e2, std::vector<GraphElement *> * elemPtr) {
-
-}
-
-
-int collideEnemyPlayer(Enemy * e, Player * pl, std::vector<GraphElement *> * elemPtr) {
-
-}
-
-
-int collideEnemyPowerup(Enemy * e, Powerup * po, std::vector<GraphElement *> * elemPtr) {
-
-}
-
-
-int collidePlayerPlayer(Player * pl1, Player * pl2, std::vector<GraphElement *> * elemPtr) {
-
-}
-
-
-int collidePlayerPowerup(Player * pl, Powerup * po, std::vector<GraphElement *> * elemPtr) {
-
-}
-
-
-int collidePowerupPowerup(Powerup * po1, Powerup * po2, std::vector<GraphElement *> * elemPtr) {
-
+int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr) {
+	int plDestroyed = 0;
+	int poDestroyed = 0;
+	
+	delete po;
+	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), po), elemPtr->end());
+	poDestroyed = 1;
+	//pl->add4_IncHealth();
+	
+	if(xArg == 1) {
+		return plDestroyed;
+	} else if(xArg == 2) {
+		return poDestroyed;
+	} else {
+		std::cout << "Error in collidePlayerPowerup" << std::endl;
+	}
 }
 
 
@@ -445,7 +434,7 @@ int loadFiles(){
 	//load spriteSheet
 	spriteSheet = loadImage("sprites.png");
 	if(!spriteSheet) {
-		std::cerr << "Could not load sprites.png" << std::endl;
+		std::cout << "Could not load sprites.png" << std::endl;
 		return 0;
 	}
 	
