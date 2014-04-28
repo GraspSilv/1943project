@@ -34,7 +34,7 @@ typedef enum {
 			COWP
 } powerType;
 
-class Powerup : public GraphElement{
+class Powerup : public GraphElement {
 	public:
 		Powerup(double, double, powerType); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos, power]
 		Powerup(double, double, double, double, powerType); //nondefault constructor, passes position, velocity, and type to GraphElement constructor [xPos, yPos, xVel, yVel, power]

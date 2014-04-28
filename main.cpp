@@ -91,6 +91,8 @@ int main(int argc, char * argv[]) {
 	int frameTime = 1000 / GAME_FPS;
 	
 	while(gameRunning) {
+		currentPlayer->setXVel(0);
+		currentPlayer->setYVel(0);
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame
 			//render all counters
 			scoreSurface = score.render(font, textColor);
