@@ -127,47 +127,47 @@ int main(int argc, char * argv[]) {
 			int xMom = currentPlayer->getXMom();
 			int yMom = currentPlayer->getYMom();
 
-			if(keystates[SDLK_UP] && currentPlayer->isOnScreen()) {
-				if(yMom < -9000) {
+			if(keystates[SDLK_UP] && currentPlayer->getYPos() > 1) {
+				if(yMom < -1000) {
 					currentPlayer->setYVel(currentPlayer->getYVel() - .2);
 				} else {
 					currentPlayer->setYMom(yMom - 1);
 					currentPlayer->setYVel(currentPlayer->getYVel() - .1);
 				}
-			} else if (!keystates[SDLK_UP]) {
+			} else if (!keystates[SDLK_DOWN]) {
 				currentPlayer->setYMom(0);
 			}
 
-			if(keystates[SDLK_DOWN] && currentPlayer->isOnScreen()) {
-				if(yMom > 9000) {
+			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() < 620) {
+				if(yMom > 1000) {
 					currentPlayer->setYVel(currentPlayer->getYVel() + .2);
 				} else {
 					currentPlayer->setYVel(currentPlayer->getYVel() + .1);
 					currentPlayer->setYMom(yMom + 1);
 				}
-			} else if(!keystates[SDLK_DOWN]) {
+			} else if(!keystates[SDLK_UP]) {
 				currentPlayer->setYMom(0);
 			}
 
-			if(keystates[SDLK_LEFT] && currentPlayer->isOnScreen()) {
-				if(xMom < -9000) {
+			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() > 1) {
+				if(xMom < -1000) {
 					currentPlayer->setXVel(currentPlayer->getXVel() - .2);
 				} else {
 					currentPlayer->setXVel(currentPlayer->getXVel() - .1);
 					currentPlayer->setXMom(xMom - 1);
 				}
-			} else if(!keystates[SDLK_LEFT]) {
+			} else if(!keystates[SDLK_RIGHT]) {
 				currentPlayer->setXMom(0);
 			}
 
-			if(keystates[SDLK_RIGHT] && currentPlayer->isOnScreen()) {
-				if(xMom > 9000) {
+			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() < 460) {
+				if(xMom > 1000) {
 					currentPlayer->setXVel(currentPlayer->getXVel() + .2);
 				} else {
 					currentPlayer->setXVel(currentPlayer->getXVel() + .1);
 					currentPlayer->setXMom(xMom + 1);
 				}
-			} else if(!keystates[SDLK_RIGHT]) {
+			} else if(!keystates[SDLK_LEFT]) {
 				currentPlayer->setXMom(0);
 			}
 
