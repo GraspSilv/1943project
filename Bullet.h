@@ -17,26 +17,29 @@ To Do
 
 
 typedef enum {
-	rect_blt_nrm,
-	rect_blt_opn,
-	rect_blt_rnd,
-	rect_blt_clsd,
-	rect_blt_beam
+	SPR_BLT_NRM,
+	SPR_BLT_OPN,
+	SPR_BLT_RND,
+	SPR_BLT_CLSD,
+	SPR_BLT_BEAM
 } bulletSpriteType;
 
+typedef enum {
+	PLAYERO,
+	ENEMYO
+} bulletOriginType;
 
 class Bullet : public GraphElement{
 	public:
-		Bullet(double, double, double, double); //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
+		Bullet(double, double, double, double, bulletOriginType); //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin]
 		~Bullet();
 		SDL_Rect getSprite();
+		bulletOriginType getOrigin();
 		int getCount();
-		static int count;
-
 	private:
-		bulletSpriteType sprite; //enum that stores player plane's sprite
-		
-
+		bulletSpriteType sprite; //enum that stores player bullet's sprite
+		bulletOriginType origin; //enum that store's bullet's origin
+		static int count;
 };
 
 #endif //BULLET_H
