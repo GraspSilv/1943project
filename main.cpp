@@ -24,12 +24,15 @@ To Do
 #include"GraphElement.h"
 #include"Player.h"
 #include"Powerup.h"
+#include"Timer.h"
 
 //screen attributes
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
 const int WINDOW_BPP = 32;
 const std::string WINDOW_TITLE = "Blitz";
+
+const int GAME_FPS = 1;
 
 //surfaces that will be used
 SDL_Surface * spriteSheet = NULL;
@@ -69,12 +72,12 @@ int main(int argc, char * argv[]) {
 	
 	//create and initialize score and health counters
 	Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
-	Counter health(5, (WINDOW_HEIGHT - 200), 100, 0, 100, -5);
+	Counter health(5, (WINDOW_HEIGHT - 50), 100, 0, 100, -5);
 	
 	SDL_Surface * scoreSurface = score.render(font, textColor);
 	SDL_Surface * healthSurface = health.render(font, textColor);
 
-	currentPlayer = new Player(0,0);
+	Player * currentPlayer = new Player(0,0);
 	elements.push_back(currentPlayer);
 
 	elements.push_back(new Enemy(200, 200, RED));
@@ -82,145 +85,144 @@ int main(int argc, char * argv[]) {
 	elements.push_back(new Enemy(200, 150, RED));
 	elements.push_back(new Enemy(200, 100, RED));
 	elements.push_back(new Enemy(200, 300, RED));
-	elements.push_back(new Powerup(200, 200, 0.1, 0.1 COW));
+	elements.push_back(new Powerup(200, 200, 0.1, 0.1, COWP));
+	
+	Timer gameTimer;
+	int frameTime = 1000 / GAME_FPS;
 	
 	while(gameRunning) {
-		scoreSurface = score.render(font, textColor);
-		healthSurface = health.render(font, textColor);
+		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame
+			//render all counters
+			scoreSurface = score.render(font, textColor);
+			healthSurface = health.render(font, textColor);
 		
-		if(SDL_PollEvent(&event)) { //can change to while to make faster?
-			if(event.type == SDL_QUIT) {
-				gameRunning = 0;
-			}
-			else if(event.type == SDL_KEYDOWN) {
-				SDLKey keyPressed = event.key.keysym.sym;
-				switch (keyPressed){
-					case SDLK_ESCAPE:
-						gameRunning = false;
-						break;
-					case SDLK_z:
-						if (Bullet::count < 8){
-							elements.push_back(new Bullet(newPlayer.getXPos()+16,newPlayer.getYPos(),0,-.5));
-							// elements.push_back(new Bullet(newPlayer.getXPos()+5,newPlayer.getYPos(),0,-.5));
-							score.increment(1);
-						}
-						break;
-					case SDLK_x:
-						score.increment(10);
-
-						break;
-					default:
-						break;
+			if(SDL_PollEvent(&event)) { //can change to while to make faster?
+				if(event.type == SDL_QUIT) {
+					gameRunning = 0;
 				}
-			}
-		}
-
-		//Begin testing movement
-		Uint8 * keystates = SDL_GetKeyState(NULL);
-
-		int xm = newPlayer.getXMom();
-		int ym = newPlayer.getYMom();
-
-		if(keystates[SDLK_UP] && newPlayer.getYPos() > 1) {
-			if (ym < -1000){
-				newPlayer.setYVel(newPlayer.getYVel() - .2);
-			} else {
-				newPlayer.setYMom(ym - 1);
-				newPlayer.setYVel(newPlayer.getYVel() - .1);
-			}
-		} else if (!keystates[SDLK_DOWN]) {
-			newPlayer.setYMom(0);
-		}
-
-		if(keystates[SDLK_DOWN] && newPlayer.getYPos() < (WINDOW_HEIGHT - 10)) {
-			if (ym > 1000){
-				newPlayer.setYVel(newPlayer.getYVel() + .2);
-			} else {
-				newPlayer.setYVel(newPlayer.getYVel() + .1);
-				newPlayer.setYMom(ym + 1);
-			}
-		} else if (!keystates[SDLK_UP]) {
-			newPlayer.setYMom(0);
-		}
-
-		if(keystates[SDLK_LEFT] && newPlayer.getXPos() > 1) {
-			if (xm < -1000){
-				newPlayer.setXVel(newPlayer.getXVel() - .2);
-			} else {
-				newPlayer.setXVel(newPlayer.getXVel() - .1);
-				newPlayer.setXMom(xm - 1);
-			}
-		} else if (!keystates[SDLK_RIGHT]) {
-			newPlayer.setXMom(0);
-		}
-
-		if(keystates[SDLK_RIGHT] && newPlayer.getXPos() < (WINDOW_WIDTH - 10)) {
-			if (xm > 1000){
-				newPlayer.setXVel(newPlayer.getXVel() + .2);
-			} else {
-				newPlayer.setXVel(newPlayer.getXVel() + .1);
-				newPlayer.setXMom(xm + 1);
-			}
-		} else if (!keystates[SDLK_LEFT]) {
-			newPlayer.setXMom(0);
-		}
-
-		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
-        
-		applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
-		applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
-
-		for (int x = 0; x < elements.size(); x++){
-			bool toErase = false;
-			//THIS IS OUR LOOP FOR EVERYTHING
-			// Lot of really important shit goes here
-
-			if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
-				delete elements[x];
-				elements.erase(elements.begin()+x);
-				continue;
-			}
-
-								//maybe change this V to (y < x) for efficiency?
-			for (int y = 0; y < x; y++){
-				if (elements[x]->getType() == elements[y]->getType()) continue;
-				// std::cout << "checking" << std::endl;
-				if (x != y && checkCollide(elements[x]->getXPos(), elements[x]->getYPos(), elements[y]->getXPos(), elements[y]->getYPos(), elements[x]->getSprite(), elements[y]->getSprite()) == true){
-					std::cout << "Colliding!" << std::endl;
-					if (elements[x]->getType() == BULLET){
-						if (elements[y]->getType() == ENEMY){
-							delete elements[y];
-							elements.erase(elements.begin()+y);
-							std::cout << "okay 1" << std::endl;
-							toErase = true;
+				else if(event.type == SDL_KEYDOWN) {
+					SDLKey keyPressed = event.key.keysym.sym;
+					switch (keyPressed){
+						case SDLK_ESCAPE:
+							gameRunning = 0;
 							break;
-						}
+						case SDLK_z:
+							if(Bullet::count < 8) { //why is this variable public?
+								elements.push_back(new Bullet(currentPlayer->getXPos() + 16, currentPlayer->getYPos(), 0, -0.5));
+								elements.push_back(new Bullet(currentPlayer->getXPos() + 5, currentPlayer->getYPos(), 0, -0.5));
+								score.increment(1);
+							}
+							break;
+						default:
+							break;
 					}
 				}
 			}
-			if (toErase){
-				std::cout << "okay 2" << std::endl;
-				delete elements[x];
-				std::cout << "okay 3" << std::endl;
 
-				// elements.erase(elements.begin()+x);
-				std::cout << "okay 4" << std::endl;
-				break;
+			//begin testing movement
+			Uint8 * keystates = SDL_GetKeyState(NULL);
+
+			int xMom = currentPlayer->getXMom();
+			int yMom = currentPlayer->getYMom();
+
+			if(keystates[SDLK_UP] && currentPlayer->isOnScreen()) {
+				if(yMom < -9000) {
+					currentPlayer->setYVel(currentPlayer->getYVel() - .2);
+				} else {
+					currentPlayer->setYMom(yMom - 1);
+					currentPlayer->setYVel(currentPlayer->getYVel() - .1);
+				}
+			} else if (!keystates[SDLK_UP]) {
+				currentPlayer->setYMom(0);
 			}
 
-			elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
-			elements[x]->setYPos(elements[x]->getYPos()+elements[x]->getYVel());
-			applySurface(elements[x]->getXPos(),elements[x]->getYPos(),spriteSheet, screen, &elements[x]->getSprite());        
-		}
-			
-       SDL_Flip(screen);
-    }
-    
-    SDL_FreeSurface(scoreSurface);
-    cleanUp(); //free surfaces and quit SDL
+			if(keystates[SDLK_DOWN] && currentPlayer->isOnScreen()) {
+				if(yMom > 9000) {
+					currentPlayer->setYVel(currentPlayer->getYVel() + .2);
+				} else {
+					currentPlayer->setYVel(currentPlayer->getYVel() + .1);
+					currentPlayer->setYMom(yMom + 1);
+				}
+			} else if(!keystates[SDLK_DOWN]) {
+				currentPlayer->setYMom(0);
+			}
+
+			if(keystates[SDLK_LEFT] && currentPlayer->isOnScreen()) {
+				if(xMom < -9000) {
+					currentPlayer->setXVel(currentPlayer->getXVel() - .2);
+				} else {
+					currentPlayer->setXVel(currentPlayer->getXVel() - .1);
+					currentPlayer->setXMom(xMom - 1);
+				}
+			} else if(!keystates[SDLK_LEFT]) {
+				currentPlayer->setXMom(0);
+			}
+
+			if(keystates[SDLK_RIGHT] && currentPlayer->isOnScreen()) {
+				if(xMom > 9000) {
+					currentPlayer->setXVel(currentPlayer->getXVel() + .2);
+				} else {
+					currentPlayer->setXVel(currentPlayer->getXVel() + .1);
+					currentPlayer->setXMom(xMom + 1);
+				}
+			} else if(!keystates[SDLK_RIGHT]) {
+				currentPlayer->setXMom(0);
+			}
+
+			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
+        
+			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
+			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
+
+			for (int x = 0; x < elements.size(); x++){
+				bool toErase = false;
+				//THIS IS OUR LOOP FOR EVERYTHING
+				// Lot of really important shit goes here
+
+				if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
+					delete elements[x];
+					elements.erase(elements.begin()+x);
+					continue;
+				}
+
+								//maybe change this V to (y < x) for efficiency?
+				for (int y = 0; y < x; y++){
+					if (elements[x]->getType() == elements[y]->getType()) continue;
+					// std::cout << "checking" << std::endl;
+					if (x != y && checkCollide(elements[x]->getXPos(), elements[x]->getYPos(), elements[y]->getXPos(), elements[y]->getYPos(), elements[x]->getSprite(), elements[y]->getSprite()) == true){
+						std::cout << "Colliding!" << std::endl;
+						if (elements[x]->getType() == BULLET){
+							if (elements[y]->getType() == ENEMY){
+								delete elements[y];
+								elements.erase(elements.begin()+y);
+								std::cout << "okay 1" << std::endl;
+								toErase = true;
+								break;
+							}
+						}
+					}
+				}
+				if (toErase){
+					std::cout << "okay 2" << std::endl;
+					delete elements[x];
+					std::cout << "okay 3" << std::endl;
+	
+					// elements.erase(elements.begin()+x);
+					std::cout << "okay 4" << std::endl;
+					break;
+				}
+	
+				elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
+				elements[x]->setYPos(elements[x]->getYPos()+elements[x]->getYVel());
+				applySurface(elements[x]->getXPos(),elements[x]->getYPos(),spriteSheet, screen, &elements[x]->getSprite());        
+			}
+			SDL_Flip(screen);
+		} //end frame timing if()
+	} //end while(gameRunning)
+	SDL_FreeSurface(scoreSurface);
+	cleanUp(); //free surfaces and quit SDL
 }
-
-
+	
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip) {
 	SDL_Rect offset; //make temporary rectangle to hold offsets
 	
