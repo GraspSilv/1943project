@@ -100,14 +100,18 @@ GraphElement::~GraphElement() { //deconstructor, removes this pointer from point
 }
 
 int GraphElement::getOrigin() {
-	std::cout << "You should be in this getOrigin()!" << std::endl;
+	std::cout << "You should not be in this getOrigin()!" << std::endl;
+	return 0;
+}
+
+int GraphElement::isDone() {
 	return 0;
 }
 
 //void GraphElement::sub1_IncHealth() {
-//	std::cout << "You should be in this sub1_IncHealth()!" << std::endl;
+//	std::cout << "You should not be in this sub1_IncHealth()!" << std::endl;
 //}
 
 //void GraphElement::add4_IncHealth() {
-//	std::cout << "You should be in this add4_IncHealth()!" << std::endl;
+//	std::cout << "You should not be in this add4_IncHealth()!" << std::endl;
 //}

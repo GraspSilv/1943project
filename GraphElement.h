@@ -25,6 +25,7 @@ To Do
 typedef enum {
 	BULLET,
 	ENEMY,
+	EXPLOSION,
 	PLAYER,
 	POWERUP
 } GEType;
@@ -50,6 +51,7 @@ class GraphElement {
 		
 		//following are functions that we were forced to virtualize
 		virtual int getOrigin();
+		virtual int isDone();
 		//virtual void sub1_IncHealth();
 		//virtual void add4_IncHealth();
 	private:
