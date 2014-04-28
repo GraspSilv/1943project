@@ -264,12 +264,12 @@ SDL_Rect Enemy::getSprite(){
 	if (enemy == RED){
 		double xv = getXVel();
 		double yv = getYVel();
-		std::cout << xv << ", " << yv << std::endl;
+//		std::cout << xv << ", " << yv << std::endl;
 		if (std::abs(xv) - std::abs(yv) >=  .15) {
 			if (xv > 0) return sprites[RECT_RED_E];
 			else return sprites[RECT_RED_W];
 		} else if (std::abs(xv) - std::abs(yv) <= -.15){
-			std::cout << yv << std::endl;
+//			std::cout << yv << std::endl;
 			if (yv > 0) return sprites[RECT_RED_S];
 			else return sprites[RECT_RED_N];
 		} else {
@@ -284,4 +284,20 @@ SDL_Rect Enemy::getSprite(){
 
 enemyType Enemy::getEnemyType(){
 	return enemy;
+}
+
+void Enemy::update(){
+	double yP = getYPos();
+
+	if (yP < 200 && yP > 0){
+		setYVel(getYVel() + .03);
+	} else if (yP > 200){
+		setYVel(getYVel() - .03);
+	} else if (yP < 0 ){
+		setYVel(getYVel() + .01);
+	}
+
+	if (yP < 100 && getYVel() < 0){
+		setYVel(getYVel() + std::abs(100 - yP)/10000);
+	}
 }
