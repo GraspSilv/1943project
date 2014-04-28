@@ -18,6 +18,8 @@ History
 #include <cmath>
 
 Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
+
+	AIcount = 0;
 	enemy = e;
 
 	SDL_Rect rect_red_N; //sprite of red plane heading north
@@ -286,18 +288,50 @@ enemyType Enemy::getEnemyType(){
 	return enemy;
 }
 
-void Enemy::update(){
+int Enemy::canFire(){
+	return (std::abs(getXVel()) - std::abs(getYVel()) <= -.15 && getYVel() > 0);
+}
+
+int Enemy::update(){
+
+	AIcount = AIcount++ % 700;
+	if (AIcount > 1600) AIcount = 0;
+
 	double yP = getYPos();
+	double xP = getXPos();
 
 	if (yP < 200 && yP > 0){
-		setYVel(getYVel() + .03);
-	} else if (yP > 200){
-		setYVel(getYVel() - .03);
+		setYVel(getYVel() + .005);
+	} else if (yP > 300){
+		setYVel(getYVel() - .005);
 	} else if (yP < 0 ){
-		setYVel(getYVel() + .01);
+		setYVel(getYVel() + .005);
 	}
 
 	if (yP < 100 && getYVel() < 0){
-		setYVel(getYVel() + std::abs(100 - yP)/10000);
+		setYVel(getYVel() + std::abs(100 - yP)/100000);
 	}
+
+	if (xP < 240 ){
+		if (getXVel() < 0){
+			setXVel(getXVel() - .01 + AIcount/16000);
+		} else {
+			setXVel(getXVel() + .01);
+		}
+			
+	} else {
+		setXVel(getXVel() + .005 - AIcount/10000);
+	}
+
+	if (xP < 120){
+		setXVel(getXVel() + .02);
+	} else if (xP > 360){
+		setXVel(getXVel() - .02);
+	}
+
+	if (getYVel() > 4) setYVel(4);
+	if (getYVel() < -4) setYVel(-4);
+	if (getXVel() > 4) setXVel(4);
+	if (getXVel() < -4) setXVel(-4);
+	return ((AIcount == 200 ) && canFire());
 }
