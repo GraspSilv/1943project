@@ -107,7 +107,7 @@ int main(int argc, char * argv[]) {
 					case SDLK_z:
 						if (Bullet::count < 8){
 							elements.push_back(new Bullet(newPlayer.getXPos()+16,newPlayer.getYPos(),0,-.5));
-							elements.push_back(new Bullet(newPlayer.getXPos()+5,newPlayer.getYPos(),0,-.5));
+							// elements.push_back(new Bullet(newPlayer.getXPos()+5,newPlayer.getYPos(),0,-.5));
 							score.increment(1);
 						}
 						break;
@@ -210,9 +210,9 @@ int main(int argc, char * argv[]) {
 				delete elements[x];
 				std::cout << "okay 3" << std::endl;
 
-				elements.erase(elements.begin()+x);
+				// elements.erase(elements.begin()+x);
 				std::cout << "okay 4" << std::endl;
-				continue;
+				break;
 			}
 
 			elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
