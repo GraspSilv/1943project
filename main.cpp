@@ -45,7 +45,17 @@ SDL_Color textColor = {255, 255, 255};
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
-bool checkCollide(int Ax, int Ay, int Bx, int By, SDL_Rect A, SDL_Rect B);
+//the following functions deal with consequences for both objects, including whether the operand specified by the first argument (0 or 1) was destroyed
+int collideBulletBullet(int main, Bullet * b1, Bullet * b2, std::vector<GraphElement *> * elemPtr);
+int collideBulletEnemy(Bullet * b, Enemy * e, std::vector<GraphElement *> * elemPtr);
+int collideBulletPlayer(Bullet * b, Player * pl, std::vector<GraphElement *> * elemPtr);
+int collideBulletPowerup(Bullet * b, Powerup * po, std::vector<GraphElement *> * elemPtr);
+int collideEnemyEnemy(Enemy * e1, Enemy * e2, std::vector<GraphElement *> * elemPtr);
+int collideEnemyPlayer(Enemy * e, Player * pl, std::vector<GraphElement *> * elemPtr);
+int collideEnemyPowerup(Enemy * e, Powerup * po, std::vector<GraphElement *> * elemPtr);
+int collidePlayerPlayer(Player * pl1, Player * pl2, std::vector<GraphElement *> * elemPtr);
+int collidePlayerPowerup(Player * pl, Powerup * po, std::vector<GraphElement *> * elemPtr);
+int collidePowerupPowerup(Powerup * po1, Powerup * po2, std::vector<GraphElement *> * elemPtr);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
@@ -174,11 +184,92 @@ int main(int argc, char * argv[]) {
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 			applySurface(health.getXPos(), health.getYPos(), healthSurface, screen);
 
+			
+			//HERE BEGINS JON'S COLLISION STUFF
+			for (int x = 0; x < elements.size(); x++) { //for every element,
+				GEType xType = elements[x]->getType();
+				for (int y = x + 1; y < elements.size(); y++) { //for every following element,
+					if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
+						GEType yType = elements[y]->getType();
+						switch(xType) {
+							case BULLET:
+								switch(yType) {
+									case BULLET: //BULLET and BULLET
+										xDestroyed = collideBulletBullet(elements[x], elements[y])
+										break;
+									case ENEMY: //BULLET and ENEMY
+										collideBulletEnemy
+										break;
+									case PLAYER: //BULLET and PLAYER
+										collideBulletPlayer
+										break;
+									case POWERUP: //BULLET and POWERUP
+										collideBulletPowerup
+										break;
+									default:
+										std::cout << "Error: type of element[y] not defined"
+										break;
+								}
+								break;
+							case ENEMY:
+								switch(yType) {
+									case BULLET: //ENEMY and BULLET (ALREADY DEFINED! COPY FROM ABOVE!)
+										break;
+									case ENEMY: //ENEMY and ENEMY
+										break;
+									case PLAYER: //ENEMY and PLAYER
+										break;
+									case POWERUP: //ENEMY and POWERUP
+										break;
+									default:
+										std::cout << "Error: type of element[y] not defined"
+										break;
+								}								
+								break;
+							case PLAYER:
+								switch(yType) {
+									case BULLET: //PLAYER and 
+										break;
+									case ENEMY: //PLAYER and 
+										break;
+									case PLAYER: //PLAYER and 
+										break;
+									case POWERUP: //PLAYER and 
+										break;
+									default:
+										std::cout << "Error: type of element[y] not defined"
+										break;
+								}								
+								break;
+							case POWERUP:
+								switch(yType) {
+									case BULLET: //BULLET and
+										break;
+									case ENEMY: //BULLET and
+										break;
+									case PLAYER: //BULLET and
+										break;
+									case POWERUP: //BULLET and
+										break;
+									default:
+										std::cout << "Error: type of element[y] not defined"
+										break;
+								}								
+								break;
+							default:
+								std::cout << "Error: type of element[x] not defined"
+						}
+					}
+				}
+			}
+			//HERE ENDS JON'S COLLISION STUFF
+			
 			for (int x = 0; x < elements.size(); x++){
 				int toErase = 0;
 				//THIS IS OUR LOOP FOR EVERYTHING
 				// Lot of really important stuff goes here
 
+				
 				if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
 					delete elements[x];
 					elements.erase(elements.begin()+x);
@@ -189,7 +280,7 @@ int main(int argc, char * argv[]) {
 				for (int y = 0; y < x; y++){
 					if (elements[x]->getType() == elements[y]->getType()) continue;
 					// std::cout << "checking" << std::endl;
-					if (x != y && checkCollide(elements[x]->getXPos(), elements[x]->getYPos(), elements[y]->getXPos(), elements[y]->getYPos(), elements[x]->getSprite(), elements[y]->getSprite()) == true){
+					if (x != y && checkCollide(elements[x], elements[y]) == true){
 						//std::cout << "Colliding!" << std::endl;
 						if (elements[x]->getType() == BULLET){
 							if (elements[y]->getType() == ENEMY){
@@ -233,23 +324,33 @@ void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect 
 	SDL_BlitSurface(src, clip, dest, &offset); //blit clipped surface
 }
 
-bool checkCollide(int Ax, int Ay, int Bx, int By, SDL_Rect A, SDL_Rect B){
-	int leftA, leftB, rightA, rightB, topA, topB, bottomA, bottomB;
-	leftA = Ax;
-	rightA = Ax + A.w;
-	topA = Ay;
-	bottomA = Ay + A.h;
+int checkCollide(GraphElement * a, GraphElement * b) {
+	SDL_Rect aClip = a->getSprite();
+	SDL_Rect bClip = b->getSprite();
+	
+	int leftA = a->getXPos();
+	int leftB = b->getXPos();
+	int rightA = leftA + aClip.w;
+	int rightB = leftB + bClip.w;
+	int bottomA = a->getYPos();
+	int bottomB = b->getYPos();
+	int topA = bottomA + aClip.h;
+	int topB = bottomB + bClip.h;
 
-	leftB = Bx;
-	rightB = Bx + B.w;
-	topB = By;
-	bottomB = By + B.h;
-
-	if (bottomA <= topB || topA >= bottomB || rightA <= leftB || leftA >= rightB){
-		return false;
+	if(leftA >= rightB || rightA <= leftB || bottomA >= topB || topA <= bottomB) {
+		return 0;switch(xType) {
+							case BULLET:
+								break;
+							case ENEMY:
+								break;
+							case PLAYER:
+								break;
+							case POWERUP:
+								break;
+							default:
+								std::cout << "Error: type of element[x] not defined"
 	}
 	return true;
-
 }
 
 
@@ -258,6 +359,56 @@ void cleanUp() {
 	TTF_CloseFont(font); //close font
 	TTF_Quit(); //quit SDL_ttf
 	SDL_Quit(); //quit SDL
+}
+
+
+int collideBulletBullet(Bullet * b1, Bullet * b2, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collideBulletEnemy(Bullet * b, Enemy * e, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collideBulletPlayer(Bullet * b, Player * pl, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collideBulletPowerup(Bullet * b, Powerup * po, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collideEnemyEnemy(Enemy * e1, Enemy * e2, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collideEnemyPlayer(Enemy * e, Player * pl, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collideEnemyPowerup(Enemy * e, Powerup * po, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collidePlayerPlayer(Player * pl1, Player * pl2, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collidePlayerPowerup(Player * pl, Powerup * po, std::vector<GraphElement *> * elemPtr) {
+
+}
+
+
+int collidePowerupPowerup(Powerup * po1, Powerup * po2, std::vector<GraphElement *> * elemPtr) {
+
 }
 
 
