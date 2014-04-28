@@ -9,8 +9,8 @@ History
 	04/09/14	Jon Richelsen	Standardize, combine with Sprite class, declare addSprite(), getSprite(), get[XY](), set[XY](), setY(), and private variable sprites
 	04/22/14	Jon Richelsen	Declare deconstructor and private variable GE_Ptrs, remove sprite struct, and change sprites vector to a vector of SDL_Rects, rename get[XY]() and set[XY] to get[XY]Pos() and set[XY]Pos, declare get[XY]Vel() and setVel[XY] and prvate variables xVel and yVel
 	04/27/14	Jon Richelsen	Declare new nondefault constructor to set velocity, change descriptions of nondefault constructors to include type, declare getType
+	04/27/14	Jack Magiera	Add BULLET to GEType enum, declare virtual deconstructor, remove GE_Ptrs from private data
 To Do
-	Test that vector of pointers works
 */
 #ifndef GRAPHELEMENT_H
 #define GRAPHELEMENT_H
