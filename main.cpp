@@ -138,8 +138,8 @@ int main(int argc, char * argv[]) {
 							break;
 						case SDLK_z:
 							Mix_PlayChannel(-1, gunfire, 0);
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -0.5, 1));
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -0.5, 1));
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1));
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1));
 							score.increment(1);
 							break;
 						default:
@@ -156,10 +156,10 @@ int main(int argc, char * argv[]) {
 
 			if(keystates[SDLK_UP] && currentPlayer->getYPos() > 1) {
 				if(yMom < -600) {
-					currentPlayer->setYVel(currentPlayer->getYVel() - .4);
+					currentPlayer->setYVel(currentPlayer->getYVel() - 4);
 				} else {
 					currentPlayer->setYMom(yMom - 1);
-					currentPlayer->setYVel(currentPlayer->getYVel() - .2);
+					currentPlayer->setYVel(currentPlayer->getYVel() - 2);
 				}
 			} else if (!keystates[SDLK_DOWN]) {
 				currentPlayer->setYMom(0);
@@ -167,9 +167,9 @@ int main(int argc, char * argv[]) {
 
 			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() < 620) {
 				if(yMom > 600) {
-					currentPlayer->setYVel(currentPlayer->getYVel() + .4);
+					currentPlayer->setYVel(currentPlayer->getYVel() + 4);
 				} else {
-					currentPlayer->setYVel(currentPlayer->getYVel() + .2);
+					currentPlayer->setYVel(currentPlayer->getYVel() + 2);
 					currentPlayer->setYMom(yMom + 1);
 				}
 			} else if(!keystates[SDLK_UP]) {
@@ -178,9 +178,9 @@ int main(int argc, char * argv[]) {
 
 			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() > 1) {
 				if(xMom < -600) {
-					currentPlayer->setXVel(currentPlayer->getXVel() - .4);
+					currentPlayer->setXVel(currentPlayer->getXVel() - 4);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() - .2);
+					currentPlayer->setXVel(currentPlayer->getXVel() - 2);
 					currentPlayer->setXMom(xMom - 1);
 				}
 			} else if(!keystates[SDLK_RIGHT]) {
@@ -189,9 +189,9 @@ int main(int argc, char * argv[]) {
 
 			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() < 460) {
 				if(xMom > 600) {
-					currentPlayer->setXVel(currentPlayer->getXVel() + .4);
+					currentPlayer->setXVel(currentPlayer->getXVel() + 4);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() + .2);
+					currentPlayer->setXVel(currentPlayer->getXVel() + 2);
 					currentPlayer->setXMom(xMom + 1);
 				}
 			} else if(!keystates[SDLK_LEFT]) {

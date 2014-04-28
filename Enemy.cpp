@@ -252,8 +252,7 @@ Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
 	addSprite(rect_purp1);
 	addSprite(rect_bigGray);
 
-	setYVel(.3);
-	setXVel(.3);
+	setYVel(1);
 }
 
 /*Enemy::Enemy(double xP, double yP, double xV, double yV, enemyType e) : Enemy(xP,yP,e) {
