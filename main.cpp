@@ -45,7 +45,7 @@ SDL_Color textColor = {255, 255, 255};
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
-bool checkCollide(SDL_Rect A, SDL_Rect B);
+bool checkCollide(int Ax, int Ay, int Bx, int By, SDL_Rect A, SDL_Rect B);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
@@ -178,7 +178,10 @@ int main(int argc, char * argv[]) {
 
 
 		for (int x = 0; x < elements.size(); x++){
+			bool toErase = false;
 			//THIS IS OUR LOOP FOR EVERYTHING
+			// Lot of really important shit goes here
+
 			if (elements[x]->getYPos() < 0 && elements[x]->getType() == BULLET){
 				delete elements[x];
 				elements.erase(elements.begin()+x);
@@ -189,9 +192,27 @@ int main(int argc, char * argv[]) {
 			for (int y = 0; y < x; y++){
 				if (elements[x]->getType() == elements[y]->getType()) continue;
 				// std::cout << "checking" << std::endl;
-				if (x != y && checkCollide(elements[x]->getSprite(), elements[y]->getSprite()) == true){
+				if (x != y && checkCollide(elements[x]->getXPos(), elements[x]->getYPos(), elements[y]->getXPos(), elements[y]->getYPos(), elements[x]->getSprite(), elements[y]->getSprite()) == true){
 					std::cout << "Colliding!" << std::endl;
+					if (elements[x]->getType() == BULLET){
+						if (elements[y]->getType() == ENEMY){
+							delete elements[y];
+							elements.erase(elements.begin()+y);
+							std::cout << "okay 1" << std::endl;
+							toErase = true;
+							break;
+						}
+					}
 				}
+			}
+			if (toErase){
+				std::cout << "okay 2" << std::endl;
+				delete elements[x];
+				std::cout << "okay 3" << std::endl;
+
+				elements.erase(elements.begin()+x);
+				std::cout << "okay 4" << std::endl;
+				continue;
 			}
 
 			elements[x]->setXPos(elements[x]->getXPos()+elements[x]->getXVel());
@@ -217,17 +238,17 @@ void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect 
 	SDL_BlitSurface(src, clip, dest, &offset); //blit clipped surface
 }
 
-bool checkCollide(SDL_Rect A, SDL_Rect B){
+bool checkCollide(int Ax, int Ay, int Bx, int By, SDL_Rect A, SDL_Rect B){
 	int leftA, leftB, rightA, rightB, topA, topB, bottomA, bottomB;
-	leftA = A.x;
-	rightA = A.x + A.w;
-	topA = A.y;
-	bottomA = A.y + A.h;
+	leftA = Ax;
+	rightA = Ax + A.w;
+	topA = Ay;
+	bottomA = Ay + A.h;
 
-	leftB = B.x;
-	rightB = B.x + B.w;
-	topB = B.y;
-	bottomB = B.y + B.h;
+	leftB = Bx;
+	rightB = Bx + B.w;
+	topB = By;
+	bottomB = By + B.h;
 
 	if (bottomA <= topB || topA >= bottomB || rightA <= leftB || leftA >= rightB){
 		return false;

@@ -65,6 +65,7 @@ int Bullet::getCount(){
 }
 
 Bullet::~Bullet(){
+	std::cout<<"Bullet dead"<<std::endl;
 	count--;
 }
 
