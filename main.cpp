@@ -261,8 +261,11 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 void cleanUp() {
 	SDL_FreeSurface(spriteSheet); //free surface
 	TTF_CloseFont(font); //close font
+	Mix_FreeMusic(music);
+	Mix_CloseAudio();
 	TTF_Quit(); //quit SDL_ttf
 	SDL_Quit(); //quit SDL
+
 }
 
 
