@@ -56,7 +56,7 @@ class GraphElement {
 		virtual int isBeam();
 		//virtualized Player functions
 		virtual void newAmmo();
-		virtual void use2Ammo();
+		virtual void useAmmo(int);
 		virtual void newHealth();
 		virtual void hitByBullet();
 		virtual void hitByPlane();

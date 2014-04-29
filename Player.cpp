@@ -174,8 +174,8 @@ void Player::newAmmo() {
 	ammo.increment(100);
 }
 
-void Player::use2Ammo() {
-	ammo.increment(-2);
+void Player::useAmmo(int n) {
+	ammo.increment(-n);
 }
 
 void Player::newHealth() {
