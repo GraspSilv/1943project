@@ -41,10 +41,13 @@ SDL_Surface * ammoSurface = NULL;
 SDL_Surface * ammoLabelSurface = NULL;
 SDL_Surface * healthSurface = NULL;
 SDL_Surface * healthLabelSurface = NULL;
+SDL_Surface * livesSurface = NULL;
+SDL_Surface * livesLabelSurface = NULL;
 SDL_Surface * scoreSurface = NULL;
 SDL_Surface * scoreLabelSurface = NULL;
 
 TTF_Font * font = NULL;
+
 Mix_Music * music = NULL;
 Mix_Music * starship = NULL;
 Mix_Chunk * gunfire = NULL;
@@ -117,6 +120,12 @@ int main(int argc, char * argv[]) {
 	if (Mix_PlayMusic(music,5) == -1){
 		return 1;
 	}
+	
+	//render labels
+	ammoLabelSurface = TTF_RenderText_Solid(font, "Ammo", textColor);
+	healthLabelSurface = TTF_RenderText_Solid(font, "Health", textColor);
+	livesLabelSurface = TTF_RenderText_Solid(font, "Lives", textColor);
+	scoreLabelSurface = TTF_RenderText_Solid(font, "Score", textColor);
 	
 	while(gameRunning) {
 		//reset player's velocity
@@ -209,20 +218,6 @@ int main(int argc, char * argv[]) {
 				currentPlayer->setXMom(0);
 			}
 			
-			//extract temporary versions of ammo and health counters from player
-			Counter tempAmmoCntr = currentPlayer->getAmmoCntr();
-			Counter tempHealthCntr = currentPlayer->getHealthCntr();
-			
-			//render all counters
-			ammoSurface = tempAmmoCntr.render(font, textColor);
-			healthSurface = tempHealthCntr.render(font, textColor);
-			scoreSurface = score.render(font, textColor);
-			
-			//apply all counters to screen
-			applySurface(tempAmmoCntr.getXPos(), tempAmmoCntr.getYPos(), ammoSurface, screen);
-			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
-			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
-			
 			int xDeleted; //signals if first element should be deleted
 			for(int x = 0; x < elements.size(); x++) { //for every element,
 				xDeleted = 0; //first element should not be deleted (yet)
@@ -267,6 +262,26 @@ int main(int argc, char * argv[]) {
 				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
 				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
 			}		     
+			//extract temporary versions of ammo and health counters from player
+			Counter tempAmmoCntr = currentPlayer->getAmmoCntr();
+			Counter tempHealthCntr = currentPlayer->getHealthCntr();
+			
+			//render all counters
+			ammoSurface = tempAmmoCntr.render(font, textColor);
+			healthSurface = tempHealthCntr.render(font, textColor);
+			scoreSurface = score.render(font, textColor);
+			
+			//apply all labels to screen
+			applySurface(tempAmmoCntr.getXPos(), (tempAmmoCntr.getYPos() - 15), ammoLabelSurface, screen);
+			applySurface(tempHealthCntr.getXPos(), (tempHealthCntr.getYPos() - 15), healthLabelSurface, screen);
+			applySurface(10, (tempHealthCntr.getYPos() - 15), livesLabelSurface, screen);
+			applySurface(300, (tempHealthCntr.getYPos() - 15), scoreLabelSurface, screen);
+			
+			//apply all counters to screen
+			applySurface(tempAmmoCntr.getXPos(), tempAmmoCntr.getYPos(), ammoSurface, screen);
+			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
+			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
+			
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
@@ -316,6 +331,8 @@ void cleanUp() {
 	SDL_FreeSurface(ammoLabelSurface);
 	SDL_FreeSurface(healthSurface);
 	SDL_FreeSurface(healthLabelSurface);
+	SDL_FreeSurface(livesSurface);
+	SDL_FreeSurface(livesLabelSurface);
 	SDL_FreeSurface(scoreSurface);
 	SDL_FreeSurface(scoreLabelSurface);
 	
@@ -615,7 +632,7 @@ int init() {
 
 int loadFiles() {
 	//load joystix.ttf (with possibility of error)
-	font = TTF_OpenFont("joystix.ttf", 14); 
+	font = TTF_OpenFont("joystix.ttf", 18); 
 	if(!font) {
 		std::cout << "Error: Could not load joystix.ttf" << std::endl;
 		return 0;
