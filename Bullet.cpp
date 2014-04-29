@@ -77,6 +77,13 @@ int Bullet::getCount(){
 	return count;
 }
 
+int Bullet::update() { //returns 1 if bullet if off the screen
+	if(isOnScreen()) {
+		return 0;
+	}
+	return 1;
+}
+
 Bullet::~Bullet(){
 	//std::cout << "Bullet dead" << std::endl;
 	count--;

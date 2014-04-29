@@ -34,6 +34,7 @@ class Bullet : public GraphElement {
 		SDL_Rect getSprite();
 		int getOrigin();
 		int getCount();
+		int update(); //returns 1 if bullet if off the screen
 	private:
 		bulletSpriteType sprite; //enum that stores player bullet's sprite
 		int origin; //enum that store's bullet's origin

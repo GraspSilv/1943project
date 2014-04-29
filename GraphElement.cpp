@@ -105,7 +105,8 @@ int GraphElement::getOrigin() {
 }
 
 int GraphElement::update() {
-	return -1;
+	std::cout << "Error: update() used on object where method has not yet been defined" << std::endl;
+	return 0;
 }
 
 int GraphElement::getPower() {
