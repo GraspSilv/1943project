@@ -293,15 +293,20 @@ int main(int argc, char * argv[]) {
 							gameRunning = 0; //quit game
 							break;
 						case SDLK_z: //if pressed Z							
-							//fire player bullets
-								isLaser = (beamCycles > 0);
-							if (isLaser){
-								elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -8, 1, BEAM));
-								elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -8, 1, BEAM));
-							} else {
-								Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
-								elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1, NRM));
-								elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1, NRM));
+							if(currentPlayer->getAmmoCntr().getValue() > 0) { //if player has ammo,
+								isLaser = (beamCycles > 0); //check if laser enabled
+								if(isLaser) { //if laser enabled,
+									//create two laser bullets and subtract 2 ammo from Player
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -8, 1, BEAM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -8, 1, BEAM));
+									currentPlayer->use2Ammo();
+								} else { //if laser not enabled,
+									//create two normal bullets and subtract 2 ammo from Player
+									Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1, NRM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1, NRM));
+									currentPlayer->use2Ammo();
+								}
 							}
 							break;
 						case SDLK_x:
