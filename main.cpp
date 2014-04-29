@@ -109,7 +109,6 @@ int main(int argc, char * argv[]) {
 	elements.push_back(new Enemy(200, -50, RED));
 	elements.push_back(new Enemy(280, -50, RED));
 	elements.push_back(new Powerup(200, 200, 1, 1, 5));
-	elements.push_back(new Explosion(300, 300));
 	
 	Timer gameTimer;
 	gameTimer.start();
@@ -533,6 +532,8 @@ int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vect
 int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
 	int eDestroyed = 0; //enemy is not destroyed (yet)
 	int plDestroyed = 0; //player is not destroyed (yet)
+	
+	elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 	
 	//delete enemy object and remove it from elements vector
 	delete e;

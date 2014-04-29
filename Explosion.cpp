@@ -11,7 +11,7 @@ Explosion.cpp
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
-const int Explosion::framesPerSprite = 30;
+const int Explosion::framesPerSprite = 40;
 
 Explosion::Explosion(double xP, double yP) : GraphElement(xP, yP, 0, 0, EXPLOSION) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_EXPL_1;
@@ -88,14 +88,14 @@ SDL_Rect Explosion::getSprite() {
 			std::cout << stage << std::endl;
 			break;
 	}
-
-	displayCount++;
 	return sprites[sprite];
 }
 
 int Explosion::update() { //returns 1 if animation is complete
-	if(displayCount < (6 * framesPerSprite)) {
-		return 0;
+	std::cout << "In Explosion's update!" << std::endl;
+	if(displayCount >= ((6 * framesPerSprite) - 1)) {
+		return 1;
 	}
-	return 1;
+	displayCount++;
+	return 0;
 }
