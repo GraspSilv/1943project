@@ -21,7 +21,6 @@ To Do
 #include<vector>
 #include "SDL/SDL.h"
 
-
 typedef enum {
 	BULLET,
 	ENEMY,

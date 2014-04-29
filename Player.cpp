@@ -12,9 +12,9 @@ Player.cpp
 #include"Counter.h"
 
 Player::Player(double xP, double yP) :
-	GraphElement(xP, yP, 0, 0, PLAYER),
-	ammo(100, 300, 100, 0, 100, 1),
-	health(100, 100, 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
+	GraphElement(xP, yP, PLAYER),
+	ammo(100, (640 - 30), 100, 0, 100, 1),
+	health(180, (640 - 30), 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
 	weapon = STANDARD_WEAP;
 	xMom = 0;

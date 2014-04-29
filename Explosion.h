@@ -24,11 +24,11 @@ class Explosion : public GraphElement {
 	public:
 		Explosion(double, double); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos]
 		SDL_Rect getSprite();
-		int isDone();
+		int update(); //returns 1 if animation is complete
 	private:
+		explosionSpriteType sprite; //enum that stores explosion's sprite
 		int displayCount;
 		static const int framesPerSprite;
-		explosionSpriteType sprite; //enum that stores explosion's sprite
 };
 
 #endif //EXPLOSION_H
