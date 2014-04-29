@@ -99,41 +99,55 @@ GraphElement::~GraphElement() {
 }
 
 int GraphElement::update() {
-	std::cout << "Error: update() used on object where method has not yet been defined" << std::endl;
+	std::cout << "Error: update() called on object where method has not yet been defined" << std::endl;
 	return 0;
 }
 
 int GraphElement::getOrigin() {
-	std::cout << "Error: getOrigin() used on non-Bullet object" << std::endl;
+	std::cout << "Error: getOrigin() called on non-Bullet object" << std::endl;
+	return -1;
+}
+
+int GraphElement::getBulletType() {
+	std::cout << "Error: getBulletType() called on non-Bullet object" << std::endl;
+	return -1;
+}
+
+int GraphElement::isBeam() {
+	std::cout << "Error: isBeam() called on a non-player object" << std::endl;
 	return -1;
 }
 
 void GraphElement::newAmmo() {
-	std::cout << "Error: newBullets() used on non-Player object" << std::endl;
-}
-
-int GraphElement::isBeam() {
-	std::cout << "Error: isBeam() used on a non-player object" << std::endl;
-	return 0;
+	std::cout << "Error: newBullets() called on non-Player object" << std::endl;
 }
 
 void GraphElement::use2Ammo() {
-	std::cout << "Error: use2Bullets() used on non-Player object" << std::endl;
+	std::cout << "Error: use2Bullets() called on non-Player object" << std::endl;
 }
 
 void GraphElement::newHealth() {
-	std::cout << "Error: newHealth() used on non-Player object" << std::endl;
+	std::cout << "Error: newHealth() called on non-Player object" << std::endl;
 }
 
 void GraphElement::hitByBullet() {
-	std::cout << "Error: hitByBullet() used on non-Player object" << std::endl;
+	std::cout << "Error: hitByBullet() called on non-Player object" << std::endl;
 }
 
 void GraphElement::hitByPlane() {
-	std::cout << "Error: hitByPlane() used on non-Player object" << std::endl;
+	std::cout << "Error: hitByPlane() called on non-Player object" << std::endl;
+}
+
+int GraphElement::getWeapon() {
+	std::cout << "Error: getWeapon() called on non-Player object" << std::endl;
+	return -1;
+}
+
+void GraphElement::setWeapon(int w) {
+	std::cout << "Error: setWeapon() called on non-Player object" << std::endl;
 }
 
 int GraphElement::getPower() {
-	std::cout << "Error: getPower() used on non-Powerup object" << std::endl;
+	std::cout << "Error: getPower() called on non-Powerup object" << std::endl;
 	return -1;
 }

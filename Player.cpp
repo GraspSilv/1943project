@@ -16,7 +16,7 @@ Player::Player(double xP, double yP) :
 	ammo(100, (640 - 30), 100, 0, 100, 1),
 	health(180, (640 - 30), 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
-	weapon = STANDARD_WEAP;
+	weapon = 0;
 	xMom = 0;
 	yMom = 0;
 
@@ -188,6 +188,14 @@ void Player::hitByBullet() {
 
 void Player::hitByPlane() {
 	health.increment(-2);
+}
+
+int Player::getWeapon() {
+	return weapon;
+}
+
+void Player::setWeapon(int w) {
+	weapon = w;
 }
 
 int Player::getXMom(){
