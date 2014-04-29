@@ -142,30 +142,7 @@ int main(int argc, char * argv[]) {
 	levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
 	
 	while(gameRunning) {
-		std::cout << shipCounter << std::endl;
-		shipCounter++;
-		if (shipCounter > 2000000) shipCounter = 0;
-		if (enemyCount <= maxShips/2 && shipCounter == 100 && !addShips && maxShips != 0){
-			//std::cout << "counting ships" << std::endl;
-			maxShips = lev->getNextGroup();
-			//std::cout << "ok" << std::endl;
-			if (maxShips != 0){
-				shipType = lev->getNextType();
-			//std::cout << "not ok" << std::endl;
-				addShips = 1;
-			} else {
-				addShips = 0;
-				maxShips = 0;
-				std::cout << "Done\n";
-			}
-		}
 
-		if (addShips && shipCounter == 150 && maxShips != 0){
-			std::cout << "counting ships 2" << std::endl;
-			elements.push_back(new Enemy(50 + enemyCount * 50, -50 - 50*enemyCount, shipType));
-			enemyCount++;
-			if (enemyCount >= maxShips || maxShips == 0) addShips = 0;
-		}
 		
 
 		//reset player's velocity
@@ -176,6 +153,31 @@ int main(int argc, char * argv[]) {
 			bgY += 1;
 			if(bgY >= bg.background->h) {//if background has scrolled too far,
 				bgY = 0; //reset the offset
+			}
+
+			//std::cout << shipCounter << std::endl;
+			shipCounter++;
+			if (shipCounter > 80) shipCounter = 0;
+			if (enemyCount <= maxShips/2 && shipCounter == 70 && !addShips && maxShips != 0){
+				//std::cout << "counting ships" << std::endl;
+				maxShips = lev->getNextGroup();
+				//std::cout << "ok" << std::endl;
+				if (maxShips != 0){
+					shipType = lev->getNextType();
+				//std::cout << "not ok" << std::endl;
+					addShips = 1;
+				} else {
+					addShips = 0;
+					maxShips = 0;
+					std::cout << "Done\n";
+				}
+			}
+
+			if (addShips && shipCounter == 50 && maxShips != 0){
+				std::cout << "counting ships " << enemyCount + 1 << std::endl;
+				elements.push_back(new Enemy(50 + enemyCount * 50, -50 - 50*enemyCount, shipType));
+				enemyCount++;
+				if (enemyCount >= maxShips || maxShips == 0) addShips = 0;
 			}
 
 			//show background
@@ -262,28 +264,31 @@ int main(int argc, char * argv[]) {
 			for(int x = 0; x < elements.size(); x++) { //for every element,
 				xDeleted = 0; //first element should not be deleted (yet)
 				GEType xType = elements[x]->getType(); //store that element's type
+				if(xType == BULLET) { //if element is bullet
+					if(elements[x]->update()) { //if bullet's updated status has a signal to process
+						//delete bullet object and remove it from elements vector
+						delete elements[x];
+						elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
+						continue;
+					}
+				} else if(xType == ENEMY) { //if element is enemy
+					if(elements[x]->update()) { //if enemy's updated status has a signal to process
+						Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+						//fire enemy bullets
+						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0));
+					}
+				} else if(xType == EXPLOSION) { //if element is explosion
+					if(elements[x]->update()) { //if explosion's updated status has a signal to process
+						//delete explosion object and remove it from elements vector
+						delete elements[x];
+						elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
+						continue;
+					}
+				}
 				for(int y = x + 1; y < elements.size(); y++) { //for every following element,
 					GEType yType = elements[y]->getType(); //store that element's type
-					if(xType == BULLET) { //if element is bullet
-						if(elements[x]->update()) { //if bullet's updated status has a signal to process
-							//delete bullet object and remove it from elements vector
-							delete elements[x];
-							elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
-						}
-					} else if(xType == ENEMY) { //if element is enemy
-						if(elements[x]->update()) { //if enemy's updated status has a signal to process
-							Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
-							//fire enemy bullets
-							elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0));
-							elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0));
-						}
-					} else if(xType == EXPLOSION) { //if element is explosion
-						if(elements[x]->update()) { //if explosion's updated status has a signal to process
-							//delete explosion object and remove it from elements vector
-							delete elements[x];
-							elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
-						}
-					}
+//here
 					if(xType != yType) { //if the two elements are not of the same type
 						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
 							xDeleted = collide(elements[x], elements[y], xType, yType, &elements); //run collision between two items, remembering if the first element was deleted
@@ -402,7 +407,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					break;
 				case ENEMY:
 					if (GE1->getOrigin()){
-						enemyCount--;
+						// enemyCount--;
 						GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
 						score.increment(100);
 					}
@@ -425,7 +430,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 			switch(type2) {
 				case BULLET:
 					if (GE2->getOrigin()){
-						enemyCount--;
+						// enemyCount--;
 						GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
 						score.increment(100);
 					}
@@ -516,6 +521,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	int bDestroyed = 0; //bullet is not destroyed (yet)
 	int eDestroyed = 0; //enemy is not not destroyed (yet)
 	int origin = b->getOrigin(); //extract bullet's origin
+
 	
 	if(origin == 1) { //if origin of bullet was player,
 		//delete bullet object and remove it from elements vector
@@ -529,11 +535,14 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 		delete e;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
 		eDestroyed = 1;
+		enemyCount--;
+
 		
 	} else if(origin == 0) { //if origin of bullet was enemy,
 		
 	} else {
 		std::cout << "Error in collideBulletEnemy: Bullet origin not defined" << std::endl;
+		std::cout << "Origin: " << b->getType() << std::endl;
 	}
 	
 	//return correct xArg value

@@ -94,6 +94,7 @@ SDL_Rect Explosion::getSprite() {
 int Explosion::update() { //returns 1 if animation is complete
 	//std::cout << "In Explosion's update!" << std::endl;
 	if(displayCount >= ((6 * framesPerSprite) - 1)) {
+		displayCount++;
 		return 1;
 	}
 	displayCount++;
