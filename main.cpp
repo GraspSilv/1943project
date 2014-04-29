@@ -38,11 +38,15 @@ const int momThresh = 60;
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
 SDL_Surface * ammoSurface = NULL;
+SDL_Surface * ammoLabelSurface = NULL;
 SDL_Surface * healthSurface = NULL;
+SDL_Surface * healthLabelSurface = NULL;
 SDL_Surface * scoreSurface = NULL;
+SDL_Surface * scoreLabelSurface = NULL;
 
 TTF_Font * font = NULL;
 Mix_Music * music = NULL;
+Mix_Music * starship = NULL;
 Mix_Chunk * gunfire = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
@@ -107,6 +111,8 @@ int main(int argc, char * argv[]) {
 	Timer gameTimer;
 	gameTimer.start();
 	int frameTime = 1000 / GAME_FPS;
+	
+	music = starship; //manually set "Starship" as music
 	
 	if (Mix_PlayMusic(music,5) == -1){
 		return 1;
@@ -267,6 +273,7 @@ int main(int argc, char * argv[]) {
 	SDL_FreeSurface(scoreSurface);
 	cleanUp(); //free surfaces and quit SDL
 }
+
 	
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip) {
 	SDL_Rect offset; //make temporary rectangle to hold offsets
@@ -277,6 +284,7 @@ void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect 
 	
 	SDL_BlitSurface(src, clip, dest, &offset); //blit clipped surface
 }
+
 
 int checkCollide(GraphElement * a, GraphElement * b) {
 	//extract sprites of Elements to read width and height
@@ -293,19 +301,31 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 	int topA = bottomA + aClip.h;
 	int topB = bottomB + bClip.h;
 
-	if(leftA > rightB || rightA < leftB || bottomA > topB || topA < bottomB) { //if there is no way for elements to overlap,
-		return 0;
+	if(leftA > rightB || rightA < leftB || bottomA > topB || topA < bottomB) { //if there is no way for Elements to overlap,
+		return 0; // Elements do not overlap
 	}
-	return 1;
+	return 1; // otherwise, Elements do overlap
 }
 
 
 void cleanUp() {
-	SDL_FreeSurface(spriteSheet); //free surface
 	TTF_CloseFont(font); //close font
+	//free surfaces
+	SDL_FreeSurface(spriteSheet);
+	SDL_FreeSurface(ammoSurface);
+	SDL_FreeSurface(ammoLabelSurface);
+	SDL_FreeSurface(healthSurface);
+	SDL_FreeSurface(healthLabelSurface);
+	SDL_FreeSurface(scoreSurface);
+	SDL_FreeSurface(scoreLabelSurface);
+	
+	//free audio
 	Mix_FreeMusic(music);
-	Mix_CloseAudio();
+	Mix_FreeChunk(gunfire);
+	Mix_FreeMusic(starship);
+	
 	TTF_Quit(); //quit SDL_ttf
+	Mix_CloseAudio(); //quit audio
 	SDL_Quit(); //quit SDL
 
 }
@@ -582,39 +602,47 @@ int init() {
 		return 0;
 	}
 
-	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1){
+	//intialize audio
+	if(Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1){
 		return 0;
 	}
 	
 	SDL_WM_SetCaption(WINDOW_TITLE.c_str(), NULL); //set window caption
 	
-	return 1; //if everything intialized fine
+	return 1; //if everything intialized fine, init() succeeded
 }
 
 
-int loadFiles(){
-	//open font
-	font = TTF_OpenFont("joystix.ttf", 28); 
+int loadFiles() {
+	//load joystix.ttf (with possibility of error)
+	font = TTF_OpenFont("joystix.ttf", 14); 
 	if(!font) {
+		std::cout << "Error: Could not load joystix.ttf" << std::endl;
 		return 0;
 	}
 	
-	//load spriteSheet
+	//load sprites.png (with possibility of error)
 	spriteSheet = loadImage("sprites.png");
 	if(!spriteSheet) {
-		std::cout << "Could not load sprites.png" << std::endl;
+		std::cout << "Error: Could not load sprites.png" << std::endl;
 		return 0;
 	}
-	music = Mix_LoadMUS("starship.wav");
-	gunfire = Mix_LoadWAV("gunfire.wav");
-
-	if (music == NULL || gunfire == NULL){
-		std::cout << "Could not load sounds." << std::endl;
-		return 0;
-	}
-
 	
-	return 1;
+	//load gunfire.wav (with possibility of error)
+	gunfire = Mix_LoadWAV("gunfire.wav");
+	if(!gunfire) {
+		std::cout << "Error: Could not load gunfire.wav" << std::endl;
+		return 0;
+	}
+	
+	//load starship.wav (with possibility of error)
+	starship = Mix_LoadMUS("starship.wav");
+	if(!starship) {
+		std::cout << "Error: Could not load starship.wav" << std::endl;
+		return 0;
+	}
+	
+	return 1; //if all files loaded fine, loadFiles() succeeded
 }
 
 SDL_Surface * loadImage(std::string filename) {
