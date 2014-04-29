@@ -147,6 +147,14 @@ void GraphElement::setWeapon(int w) {
 	std::cout << "Error: setWeapon() called on non-Player object" << std::endl;
 }
 
+int GraphElement::getCycles() {
+	std::cout << "Error: getCycles() called on non-Player object" << std::endl;
+}
+
+void GraphElement::setCycles(int) {
+	std::cout << "Error: setCycles() called on non-Player object" << std::endl;
+}
+
 int GraphElement::getPower() {
 	std::cout << "Error: getPower() called on non-Powerup object" << std::endl;
 	return -1;

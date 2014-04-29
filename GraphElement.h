@@ -62,6 +62,8 @@ class GraphElement {
 		virtual void hitByPlane();
 		virtual int getWeapon();
 		virtual void setWeapon(int);
+		virtual int getCycles();
+		virtual void setCycles(int);
 		//virtualized Powerup functions
 		virtual int getPower();
 	protected:

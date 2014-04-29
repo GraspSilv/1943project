@@ -308,19 +308,21 @@ int main(int argc, char * argv[]) {
 										currentPlayer->useAmmo(2);
 										break;
 									case 1: //SPREAD
-										//create five spread bullets and subtract 5 ammo from player
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(30) * BUL_SPEED), -(sinDeg(30) * BUL_SPEED), 1, 0));
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(45) * BUL_SPEED), -(sinDeg(45) * BUL_SPEED), 1, 0));
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(70) * BUL_SPEED), -(sinDeg(70) * BUL_SPEED), 1, 0));
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(90) * BUL_SPEED), -(sinDeg(90) * BUL_SPEED), 1, 0));
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(110) * BUL_SPEED), -(sinDeg(110) * BUL_SPEED), 1, 0));
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(135) * BUL_SPEED), -(sinDeg(135) * BUL_SPEED), 1, 0));
-										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(150) * BUL_SPEED), -(sinDeg(150) * BUL_SPEED), 1, 0));
+										//create seven spread bullets and subtract 7 ammo from player
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(30) * BUL_SPEED), -(sinDeg(30) * BUL_SPEED), 1, 1));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(45) * BUL_SPEED), -(sinDeg(45) * BUL_SPEED), 1, 1));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(70) * BUL_SPEED), -(sinDeg(70) * BUL_SPEED), 1, 1));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(90) * BUL_SPEED), -(sinDeg(90) * BUL_SPEED), 1, 1));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(110) * BUL_SPEED), -(sinDeg(110) * BUL_SPEED), 1, 1));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(135) * BUL_SPEED), -(sinDeg(135) * BUL_SPEED), 1, 1));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(150) * BUL_SPEED), -(sinDeg(150) * BUL_SPEED), 1, 1));
 										currentPlayer->useAmmo(7);
 										break;
 									case 2: //MISSILE
+										std::cout << "Error: Cannot fire missile Bullet because behavior not defined" << std::endl;
 										break;
 									case 3: //AUTO
+										std::cout << "Error: Cannot fire auto Bullet because behavior not defined" << std::endl;
 										break;
 									case 4: //BEAM
 										//create two beam bullets and subtract 2 ammo from Player
@@ -329,13 +331,12 @@ int main(int argc, char * argv[]) {
 										currentPlayer->useAmmo(2);
 										break;
 									default:
-										
+										std::cout << "Error: Cannot fire undefined Bullet because behavior not defined" << std::endl;
 										break;
 								}
 							}
 							break;
 						case SDLK_x:
-							//isLaser = !isLaser;
 							break;
 						default: //if other key,
 							break; //do nothing

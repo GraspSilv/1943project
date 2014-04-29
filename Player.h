@@ -36,8 +36,9 @@ typedef enum {
 // 0	STANDARD
 // 1	SPREAD
 // 2	MISSILE
-// 3	BEAM
-// 4	AUTO
+// 3	AUTO
+// 4	BEAM
+
 
 class Player : public GraphElement {
 	public:
@@ -52,6 +53,8 @@ class Player : public GraphElement {
 		void hitByPlane();
 		int getWeapon();
 		void setWeapon(int);
+		int getCycles();
+		void setCycles(int);
 		int getXMom();
 		int getYMom();
 		void setXMom(int);
@@ -60,7 +63,8 @@ class Player : public GraphElement {
 		playerSpriteType sprite; //enum that stores player's sprite
 		Counter ammo; //[xPos = 100, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 1]
 		Counter health; //[xPos = 180, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 5]
-		int weapon; //enum that stores player's current weapon
+		int weapon;
+		int cycles;
 		int xMom; //x-momentum (unitless)
 		int yMom; //y-momentum (unitless)
 };
