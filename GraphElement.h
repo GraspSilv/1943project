@@ -46,7 +46,7 @@ class GraphElement {
 		void setXVel(double);
 		void setYVel(double);
 		int isOnScreen();
-		std::vector<SDL_Rect> sprites;
+		
 		virtual ~GraphElement();
 		
 		//following are functions that we were forced to virtualize
@@ -58,12 +58,15 @@ class GraphElement {
 		virtual void newHealth();
 		virtual void hitByBullet();
 		virtual void hitByPlane();
+	protected:
+		std::vector<SDL_Rect> sprites;
 	private:
 		GEType type;
 		double xPos;
 		double yPos;
 		double xVel;
 		double yVel;
+		
 };
 
 #endif //GRAPHELEMENT_H

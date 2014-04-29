@@ -14,10 +14,7 @@ History
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
-int Bullet::count = 0;
-
-Bullet::Bullet(double xP, double yP, double xV, double yV, int o) :
-	GraphElement(xP, yP, BULLET) {
+Bullet::Bullet(double xP, double yP, double xV, double yV, int o) : GraphElement(xP, yP, xV, yV, BULLET) {
 	sprite = SPR_BLT_NRM;
 	origin = o;
 	// 1 for player, 0 for enemy
@@ -58,11 +55,6 @@ Bullet::Bullet(double xP, double yP, double xV, double yV, int o) :
 	addSprite(rect_blt_rnd); 
 	addSprite(rect_blt_clsd);
 	addSprite(rect_blt_beam);
-
-	setXVel(xV);
-	setYVel(yV);
-
-	if (origin) count++;
 }
 
 SDL_Rect Bullet::getSprite() {
