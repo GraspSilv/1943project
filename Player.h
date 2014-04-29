@@ -46,7 +46,7 @@ class Player : public GraphElement {
 		Counter getAmmoCntr();
 		Counter getHealthCntr();
 		void newAmmo();
-		void use2Ammo();
+		void useAmmo(int);
 		void newHealth();
 		void hitByBullet();
 		void hitByPlane();

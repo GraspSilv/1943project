@@ -119,11 +119,11 @@ int GraphElement::isBeam() {
 }
 
 void GraphElement::newAmmo() {
-	std::cout << "Error: newBullets() called on non-Player object" << std::endl;
+	std::cout << "Error: newAmmo() called on non-Player object" << std::endl;
 }
 
-void GraphElement::use2Ammo() {
-	std::cout << "Error: use2Bullets() called on non-Player object" << std::endl;
+void GraphElement::useAmmo(int n) {
+	std::cout << "Error: useAmmo() called on non-Player object" << std::endl;
 }
 
 void GraphElement::newHealth() {

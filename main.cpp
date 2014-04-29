@@ -6,8 +6,9 @@ main.cpp
 	Driver for Blitz game
 */
 #include<algorithm>
+#include<cmath>
 #include<cstdlib>
-#include <dirent.h>
+#include<dirent.h>
 #include<fstream>
 #include<iostream>
 #include<string>
@@ -40,7 +41,7 @@ const int PL_SPEED3 = 6;
 const int momThresh = 60;
 
 const int BUL_SPEED = 4;
-const int LAS_SPEED = 8;
+const int BEAM_SPEED = 8;
 
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
@@ -79,6 +80,8 @@ int collidePlayerPowerup(	int xArg, GraphElement * pl,	GraphElement * po,	std::v
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
+double sinDeg(double deg);
+double cosDeg(double deg);
 
 int enemyCount = 0;
 int beamCycles = 0; //what is this?
@@ -97,7 +100,7 @@ int main(int argc, char * argv[]) {
 		std::cout << "Error: Could not load files in main()" << std::endl;
 		return 1;
 	}
-
+	
 	SDL_Event event; //event structure for checking if user has exited and generating bullets
 	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
 	std::vector<Level *> levels; //vector of pointers to levels
@@ -105,8 +108,6 @@ int main(int argc, char * argv[]) {
 	int levelBreak = 0;
 	int finishLevel = 0;
 	int levelTitle = 1;
-
-	int isLaser = 0;
 
 	//Level * lev = new Level("level1.lev");
 	//if (!lev->init()) return 1;
@@ -300,18 +301,39 @@ int main(int argc, char * argv[]) {
 							break;
 						case SDLK_z: //if pressed Z							
 							if(currentPlayer->getAmmoCntr().getValue() > 0) { //if player has ammo,
-								isLaser = (beamCycles > 0); //check if laser enabled
-								if(isLaser) { //if laser enabled,
-									//create two laser bullets and subtract 2 ammo from Player
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -LAS_SPEED, 1, 4));
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -LAS_SPEED, 1, 4));
-									currentPlayer->use2Ammo();
-								} else { //if laser not enabled,
-									//create two normal bullets and subtract 2 ammo from Player
-									Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
-									currentPlayer->use2Ammo();
+								//isLaser = (beamCycles > 0); //check if laser enabled
+								switch(currentPlayer->getWeapon()) {
+									case 0: //STANDARD
+										//create two normal bullets and subtract 2 ammo from player
+										Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
+										currentPlayer->useAmmo(2);
+										break;
+									case 1: //SPREAD
+										//create five spread bullets and subtract 5 ammo from player
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(30) * BUL_SPEED), -(sinDeg(30) * BUL_SPEED), 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(45) * BUL_SPEED), -(sinDeg(45) * BUL_SPEED), 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(70) * BUL_SPEED), -(sinDeg(70) * BUL_SPEED), 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(90) * BUL_SPEED), -(sinDeg(90) * BUL_SPEED), 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(110) * BUL_SPEED), -(sinDeg(110) * BUL_SPEED), 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(135) * BUL_SPEED), -(sinDeg(135) * BUL_SPEED), 1, 0));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(150) * BUL_SPEED), -(sinDeg(150) * BUL_SPEED), 1, 0));
+										currentPlayer->useAmmo(7);
+										break;
+									case 2: //MISSILE
+										break;
+									case 3: //AUTO
+										break;
+									case 4: //BEAM
+										//create two beam bullets and subtract 2 ammo from Player
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BEAM_SPEED, 1, 4));
+										elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BEAM_SPEED, 1, 4));
+										currentPlayer->useAmmo(2);
+										break;
+									default:
+										
+										break;
 								}
 							}
 							break;
@@ -836,6 +858,7 @@ int loadFiles() {
 	return 1; //if all files loaded fine, loadFiles() succeeded
 }
 
+
 SDL_Surface * loadImage(std::string filename) {
 	SDL_Surface * loadedImage = NULL; //temporary storage for loaded image
 	SDL_Surface * optImage = NULL; //optimized image that will be used
@@ -850,4 +873,16 @@ SDL_Surface * loadImage(std::string filename) {
 		}
 	}
 	return optImage; //return optimized image
+}
+
+
+double sinDeg(double deg) {
+	double rad = deg * (M_PI / 180.0);
+	return sin(rad);
+}
+
+
+double cosDeg(double deg) {
+	double rad = deg * (M_PI / 180.0);
+	return cos(rad);
 }
