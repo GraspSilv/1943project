@@ -112,6 +112,11 @@ void GraphElement::newAmmo() {
 	std::cout << "Error: newBullets() used on non-Player object" << std::endl;
 }
 
+int GraphElement::isBeam() {
+	std::cout << "Error: isBeam() used on a non-player object" << std::endl;
+	return 0;
+}
+
 void GraphElement::use2Ammo() {
 	std::cout << "Error: use2Bullets() used on non-Player object" << std::endl;
 }

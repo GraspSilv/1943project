@@ -7,6 +7,15 @@ Level::Level (std::string str) {
 	levelNum = 0;
 }
 
+std::string Level::getLevelText(){
+	std::stringstream s;
+	s << "Level " << levelNum;
+	return s.str();
+}
+
+Background * Level::getBackground(){
+	return back;
+}
 
 int Level::init(){
 	// std::cout << "1" << std::endl;

@@ -21,6 +21,7 @@ To Do
 #include<vector>
 #include "SDL/SDL.h"
 
+
 typedef enum {
 	BULLET,
 	ENEMY,
@@ -51,6 +52,7 @@ class GraphElement {
 		virtual int update();
 		//virtualized Bullet functions
 		virtual int getOrigin();
+		virtual int isBeam();
 		//virtualized Player functions
 		virtual void newAmmo();
 		virtual void use2Ammo();

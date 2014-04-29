@@ -13,8 +13,8 @@ History
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
-Bullet::Bullet(double xP, double yP, double xV, double yV, int o) : GraphElement(xP, yP, xV, yV, BULLET) {
-	sprite = SPR_BLT_NRM;
+Bullet::Bullet(double xP, double yP, double xV, double yV, int o, bulletSpriteType t) : GraphElement(xP, yP, xV, yV, BULLET) {
+	sprite = t;
 	origin = o;
 	// 1 for player, 0 for enemy
 
@@ -65,6 +65,10 @@ int Bullet::update() { //returns 1 if bullet if off the screen
 		return 0;
 	}
 	return 1;
+}
+
+int Bullet::isBeam(){
+	return sprite == BEAM;
 }
 
 int Bullet::getOrigin() {

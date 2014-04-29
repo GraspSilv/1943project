@@ -8,6 +8,9 @@ main.cpp
 #include<algorithm>
 #include<iostream>
 #include<string>
+#include <fstream>
+#include <cstdlib>
+#include <dirent.h>
 #include"SDL/SDL.h"
 #include"SDL/SDL_image.h"
 #include"SDL/SDL_ttf.h"
@@ -77,6 +80,11 @@ int enemyCount = 0;
 
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
+	int levelBreak = 0;
+	int finishLevel = 0;
+	int levelTitle = 1;
+
+	int isLaser = 0;
 	
 	//initialize
 	if(!init()) {
@@ -90,24 +98,45 @@ int main(int argc, char * argv[]) {
 
 	SDL_Event event; //event structure for checking if user has exited and generating bullets
 	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
-	
-	Background bg("testback.png");
+	std::vector<Level *> levels;
+
+
+
+	//Level * lev = new Level("level1.lev");
+	//if (!lev->init()) return 1;
+	std::string temp;
+	DIR *pDir;
+	struct dirent *entry;
+	if (pDir=opendir("./levels")){
+		while (entry = readdir(pDir)){
+			if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0){
+				temp = std::string("./levels/") + entry->d_name;
+				// std::cout << temp << std::endl;
+				levels.push_back(new Level(temp));
+			}
+		// std::cout << entry->d_name << std::endl;
+		}
+		closedir(pDir);
+	}
+
+	Level *lev = levels.front();
+	lev->init();
+	//std::cout << "out" << std::endl;
+	int maxShips = lev->getNextGroup();
+	enemyType shipType = lev->getNextType();
+
+	Background * bg = lev->getBackground();
 	int bgX = 0, bgY = 0;
 
 	//initialize background
-	if(!bg.init()) {
+	if(!bg->init()) {
 		return 1;
 	}
 
 	//load background files
-	if(!bg.load_files()) {
+	if(!bg->load_files()) {
 		return 1;
 	}
-
-	Level * lev = new Level("level1.lev");
-	if (!lev->init()) return 1;
-	int maxShips = lev->getNextGroup();
-	enemyType shipType = lev->getNextType();
 
 	int nLives = 10;
 	Player * currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
@@ -119,6 +148,8 @@ int main(int argc, char * argv[]) {
 		elements.push_back(new Enemy(50 + y * 50, -50 - 50*y, shipType));
 		enemyCount++;
 	}
+
+	levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
 	int addShips = 0;
 
 	
@@ -139,25 +170,69 @@ int main(int argc, char * argv[]) {
 	healthLabelSurface = TTF_RenderText_Solid(font, "Health", textColor);
 	livesLabelSurface = TTF_RenderText_Solid(font, "Lives", textColor);
 	scoreLabelSurface = TTF_RenderText_Solid(font, "Score", textColor);
-	levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
+	
 	
 	while(gameRunning) {
-
-		
 
 		//reset player's velocity
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
+
+			if (levelBreak){
+				if (finishLevel) {
+					shipCounter = 0;
+					finishLevel = 0;
+					levels.erase(levels.begin());
+					if (levels.empty()) return 1;
+					lev = levels.front();
+					lev->init();
+					maxShips = lev->getNextGroup();
+					enemyType shipType = lev->getNextType();
+					for (int y = maxShips; y > 0; y--){
+						elements.push_back(new Enemy(50 + y * 50, -500 - 50*y, shipType));
+						enemyCount++;
+					}
+					bg = lev->getBackground();
+					if(!bg->init() || !bg->load_files()) {
+						return 1;
+					}
+					levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
+				}
+				shipCounter++;
+				if (shipCounter > 200){
+					SDL_Rect boxRect;
+					boxRect.x = 120;
+					boxRect.y = 160;
+					boxRect.w = 240;
+					boxRect.h = 320;
+					SDL_FillRect(screen, &boxRect, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
+				}
+				if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
+					if (event.key.keysym.sym == SDLK_z) {
+						levelTitle = 1;
+						levelBreak = 0;
+						shipCounter = 0;
+						addShips = 0;
+
+					}
+				}
+				continue;
+			}
+
 			bgY += 1;
-			if(bgY >= bg.background->h) {//if background has scrolled too far,
+			if(bgY >= bg->background->h) {//if background has scrolled too far,
 				bgY = 0; //reset the offset
 			}
 
 			//std::cout << shipCounter << std::endl;
 			shipCounter++;
-			if (shipCounter > 80) shipCounter = 0;
+			if (shipCounter > 100){
+				shipCounter = 0;
+				levelTitle = 0;
+				std::cout << enemyCount << " " << maxShips <<  std::endl;
+			}
 			if (enemyCount <= maxShips/2 && shipCounter == 70 && !addShips && maxShips != 0){
 				//std::cout << "counting ships" << std::endl;
 				maxShips = lev->getNextGroup();
@@ -170,6 +245,8 @@ int main(int argc, char * argv[]) {
 					addShips = 0;
 					maxShips = 0;
 					std::cout << "Done\n";
+					levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
+					finishLevel = 1;
 				}
 			}
 
@@ -182,8 +259,9 @@ int main(int argc, char * argv[]) {
 
 			//show background
 			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
-			bg.apply_surface(bgX, bgY, bg.background, bg.screen);
-			bg.apply_surface(bgX, bgY - bg.background->h, bg.background, bg.screen);
+			bg->apply_surface(bgX, bgY, bg->background, bg->screen);
+			bg->apply_surface(bgX, bgY - bg->background->h, bg->background, bg->screen);
+			if (levelTitle) applySurface(150,300,levelLabelSurface,screen);
 
 			if(SDL_PollEvent(&event)) { //if there is event to handle,
 				if(event.type == SDL_QUIT) { //if user has Xed out of window,
@@ -195,11 +273,19 @@ int main(int argc, char * argv[]) {
 							gameRunning = 0; //quit game
 							break;
 						case SDLK_z: //if pressed Z
-							Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+							
 							//fire player bullets
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1));
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1));
+							if (isLaser){
+								elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -8, 1, BEAM));
+								elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -8, 1, BEAM));
+							} else {
+								Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+								elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1, NRM));
+								elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1, NRM));
+							}
 							break;
+						case SDLK_x:
+							isLaser = !isLaser;
 						default: //if other key,
 							break; //do nothing
 					}
@@ -275,8 +361,8 @@ int main(int argc, char * argv[]) {
 					if(elements[x]->update()) { //if enemy's updated status has a signal to process
 						Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
 						//fire enemy bullets
-						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0));
-						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0, NRM));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0, NRM));
 					}
 				} else if(xType == EXPLOSION) { //if element is explosion
 					if(elements[x]->update()) { //if explosion's updated status has a signal to process
@@ -288,7 +374,7 @@ int main(int argc, char * argv[]) {
 				}
 				for(int y = x + 1; y < elements.size(); y++) { //for every following element,
 					GEType yType = elements[y]->getType(); //store that element's type
-//here
+//moved code from here
 					if(xType != yType) { //if the two elements are not of the same type
 						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
 							xDeleted = collide(elements[x], elements[y], xType, yType, &elements); //run collision between two items, remembering if the first element was deleted
@@ -327,8 +413,9 @@ int main(int argc, char * argv[]) {
 			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 		
-			if (maxShips == 0 && enemyCount == 0){
+			if (maxShips == 0 && enemyCount == 0 && finishLevel){
 				applySurface(150,300,levelLabelSurface,screen);
+				levelBreak = 1;
 			}
 		
 			SDL_Flip(screen);
@@ -525,12 +612,13 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	
 	if(origin == 1) { //if origin of bullet was player,
 		//delete bullet object and remove it from elements vector
-		delete b;
-		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
-		bDestroyed = 1;
+		if (!b->isBeam()){
+			delete b;
+			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
+			bDestroyed = 1;
 	
-		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
-		
+			elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
+		}
 		//delete enemy object and remove it from elements vector
 		delete e;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());

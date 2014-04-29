@@ -16,11 +16,11 @@ To Do
 #include"GraphElement.h"
 
 typedef enum {
-	SPR_BLT_NRM,
-	SPR_BLT_OPN,
-	SPR_BLT_RND,
-	SPR_BLT_CLSD,
-	SPR_BLT_BEAM
+	NRM,
+	OPN,
+	RND,
+	CLSD,
+	BEAM
 } bulletSpriteType;
 
 // origin
@@ -29,10 +29,11 @@ typedef enum {
 
 class Bullet : public GraphElement {
 	public:
-		Bullet(double, double, double, double, int); //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin]
+		Bullet(double, double, double, double, int, bulletSpriteType); //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin]
 		SDL_Rect getSprite();
 		int update(); //returns 1 if bullet if off the screen
 		int getOrigin();
+		int isBeam();
 	private:
 		bulletSpriteType sprite; //enum that stores player bullet's sprite
 		int origin; //enum that store's bullet's origin

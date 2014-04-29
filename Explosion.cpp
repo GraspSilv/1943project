@@ -11,7 +11,7 @@ Explosion.cpp
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
-const int Explosion::framesPerSprite = 40;
+const int Explosion::framesPerSprite = 5;
 
 Explosion::Explosion(double xP, double yP) : GraphElement(xP, yP, 0, 0, EXPLOSION) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_EXPL_1;

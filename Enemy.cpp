@@ -365,7 +365,7 @@ int Enemy::update(){
 	*/
 	//std::cout << getCount() << std::endl;
 
-	setXVel(cos(AIcount*6.28/7000)/3);
+	setXVel(cos(AIcount*6.28*5/7000));
 	if ((getYVel()<0) && (yP>0)) setYVel(-2);
 	else if (yP > 200) setYVel((-yP)/150 + (200-yP)/80+sin(AIcount*6.28/7000)*5 + 1);
 	else if ((yP>-150)&&(getYVel()<0)) setYVel(-2);

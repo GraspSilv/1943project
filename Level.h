@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "Enemy.h"
 #include "Background.h"
+#include <sstream>
 
 #ifndef LEVEL_H
 #define LEVEL_H
@@ -19,6 +20,8 @@ class Level {
 		int getLevelNum();
 		int init();
 		enemyType getNextType();
+		std::string getLevelText();
+		Background* getBackground();
 	private:
 		Background *back;
 		int levelNum;
