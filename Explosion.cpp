@@ -15,6 +15,7 @@ const int Explosion::framesPerSprite = 30;
 
 Explosion::Explosion(double xP, double yP) : GraphElement(xP, yP, 0, 0, EXPLOSION) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_EXPL_1;
+	displayCount = 0;
 	
 	SDL_Rect rect_expl_1; //sprite of stage 1/6 of explosion
 		rect_expl_1.x = 11;
@@ -83,18 +84,18 @@ SDL_Rect Explosion::getSprite() {
 			sprite = SPR_EXPL_6;
 			break;
 		default:
+			std::cout << "Error: Explosion sprite is not defined" << std::endl;
+			std::cout << stage << std::endl;
 			break;
 	}
-	 
+
 	displayCount++;
-//	std::cout << displayCount << std::endl;
 	return sprites[sprite];
 }
 
-int Explosion::isDone() {
-//	if(displayCount >= (6 * framesPerSprite)) {
-//		return 1;
-//	} else {
+int Explosion::update() { //returns 1 if animation is complete
+	if(displayCount < (6 * framesPerSprite)) {
 		return 0;
-//	}
+	}
+	return 1;
 }
