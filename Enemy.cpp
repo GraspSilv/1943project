@@ -17,10 +17,13 @@ History
 #include"GraphElement.h"
 #include <cmath>
 
+int Enemy::count = 0;
+
 Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
 
 	AIcount = 0;
 	enemy = e;
+	count++;
 
 	SDL_Rect rect_red_N; //sprite of red plane heading north
 	rect_red_N.x = 45;
@@ -280,12 +283,37 @@ SDL_Rect Enemy::getSprite(){
 			if (yv > 0 && xv < 0) return sprites[SPR_RED_SW];
 			if (yv < 0 && xv < 0) return sprites[SPR_RED_NW];
 		}
+	} else if (enemy == LITTLEGRAY){
+		double xv = getXVel();
+		double yv = getYVel();
+//		std::cout << xv << ", " << yv << std::endl;
+		if (std::abs(xv) - std::abs(yv) >=  .15) {
+			if (xv > 0) return sprites[SPR_LILGRAY_E];
+			else return sprites[SPR_LILGRAY_W];
+		} else if (std::abs(xv) - std::abs(yv) <= -.15){
+//			std::cout << yv << std::endl;
+			if (yv > 0) return sprites[SPR_LILGRAY_S];
+			else return sprites[SPR_LILGRAY_N];
+		} else {
+			if (yv > 0 && xv > 0) return sprites[SPR_LILGRAY_SE];
+			if (yv < 0 && xv > 0) return sprites[SPR_LILGRAY_NE];
+			if (yv > 0 && xv < 0) return sprites[SPR_LILGRAY_SW];
+			if (yv < 0 && xv < 0) return sprites[SPR_LILGRAY_NW];
+		}
 	}
 	return sprites[SPR_RED_N];
 }
 
 enemyType Enemy::getEnemyType(){
 	return enemy;
+}
+
+Enemy::~Enemy(){
+	count--;
+}
+
+int Enemy::getCount(){
+	return count;
 }
 
 int Enemy::canFire(){
@@ -335,6 +363,8 @@ int Enemy::update(){
 		setXVel(getXVel() - .01);
 	}
 	*/
+	//std::cout << getCount() << std::endl;
+
 	setXVel(cos(AIcount*6.28/7000)/3);
 	if ((getYVel()<0) && (yP>0)) setYVel(-2);
 	else if (yP > 200) setYVel((-yP)/150 + (200-yP)/80+sin(AIcount*6.28/7000)*5 + 1);
@@ -347,5 +377,6 @@ int Enemy::update(){
 	if (getXVel() < -4) setXVel(-4);
 	if ((getYVel()>-1) && (getYVel()<0)) setYVel(-1);
 	if ((getYVel()<1) && (getYVel()>0)) setYVel(1);
-	return ((AIcount == 200 || AIcount == 300 || AIcount == 400 || AIcount == 500) && canFire());
+	//std::cout << AIcount << std::endl;
+	return ((AIcount % 1000 == 200 || AIcount % 1000 == 300 ) && canFire());
 }

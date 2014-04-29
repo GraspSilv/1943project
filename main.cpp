@@ -21,6 +21,7 @@ main.cpp
 #include"Player.h"
 #include"Powerup.h"
 #include"Timer.h"
+#include"Level.h"
 
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
@@ -45,6 +46,7 @@ SDL_Surface * livesSurface = NULL;
 SDL_Surface * livesLabelSurface = NULL;
 SDL_Surface * scoreSurface = NULL;
 SDL_Surface * scoreLabelSurface = NULL;
+SDL_Surface * levelLabelSurface = NULL;
 
 TTF_Font * font = NULL;
 
@@ -71,6 +73,7 @@ int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 
+int enemyCount = 0;
 
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
@@ -101,18 +104,29 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
+	Level * lev = new Level("level1.lev");
+	if (!lev->init()) return 1;
+	int maxShips = lev->getNextGroup();
+	enemyType shipType = lev->getNextType();
+
 	int nLives = 10;
 	Player * currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
 	elements.push_back(currentPlayer);
 	
 	//create test enemies and powerup
-	elements.push_back(new Enemy(200, -50, RED));
-	elements.push_back(new Enemy(280, -50, RED));
-	elements.push_back(new Powerup(200, 200, 1, 1, 5));
+	
+	for (int y = maxShips; y > 0; y--){
+		elements.push_back(new Enemy(50 + y * 50, -50 - 50*y, shipType));
+		enemyCount++;
+	}
+	int addShips = 0;
+
+	
 	
 	Timer gameTimer;
 	gameTimer.start();
 	int frameTime = 1000 / GAME_FPS;
+	int shipCounter = 0;
 	
 	music = starship; //manually set "Starship" as music
 	
@@ -125,8 +139,37 @@ int main(int argc, char * argv[]) {
 	healthLabelSurface = TTF_RenderText_Solid(font, "Health", textColor);
 	livesLabelSurface = TTF_RenderText_Solid(font, "Lives", textColor);
 	scoreLabelSurface = TTF_RenderText_Solid(font, "Score", textColor);
+	levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
 	
 	while(gameRunning) {
+
+		shipCounter++;
+		if (shipCounter > 2000000) shipCounter = 0;
+		if (enemyCount <= maxShips/2 && shipCounter == 100 && !addShips && maxShips != 0){
+			//std::cout << "counting ships" << std::endl;
+			maxShips = lev->getNextGroup();
+			//std::cout << "ok" << std::endl;
+			if (maxShips != 0){
+				shipType = lev->getNextType();
+			//std::cout << "not ok" << std::endl;
+				addShips = 1;
+			} else {
+				addShips = 0;
+				maxShips = 0;
+				std::cout << "Done\n";
+			}
+		}
+
+		if (addShips && shipCounter == 150 && maxShips != 0){
+			std::cout << "counting ships 2" << std::endl;
+			elements.push_back(new Enemy(50 + enemyCount * 50, -50 - 50*enemyCount, shipType));
+			enemyCount++;
+			if (enemyCount >= maxShips || maxShips == 0) addShips = 0;
+		}
+
+		
+		
+
 		//reset player's velocity
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
@@ -141,7 +184,7 @@ int main(int argc, char * argv[]) {
 			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
 			bg.apply_surface(bgX, bgY, bg.background, bg.screen);
 			bg.apply_surface(bgX, bgY - bg.background->h, bg.background, bg.screen);
-			
+
 			if(SDL_PollEvent(&event)) { //if there is event to handle,
 				if(event.type == SDL_QUIT) { //if user has Xed out of window,
 					gameRunning = 0; //quit game
@@ -280,7 +323,11 @@ int main(int argc, char * argv[]) {
 			applySurface(tempAmmoCntr.getXPos(), tempAmmoCntr.getYPos(), ammoSurface, screen);
 			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
-			
+		
+			if (maxShips == 0 && enemyCount == 0){
+				applySurface(150,300,levelLabelSurface,screen);
+			}
+		
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
@@ -357,6 +404,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					break;
 				case ENEMY:
 					if (GE1->getOrigin()){
+						enemyCount--;
 						GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
 						score.increment(100);
 					}
@@ -379,6 +427,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 			switch(type2) {
 				case BULLET:
 					if (GE2->getOrigin()){
+						enemyCount--;
 						GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
 						score.increment(100);
 					}
@@ -465,6 +514,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 
 
 int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr) {
+	
 	int bDestroyed = 0; //bullet is not destroyed (yet)
 	int eDestroyed = 0; //enemy is not not destroyed (yet)
 	int origin = b->getOrigin(); //extract bullet's origin
@@ -481,6 +531,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 		delete e;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
 		eDestroyed = 1;
+		
 	} else if(origin == 0) { //if origin of bullet was enemy,
 		
 	} else {
@@ -541,7 +592,7 @@ int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vecto
 	eDestroyed = 1;
 	
 	pl->hitByPlane(); //notify player that it was hit by a plane (decrement health a lot)
-	
+	enemyCount--;
 	//return correct xArg value
 	if(xArg == 1) {
 		return eDestroyed;

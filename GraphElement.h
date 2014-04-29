@@ -45,7 +45,7 @@ class GraphElement {
 		void setXVel(double);
 		void setYVel(double);
 		int isOnScreen();
-		virtual ~GraphElement(); //do we need this anymore?
+		virtual ~GraphElement(); //do we need this anymore? yes
 		
 		//virtualized general functions
 		virtual int update();

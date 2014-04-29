@@ -27,21 +27,24 @@ int Level::init(){
 		int h;
 		int j = intString.size();
 		for (int i = 0; i < j; i++){
-			h << intString[i];
+			h = intString[i] - '0';
+			std::cout << h << std::endl;
 			groups.push_back(h);
 		}
+		groups.push_back(0);
 		// std::cout << "4" << std::endl;
-		std::vector<std::string> types;
+
 		std::string hold;
 		while (j > 0){
 			getline(lFile,hold);
-			// std::cout << hold << std::endl;
-			types.push_back(hold);
-			// std::cout << "5" << std::endl;
+			if (hold == "red"){
+				types.push_back(RED);
+			} else if (hold == "grey"){
+				types.push_back(LITTLEGRAY);
+			}
 			j--;
 		}
-		// std::cout << types[1] << std::endl;
-		// std::cout << "5" << std::endl;
+
 		return 1;
 
 	} else {return 0;}
@@ -52,7 +55,13 @@ int Level::getLevelNum(){
 }
 
 int Level::getNextGroup(){
-	int n = groups.front();
+	int n = groups[0];
 	groups.erase(groups.begin());
+	return n;
+}
+
+enemyType Level::getNextType(){
+	enemyType n = types[0];
+	types.erase(types.begin());
 	return n;
 }

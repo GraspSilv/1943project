@@ -70,6 +70,9 @@ class Enemy : public GraphElement {
 		enemyType getEnemyType();
 		int update();	
 		int canFire();
+		static int count;
+		~Enemy();
+		int getCount();
 	private:
 		enemySpriteType sprite;
 		enemyType enemy;

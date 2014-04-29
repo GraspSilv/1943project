@@ -9,5 +9,6 @@
 int main() {
 	Level lev("level1.lev");
 	lev.init();
-	std::cout << lev.getLevelNum() << std::endl;
+	std::cout << lev.getNextGroup() << std::endl;
+	std::cout << lev.getNextGroup() << std::endl;
 }

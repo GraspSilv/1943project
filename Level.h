@@ -18,6 +18,7 @@ class Level {
 		//enemyType getNextType();
 		int getLevelNum();
 		int init();
+		enemyType getNextType();
 	private:
 		Background *back;
 		int levelNum;

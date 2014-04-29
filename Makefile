@@ -4,7 +4,7 @@ RM := rm -f
 LDLIBS := -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
 EXEC := Blitz
 
-OBJS := main.o Background.o Bullet.o Counter.o Enemy.o Explosion.o GraphElement.o Player.o Powerup.o Timer.o
+OBJS := main.o Background.o Bullet.o Counter.o Enemy.o Explosion.o GraphElement.o Player.o Powerup.o Timer.o Level.o
 
 
 all: $(EXEC)
@@ -41,6 +41,9 @@ Powerup.o: Powerup.h Powerup.cpp
 
 Timer.o: Timer.h Timer.cpp
 	$(CXX) $(CXXFLAGS) -c Timer.cpp
+
+Level.o: Level.h Level.cpp
+	$(CXX) $(CXXFLAGS) -c Level.cpp
 
 clean:
 	$(RM) *.o $(EXEC)
