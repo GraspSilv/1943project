@@ -17,7 +17,7 @@ Player::Player(double xP, double yP) :
 	health(180, (640 - 30), 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
 	weapon = 0;
-	cycles = 0;
+	cycles = 200;
 	xMom = 0;
 	yMom = 0;
 
@@ -200,7 +200,8 @@ void Player::setWeapon(int w) {
 }
 
 int Player::getCycles() {
-	return cycles;
+	if (cycles > 0) return --cycles;
+	return 0;
 }
 
 void Player::setCycles(int c) {

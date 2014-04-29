@@ -407,6 +407,6 @@ int Enemy::update(){
 	if (getXVel() < -4) setXVel(-4);
 	if ((getYVel()>-1) && (getYVel()<0)) setYVel(-1);
 	if ((getYVel()<1) && (getYVel()>0)) setYVel(1);
-	//std::cout << AIcount << std::endl;
-	return ((AIcount % 1000 == 200 || AIcount % 1000 == 300 ) && canFire());
+	// std::cout << AIcount << std::endl;
+	return ((AIcount % 50 == 20 || AIcount % 1000 == 30 ) && canFire());
 }

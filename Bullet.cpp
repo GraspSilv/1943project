@@ -36,7 +36,7 @@ Bullet::Bullet(double xP, double yP, double xV, double yV, int o, int bT) : Grap
 			sprite = SPR_BLT_NRM;
 			break;
 	}
-	sprite = SPR_BLT_NRM;
+	//sprite = SPR_BLT_NRM;
 	origin = o;
 	bulletType = bT;
 

@@ -253,6 +253,8 @@ int main(int argc, char * argv[]) {
 			if(shipCounter > 100) {
 				if(beamCycles > 0) {
 					beamCycles--;
+				} else {
+					currentPlayer->setWeapon(0);
 				}
 				shipCounter = 0;
 				levelTitle = 0;
@@ -300,7 +302,7 @@ int main(int argc, char * argv[]) {
 							gameRunning = 0; //quit game
 							break;
 						case SDLK_z: //if pressed Z							
-							if(currentPlayer->getAmmoCntr().getValue() > 0) { //if player has ammo,
+							if(currentPlayer->getAmmoCntr().getValue() > 0 || currentPlayer->getWeapon() == 4) { //if player has ammo,
 								//isLaser = (beamCycles > 0); //check if laser enabled
 								switch(currentPlayer->getWeapon()) {
 									case 0: //STANDARD
@@ -329,9 +331,10 @@ int main(int argc, char * argv[]) {
 										break;
 									case 4: //BEAM
 										//create two beam bullets and subtract 2 ammo from Player
+										std::cout << "laser" << std::endl;
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BEAM_SPEED, 1, 4));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BEAM_SPEED, 1, 4));
-										currentPlayer->useAmmo(2);
+										//currentPlayer->useAmmo(2);
 										break;
 									default:
 										std::cout << "Error: Cannot fire undefined Bullet because behavior not defined" << std::endl;
@@ -425,6 +428,10 @@ int main(int argc, char * argv[]) {
 						//delete explosion object and remove it from elements vector
 						delete elements[x];
 						elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
+						continue;
+					}
+				} else if (xType == PLAYER){
+					if (elements[x]->getCycles() % 2){
 						continue;
 					}
 				}
@@ -663,7 +670,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
 		}
-		if (rand() % 15 + 1 == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
+		if (rand() % 10 + 1 == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
 		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
 		delete e;
@@ -759,6 +766,8 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 			break;
 		case 3: //if powerup is beam,
 			beamCycles += 10;
+			std::cout << beamCycles << std::endl;
+			pl->setWeapon(4);
 			break;
 		case 4: //if powerup is auto,
 			
