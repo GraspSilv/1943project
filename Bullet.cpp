@@ -9,14 +9,36 @@ History
 	04/27/14	Jack Magiera	Add type declaration to nondefault constructor, define deconstructor and getCount(), add count to nondefault constructor, add cout message to deconstructor
 */
 #include"Bullet.h"
+#include<iostream>
 #include<vector>
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
-Bullet::Bullet(double xP, double yP, double xV, double yV, int o, bulletSpriteType t) : GraphElement(xP, yP, xV, yV, BULLET) {
-	sprite = t;
+Bullet::Bullet(double xP, double yP, double xV, double yV, int o, int bT) : GraphElement(xP, yP, xV, yV, BULLET) { //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin. bulletType]
+	switch(bT) {
+		case 0:
+			sprite = SPR_BLT_NRM;
+			break;
+		case 1:
+			sprite = SPR_BLT_OPN;
+			break;
+		case 2:
+			sprite = SPR_BLT_RND;
+			break;
+		case 3:
+			sprite = SPR_BLT_CLSD;
+			break;
+		case 4:
+			sprite = SPR_BLT_BEAM;
+			break;
+		default:
+			std::cout << "Error: Invalid bulletType pased to Bullet constructor" << std::endl;
+			sprite = SPR_BLT_NRM;
+			break;
+	}
+	sprite = SPR_BLT_NRM;
 	origin = o;
-	// 1 for player, 0 for enemy
+	bulletType = bT;
 
 	SDL_Rect rect_blt_nrm; //sprite of normal bullet
 	rect_blt_nrm.x = 13;
@@ -67,10 +89,14 @@ int Bullet::update() { //returns 1 if bullet if off the screen
 	return 1;
 }
 
-int Bullet::isBeam(){
-	return sprite == BEAM;
-}
-
 int Bullet::getOrigin() {
 	return origin;
+}
+
+int Bullet::getBulletType() {
+	return bulletType;
+}
+
+int Bullet::isBeam(){
+	return bulletType == 4;
 }

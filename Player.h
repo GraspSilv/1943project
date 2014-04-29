@@ -32,13 +32,12 @@ typedef enum {
 	SPR_PLYR_INTR_7
 } playerSpriteType;
 
-typedef enum {
-			STANDARD_WEAP,
-			SPREAD_WEAP,
-			MISSILE_WEAP,
-			BEAM_WEAP,
-			AUTO_WEAP
-} weaponType;
+// weapon
+// 0	STANDARD
+// 1	SPREAD
+// 2	MISSILE
+// 3	BEAM
+// 4	AUTO
 
 class Player : public GraphElement {
 	public:
@@ -51,6 +50,8 @@ class Player : public GraphElement {
 		void newHealth();
 		void hitByBullet();
 		void hitByPlane();
+		int getWeapon();
+		void setWeapon(int);
 		int getXMom();
 		int getYMom();
 		void setXMom(int);
@@ -59,7 +60,7 @@ class Player : public GraphElement {
 		playerSpriteType sprite; //enum that stores player's sprite
 		Counter ammo; //[xPos = 100, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 1]
 		Counter health; //[xPos = 180, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 5]
-		weaponType weapon; //enum that stores player's current weapon
+		int weapon; //enum that stores player's current weapon
 		int xMom; //x-momentum (unitless)
 		int yMom; //y-momentum (unitless)
 };

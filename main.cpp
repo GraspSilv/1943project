@@ -71,10 +71,10 @@ void cleanUp();
 int checkCollide(GraphElement * a, GraphElement * b);
 int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr);
 //the following collide functions deal with consequences for both objects, including whether the operand specified by the first argument or second argument (1 or 2) was destroyed
-int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr);
-int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
-int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
-int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr);
+int collideBulletEnemy(		int xArg, GraphElement * b,	GraphElement * e,		std::vector<GraphElement *> * elemPtr);
+int collideBulletPlayer(	int xArg, GraphElement * b,	GraphElement * pl,	std::vector<GraphElement *> * elemPtr);
+int collideEnemyPlayer(		int xArg, GraphElement * e,	GraphElement * pl,	std::vector<GraphElement *> * elemPtr);
+int collidePlayerPowerup(	int xArg, GraphElement * pl,	GraphElement * po,	std::vector<GraphElement *> * elemPtr);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
@@ -176,11 +176,11 @@ int main(int argc, char * argv[]) {
 	}
 	
 	//render labels
-	ammoLabelSurface = TTF_RenderText_Solid(font, "Ammo", textColor);
-	healthLabelSurface = TTF_RenderText_Solid(font, "Health", textColor);
-	livesLabelSurface = TTF_RenderText_Solid(font, "Lives", textColor);
-	scoreLabelSurface = TTF_RenderText_Solid(font, "Score", textColor);
-	levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
+	ammoLabelSurface = TTF_RenderText_Solid(		font, "Ammo",								textColor);
+	healthLabelSurface = TTF_RenderText_Solid(	font, "Health",							textColor);
+	livesLabelSurface = TTF_RenderText_Solid(		font, "Lives",								textColor);
+	scoreLabelSurface = TTF_RenderText_Solid(		font, "Score",								textColor);
+	levelLabelSurface = TTF_RenderText_Solid(		font, lev->getLevelText().c_str(),	textColor);
 	
 	while(gameRunning) {
 		//reset player's velocity
@@ -282,8 +282,8 @@ int main(int argc, char * argv[]) {
 
 			//show background
 			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
-			bg->apply_surface(bgX, bgY, bg->background, bg->screen);
-			bg->apply_surface(bgX, bgY - bg->background->h, bg->background, bg->screen);
+			bg->apply_surface(bgX, bgY,							bg->background, bg->screen);
+			bg->apply_surface(bgX, bgY - bg->background->h,	bg->background, bg->screen);
 			if (levelTitle) applySurface(150,300,levelLabelSurface,screen);
 
 			if(SDL_PollEvent(&event)) { //if there is event to handle,
@@ -300,14 +300,14 @@ int main(int argc, char * argv[]) {
 								isLaser = (beamCycles > 0); //check if laser enabled
 								if(isLaser) { //if laser enabled,
 									//create two laser bullets and subtract 2 ammo from Player
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -LAS_SPEED, 1, BEAM));
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -LAS_SPEED, 1, BEAM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -LAS_SPEED, 1, 4));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -LAS_SPEED, 1, 4));
 									currentPlayer->use2Ammo();
 								} else { //if laser not enabled,
 									//create two normal bullets and subtract 2 ammo from Player
 									Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -BUL_SPEED, 1, NRM));
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -BUL_SPEED, 1, NRM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
 									currentPlayer->use2Ammo();
 								}
 							}
@@ -390,8 +390,8 @@ int main(int argc, char * argv[]) {
 					if(elements[x]->update()) { //if enemy's updated status has a signal to process
 						Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
 						//fire enemy bullets
-						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, BUL_SPEED, 0, NRM));
-						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, BUL_SPEED, 0, NRM));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 16),	elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 4),		elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
 						//WHY DO WE NOT CONTINUE HERE?
 					}
 				} else if(xType == EXPLOSION) { //if element is explosion
@@ -424,26 +424,26 @@ int main(int argc, char * argv[]) {
 				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
 			}		     
 			//extract temporary versions of ammo and health counters from player
-			Counter tempAmmoCntr = currentPlayer->getAmmoCntr();
-			Counter tempHealthCntr = currentPlayer->getHealthCntr();
+			Counter tempAmmoCntr =		currentPlayer->getAmmoCntr();
+			Counter tempHealthCntr =	currentPlayer->getHealthCntr();
 			
 			//render all counters
-			ammoSurface = tempAmmoCntr.render(font, textColor);
-			healthSurface = tempHealthCntr.render(font, textColor);
-			livesSurface = lives.render(font, textColor);
-			scoreSurface = score.render(font, textColor);
+			ammoSurface =		tempAmmoCntr.render(		font, textColor);
+			healthSurface =	tempHealthCntr.render(	font, textColor);
+			livesSurface =		lives.render(				font, textColor);
+			scoreSurface =		score.render(				font, textColor);
 			
 			//apply all labels to screen
-			applySurface(tempAmmoCntr.getXPos(), (tempAmmoCntr.getYPos() - 15), ammoLabelSurface, screen);
-			applySurface(tempHealthCntr.getXPos(), (tempHealthCntr.getYPos() - 15), healthLabelSurface, screen);
-			applySurface(lives.getXPos(), (lives.getYPos() - 15), livesLabelSurface, screen);
-			applySurface(score.getXPos(), (score.getYPos() - 15), scoreLabelSurface, screen);
+			applySurface(tempAmmoCntr.getXPos(),	(tempAmmoCntr.getYPos() - 15),	ammoLabelSurface,		screen);
+			applySurface(tempHealthCntr.getXPos(),	(tempHealthCntr.getYPos() - 15),	healthLabelSurface,	screen);
+			applySurface(lives.getXPos(),				(lives.getYPos() - 15),				livesLabelSurface,	screen);
+			applySurface(score.getXPos(),				(score.getYPos() - 15),				scoreLabelSurface,	screen);
 			
 			//apply all counters to screen
-			applySurface(tempAmmoCntr.getXPos(), tempAmmoCntr.getYPos(), ammoSurface, screen);
-			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
-			applySurface(lives.getXPos(), lives.getYPos(), livesSurface, screen);
-			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
+			applySurface(tempAmmoCntr.getXPos(),	tempAmmoCntr.getYPos(),		ammoSurface,	screen);
+			applySurface(tempHealthCntr.getXPos(),	tempHealthCntr.getYPos(),	healthSurface,	screen);
+			applySurface(lives.getXPos(),				lives.getYPos(),				livesSurface,	screen);
+			applySurface(score.getXPos(),				score.getYPos(),				scoreSurface,	screen);
 		
 			if (maxShips == 0 && enemyCount == 0 && finishLevel){
 				applySurface(150,300,levelLabelSurface,screen);
@@ -474,14 +474,14 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 	SDL_Rect bClip = b->getSprite();
 	
 	//calculate left, right, top, and bottom of elements
-	int leftA = a->getXPos();
-	int leftB = b->getXPos();
-	int rightA = leftA + aClip.w;
-	int rightB = leftB + bClip.w;
-	int bottomA = a->getYPos();
-	int bottomB = b->getYPos();
-	int topA = bottomA + aClip.h;
-	int topB = bottomB + bClip.h;
+	int leftA =		a->getXPos();
+	int leftB =		b->getXPos();
+	int rightA =	leftA + aClip.w;
+	int rightB =	leftB + bClip.w;
+	int bottomA =	a->getYPos();
+	int bottomB =	b->getYPos();
+	int topA = 		bottomA + aClip.h;
+	int topB = 		bottomB + bClip.h;
 
 	if(leftA > rightB || rightA < leftB || bottomA > topB || topA < bottomB) { //if there is no way for Elements to overlap,
 		return 0; // Elements do not overlap
@@ -522,21 +522,15 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 		case BULLET:
 			switch(type2) {
 				case BULLET:
-					std::cout << "Error: Trying to collide two bullets" << std::endl;
+					std::cout << "Error: Trying to collide two Bullet objects" << std::endl;
 					break;
 				case ENEMY:
-					if (GE1->getOrigin()){
-						// enemyCount--;
-						GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
-						score.increment(100);
-					}
+					GE1Destroyed = collideBulletEnemy(1, GE1, GE2, elemPtr);
 					break;
 				case EXPLOSION:
 					break;
 				case PLAYER:
-					if (GE1->getOrigin() == 0){
-						GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
-					}
+					GE1Destroyed = collideBulletPlayer(1, GE1, GE2, elemPtr);
 					break;
 				case POWERUP:
 					break;
@@ -548,14 +542,10 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 		case ENEMY:
 			switch(type2) {
 				case BULLET:
-					if (GE2->getOrigin()){
-						// enemyCount--;
-						GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
-						score.increment(100);
-					}
+					GE1Destroyed = collideBulletEnemy(2, GE2, GE1, elemPtr);
 					break;
 				case ENEMY:
-					std::cout << "Error: Trying to collide two enemies" << std::endl;
+					std::cout << "Error: Trying to collide two Enemy objects" << std::endl;
 					break;
 				case EXPLOSION:
 					break;
@@ -580,7 +570,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 				case PLAYER:
 					break;
 				case POWERUP:
-					std::cout << "Error: Trying to collide two explosions" << std::endl;
+					std::cout << "Error: Trying to collide two Explosion objects" << std::endl;
 					break;
 				default:
 					std::cout << "Error: Type of element[y] not defined" << std::endl;
@@ -589,9 +579,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 		case PLAYER:
 			switch(type2) {
 				case BULLET:
-					if (GE2->getOrigin() == 0){
-						GE1Destroyed = collideBulletPlayer(2, GE2, GE1, elemPtr);
-					}
+					GE1Destroyed = collideBulletPlayer(2, GE2, GE1, elemPtr);
 					break;
 				case ENEMY:
 					GE1Destroyed = collideEnemyPlayer(2, GE2, GE1, elemPtr);
@@ -599,7 +587,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 				case EXPLOSION:
 					break;
 				case PLAYER:
-					std::cout << "Error: Trying to collide two players" << std::endl;
+					std::cout << "Error: Trying to collide two Player objects" << std::endl;
 					break;
 				case POWERUP:
 					GE1Destroyed = collidePlayerPowerup(1, GE1, GE2, elemPtr);
@@ -636,13 +624,13 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 
 
 int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr) {
-	
 	int bDestroyed = 0; //bullet is not destroyed (yet)
 	int eDestroyed = 0; //enemy is not not destroyed (yet)
 	int origin = b->getOrigin(); //extract bullet's origin
 
+	if(origin == 0) { //if origin of bullet was enemy
 	
-	if(origin == 1) { //if origin of bullet was player,
+	} else if(origin == 1) { //if origin of bullet was player,
 		//delete bullet object and remove it from elements vector
 		if (!b->isBeam()){
 			delete b;
@@ -658,11 +646,8 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 		enemyCount--;
 
 		
-	} else if(origin == 0) { //if origin of bullet was enemy,
-		
 	} else {
 		std::cout << "Error in collideBulletEnemy: Bullet origin not defined" << std::endl;
-		std::cout << "Origin: " << b->getType() << std::endl;
 	}
 	
 	//return correct xArg value

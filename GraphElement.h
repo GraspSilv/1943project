@@ -52,6 +52,7 @@ class GraphElement {
 		virtual int update();
 		//virtualized Bullet functions
 		virtual int getOrigin();
+		virtual int getBulletType();
 		virtual int isBeam();
 		//virtualized Player functions
 		virtual void newAmmo();
@@ -59,6 +60,8 @@ class GraphElement {
 		virtual void newHealth();
 		virtual void hitByBullet();
 		virtual void hitByPlane();
+		virtual int getWeapon();
+		virtual void setWeapon(int);
 		//virtualized Powerup functions
 		virtual int getPower();
 	protected:
