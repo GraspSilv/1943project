@@ -98,18 +98,13 @@ GraphElement::~GraphElement() {
 	
 }
 
-int GraphElement::getOrigin() {
-	std::cout << "Error: getOrigin() used on non-Bullet object" << std::endl;
-	return -1;
-}
-
 int GraphElement::update() {
 	std::cout << "Error: update() used on object where method has not yet been defined" << std::endl;
 	return 0;
 }
 
-int GraphElement::getPower() {
-	std::cout << "Error: getPower() used on non-Powerup object" << std::endl;
+int GraphElement::getOrigin() {
+	std::cout << "Error: getOrigin() used on non-Bullet object" << std::endl;
 	return -1;
 }
 
@@ -131,4 +126,9 @@ void GraphElement::hitByBullet() {
 
 void GraphElement::hitByPlane() {
 	std::cout << "Error: hitByPlane() used on non-Player object" << std::endl;
+}
+
+int GraphElement::getPower() {
+	std::cout << "Error: getPower() used on non-Powerup object" << std::endl;
+	return -1;
 }

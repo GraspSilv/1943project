@@ -46,27 +46,28 @@ class GraphElement {
 		void setXVel(double);
 		void setYVel(double);
 		int isOnScreen();
+		virtual ~GraphElement(); //do we need this anymore?
 		
-		virtual ~GraphElement();
-		
-		//following are functions that we were forced to virtualize
-		virtual int getOrigin();
+		//virtualized general functions
 		virtual int update();
-		virtual int getPower();
+		//virtualized Bullet functions
+		virtual int getOrigin();
+		//virtualized Player functions
 		virtual void newAmmo();
 		virtual void use2Ammo();
 		virtual void newHealth();
 		virtual void hitByBullet();
 		virtual void hitByPlane();
+		//virtualized Powerup functions
+		virtual int getPower();
 	protected:
 		std::vector<SDL_Rect> sprites;
 	private:
 		GEType type;
-		double xPos;
-		double yPos;
-		double xVel;
-		double yVel;
-		
+		double xPos; //x-position (pixels)
+		double yPos; //y-position (pixels)
+		double xVel; //x-velocity (pixels/frame)
+		double yVel; //y-velocity (pixels/frame)
 };
 
 #endif //GRAPHELEMENT_H

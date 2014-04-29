@@ -10,7 +10,6 @@ History
 */
 #include"Bullet.h"
 #include<vector>
-#include<iostream>
 #include"SDL/SDL.h"
 #include"GraphElement.h"
 
@@ -61,13 +60,13 @@ SDL_Rect Bullet::getSprite() {
 	return sprites[sprite];
 }
 
-int Bullet::getOrigin() {
-	return origin;
-}
-
 int Bullet::update() { //returns 1 if bullet if off the screen
 	if(isOnScreen()) {
 		return 0;
 	}
 	return 1;
+}
+
+int Bullet::getOrigin() {
+	return origin;
 }
