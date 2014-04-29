@@ -254,7 +254,7 @@ Enemy::Enemy(double xP, double yP, enemyType e) : GraphElement(xP,yP,ENEMY) {
 	addSprite(rect_purp1);
 	addSprite(rect_bigGray);
 
-	setYVel(1);
+	setYVel(2);
 }
 
 /*Enemy::Enemy(double xP, double yP, double xV, double yV, enemyType e) : Enemy(xP,yP,e) {
@@ -294,13 +294,13 @@ int Enemy::canFire(){
 
 int Enemy::update(){
 
-	AIcount = AIcount++ % 700;
-	if (AIcount > 1600) AIcount = 0;
+	AIcount = AIcount++ % 7000;
+	if (AIcount > 7000) AIcount = 0;
 
 	double yP = getYPos();
 	double xP = getXPos();
 
-	if (yP < 200 && yP > 0){
+/*	if (yP < 200 && yP > 0){
 		setYVel(getYVel() + .005);
 	} else if (yP > 300){
 		setYVel(getYVel() - .005);
@@ -312,26 +312,35 @@ int Enemy::update(){
 		setYVel(getYVel() + std::abs(100 - yP)/100000);
 	}
 
-	if (xP < 240 ){
+	if (xP < 220 ){
 		if (getXVel() < 0){
-			setXVel(getXVel() - .01 + AIcount/16000);
+			setXVel(getXVel() - .01);
 		} else {
 			setXVel(getXVel() + .01);
 		}
 			
+	} else if (xP > 260) {
+		if (getXVel() < 0){
+			setXVel(getXVel() + .02);
+		} else {
+			setXVel(getXVel() - .02);
+		}
 	} else {
-		setXVel(getXVel() + .005 - AIcount/10000);
+		setXVel(getXVel() - .02);
 	}
 
 	if (xP < 120){
-		setXVel(getXVel() + .02);
+		setXVel(getXVel() + .01);
 	} else if (xP > 360){
-		setXVel(getXVel() - .02);
+		setXVel(getXVel() - .01);
 	}
+	*/
+	setXVel(cos(AIcount*6.28/7000)/5);
+	setYVel((-yP)/100 + (150-yP)/80+sin(AIcount*6.28/7000)*4);
 
 	if (getYVel() > 4) setYVel(4);
 	if (getYVel() < -4) setYVel(-4);
 	if (getXVel() > 4) setXVel(4);
 	if (getXVel() < -4) setXVel(-4);
-	return ((AIcount == 200 ) && canFire());
+	return ((AIcount == 200 || AIcount == 500) && canFire());
 }
