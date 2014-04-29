@@ -61,7 +61,7 @@ SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
 SDL_Color textColor = {255, 255, 255};
 
-Counter score(5, (WINDOW_HEIGHT - 100), 0, 0, 1000000, 1);
+Counter score(300, (WINDOW_HEIGHT - 30), 0, 0, 1000000, 1);
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
@@ -143,7 +143,7 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
-	Counter lives(10, (640 - 30), 10, 0, 100, 1);
+	Counter lives(10, (WINDOW_HEIGHT - 30), 10, 0, 100, 1);
 	
 	//create initial player
 	Player * currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
@@ -422,17 +422,19 @@ int main(int argc, char * argv[]) {
 			//render all counters
 			ammoSurface = tempAmmoCntr.render(font, textColor);
 			healthSurface = tempHealthCntr.render(font, textColor);
+			livesSurface = lives.render(font, textColor);
 			scoreSurface = score.render(font, textColor);
 			
 			//apply all labels to screen
 			applySurface(tempAmmoCntr.getXPos(), (tempAmmoCntr.getYPos() - 15), ammoLabelSurface, screen);
 			applySurface(tempHealthCntr.getXPos(), (tempHealthCntr.getYPos() - 15), healthLabelSurface, screen);
-			applySurface(10, (tempHealthCntr.getYPos() - 15), livesLabelSurface, screen);
-			applySurface(300, (tempHealthCntr.getYPos() - 15), scoreLabelSurface, screen);
+			applySurface(lives.getXPos(), (lives.getYPos() - 15), livesLabelSurface, screen);
+			applySurface(score.getXPos(), (score.getYPos() - 15), scoreLabelSurface, screen);
 			
 			//apply all counters to screen
 			applySurface(tempAmmoCntr.getXPos(), tempAmmoCntr.getYPos(), ammoSurface, screen);
 			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
+			applySurface(lives.getXPos(), lives.getYPos(), livesSurface, screen);
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 		
 			if (maxShips == 0 && enemyCount == 0 && finishLevel){
@@ -443,7 +445,6 @@ int main(int argc, char * argv[]) {
 			SDL_Flip(screen);
 		} //end frame timing if()
 	} //end while(gameRunning)
-	SDL_FreeSurface(scoreSurface);
 	cleanUp(); //free surfaces and quit SDL
 }
 
@@ -493,6 +494,7 @@ void cleanUp() {
 	SDL_FreeSurface(livesLabelSurface);
 	SDL_FreeSurface(scoreSurface);
 	SDL_FreeSurface(scoreLabelSurface);
+	SDL_FreeSurface(levelLabelSurface);
 	
 	//free audio
 	Mix_FreeMusic(music);
