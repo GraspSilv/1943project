@@ -335,12 +335,17 @@ int Enemy::update(){
 		setXVel(getXVel() - .01);
 	}
 	*/
-	setXVel(cos(AIcount*6.28/7000)/5);
-	setYVel((-yP)/100 + (150-yP)/80+sin(AIcount*6.28/7000)*4);
+	setXVel(cos(AIcount*6.28/7000)/3);
+	if ((getYVel()<0) && (yP>0)) setYVel(-2);
+	else if (yP > 200) setYVel((-yP)/150 + (200-yP)/80+sin(AIcount*6.28/7000)*5 + 1);
+	else if ((yP>-150)&&(getYVel()<0)) setYVel(-2);
+	else setYVel(2);
 
 	if (getYVel() > 4) setYVel(4);
 	if (getYVel() < -4) setYVel(-4);
 	if (getXVel() > 4) setXVel(4);
 	if (getXVel() < -4) setXVel(-4);
-	return ((AIcount == 200 || AIcount == 500) && canFire());
+	if ((getYVel()>-1) && (getYVel()<0)) setYVel(-1);
+	if ((getYVel()<1) && (getYVel()>0)) setYVel(1);
+	return ((AIcount == 200 || AIcount == 300 || AIcount == 400 || AIcount == 500) && canFire());
 }
