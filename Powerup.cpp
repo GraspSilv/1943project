@@ -111,7 +111,7 @@ Powerup::Powerup(double xP, double yP, double xV, double yV, int p) : GraphEleme
 	addSprite(rect_pwrup_cow);
 }
 
-SDL_Rect Powerup::getSprite() {
+SDL_Rect Powerup::getSprite() { //returns sprite based on power
 	return sprites[power];
 }
 

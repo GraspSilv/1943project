@@ -37,7 +37,7 @@ class Powerup : public GraphElement {
 	public:
 		Powerup(double, double, int); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos, power]
 		Powerup(double, double, double, double, int); //nondefault constructor, passes position, velocity, and type to GraphElement constructor [xPos, yPos, xVel, yVel, power]
-		SDL_Rect getSprite();
+		SDL_Rect getSprite(); //returns sprite based on power
 		int getPower();
 	private:
 		powerupSpriteType sprite; //enum that stores powerup's sprite
