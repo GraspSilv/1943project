@@ -6,11 +6,11 @@ main.cpp
 	Driver for Blitz game
 */
 #include<algorithm>
+#include<cstdlib>
+#include <dirent.h>
+#include<fstream>
 #include<iostream>
 #include<string>
-#include <fstream>
-#include <cstdlib>
-#include <dirent.h>
 #include"SDL/SDL.h"
 #include"SDL/SDL_image.h"
 #include"SDL/SDL_ttf.h"
@@ -21,10 +21,10 @@ main.cpp
 #include"Enemy.h"
 #include"Explosion.h"
 #include"GraphElement.h"
+#include"Level.h"
 #include"Player.h"
 #include"Powerup.h"
 #include"Timer.h"
-#include"Level.h"
 
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
@@ -77,41 +77,42 @@ int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 
 int enemyCount = 0;
-int beamCycles = 0;
+int beamCycles = 0; //what is this?
 
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
-	int levelBreak = 0;
-	int finishLevel = 0;
-	int levelTitle = 1;
 
-	int isLaser = 0;
-	
-	
 	//initialize
 	if(!init()) {
+		std::cout << "Error: Could not initialize main()" << std::endl;
 		return 1;
 	}
 		
 	//load files
 	if(!loadFiles()) {
+		std::cout << "Error: Could not load files in main()" << std::endl;
 		return 1;
 	}
 
 	SDL_Event event; //event structure for checking if user has exited and generating bullets
 	std::vector<GraphElement *> elements; //vector of pointers to all graphic elements
-	std::vector<Level *> levels;
+	std::vector<Level *> levels; //vector of pointers to levels
 
+	int levelBreak = 0;
+	int finishLevel = 0;
+	int levelTitle = 1;
 
+	int isLaser = 0;
 
 	//Level * lev = new Level("level1.lev");
 	//if (!lev->init()) return 1;
+	//Jon wants to comment and understand this later
 	std::string temp;
-	DIR *pDir;
-	struct dirent *entry;
-	if (pDir=opendir("./levels")){
-		while (entry = readdir(pDir)){
-			if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0){
+	DIR * pDir;
+	struct dirent * entry;
+	if(pDir = opendir("./levels")) {
+		while(entry = readdir(pDir)) {
+			if((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0)) {
 				temp = std::string("./levels/") + entry->d_name;
 				// std::cout << temp << std::endl;
 				levels.push_back(new Level(temp));
@@ -121,49 +122,53 @@ int main(int argc, char * argv[]) {
 		closedir(pDir);
 	}
 
-	Level *lev = levels.front();
-	lev->init();
+	Level * lev = levels.front(); //load first level
+	lev->init(); //initiate first level
 	//std::cout << "out" << std::endl;
-	int maxShips = lev->getNextGroup();
-	enemyType shipType = lev->getNextType();
+	int maxShips = lev->getNextGroup(); //set maxShips for first level
+	enemyType shipType = lev->getNextType(); //set initial shipType for first level
 
-	Background * bg = lev->getBackground();
-	int bgX = 0, bgY = 0;
+	Background * bg = lev->getBackground(); //extract background for first level
+	int bgX = 0, bgY = 0; //set initial background offsets
 
 	//initialize background
 	if(!bg->init()) {
+		std::cout << "Error: Could not initialize background" << std::endl;
 		return 1;
 	}
 
 	//load background files
 	if(!bg->load_files()) {
+		std::cout << "Error: Could not load background files" << std::endl;
 		return 1;
 	}
 
-	int nLives = 10;
+	Counter lives(10, (640 - 30), 10, 0, 100, 1);
+	
+	//create initial player
 	Player * currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
 	elements.push_back(currentPlayer);
 	
-	//create test enemies and powerup
-	
-	for (int y = maxShips; y > 0; y--){
-		elements.push_back(new Enemy(50 + y * 50, -50 - 50*y, shipType));
-		enemyCount++;
+	//generate ships for first level
+	for(int i = maxShips; i > 0; i--) { //for maxShips times,
+		elements.push_back(new Enemy((50 + (i * 50)), (-50 - (50 * i)), shipType)); //create Enemy with appropriate shipType
+		enemyCount++; //increment enemy count
 	}
 
-	levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
-	int addShips = 0;
+	int addShips = 0; //tell program we are no longer adding ships
 
-	
-	
+	//create and start timer
 	Timer gameTimer;
 	gameTimer.start();
-	int frameTime = 1000 / GAME_FPS;
+	
+	int frameTime = 1000 / GAME_FPS; //calculate time (in ms) each frame will be on screen
+	
 	int shipCounter = 0;
 	
 	music = starship; //manually set "Starship" as music
 	
-	if (Mix_PlayMusic(music,5) == -1){
+	//start music
+	if(Mix_PlayMusic(music, 5) == -1){
 		return 1;
 	}
 	
@@ -172,43 +177,53 @@ int main(int argc, char * argv[]) {
 	healthLabelSurface = TTF_RenderText_Solid(font, "Health", textColor);
 	livesLabelSurface = TTF_RenderText_Solid(font, "Lives", textColor);
 	scoreLabelSurface = TTF_RenderText_Solid(font, "Score", textColor);
-	
+	levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
 	
 	while(gameRunning) {
-
 		//reset player's velocity
 		currentPlayer->setXVel(0);
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
-
-			if (levelBreak){
-				if (finishLevel) {
-					shipCounter = 0;
-					finishLevel = 0;
-					levels.erase(levels.begin());
-					if (levels.empty()) return 1;
-					lev = levels.front();
-					lev->init();
+			if(levelBreak) {
+				if(finishLevel) {
+					shipCounter = 0; //reset ship counter
+					finishLevel = 0; //new level will not be finished
+					levels.erase(levels.begin()); //erase previous level
+					if(levels.empty()) { //if there are no remaining levels,
+						return 1; //quit game (change to gameRunning?)
+					}
+					lev = levels.front(); //load next level
+					lev->init(); //initiate next level
+					
 					maxShips = lev->getNextGroup();
 					enemyType shipType = lev->getNextType();
-					for (int y = maxShips; y > 0; y--){
-						elements.push_back(new Enemy(50 + y * 50, -500 - 50*y, shipType));
+					for(int i = maxShips; i > 0; i--) {
+						elements.push_back(new Enemy((50 + (i * 50)), (-500 - (50 * i)), shipType));
 						enemyCount++;
 					}
 					bg = lev->getBackground();
-					if(!bg->init() || !bg->load_files()) {
+					
+					//initialize background
+					if(!bg->init()) {
+						std::cout << "Error: Could not initialize background" << std::endl;
+						return 1;
+					}
+
+					//load background files
+					if(!bg->load_files()) {
+						std::cout << "Error: Could not load background files" << std::endl;
 						return 1;
 					}
 					levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
 				}
 				shipCounter++;
-				if (shipCounter > 200){
+				if(shipCounter > 200) {
 					SDL_Rect boxRect;
-					boxRect.x = 120;
-					boxRect.y = 160;
-					boxRect.w = 240;
-					boxRect.h = 320;
+						boxRect.x = 120;
+						boxRect.y = 160;
+						boxRect.w = 240;
+						boxRect.h = 320;
 					SDL_FillRect(screen, &boxRect, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
 				}
 				if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
@@ -217,12 +232,10 @@ int main(int argc, char * argv[]) {
 						levelBreak = 0;
 						shipCounter = 0;
 						addShips = 0;
-
 					}
 				}
 				continue;
 			}
-
 			bgY += 1;
 			if(bgY >= bg->background->h) {//if background has scrolled too far,
 				bgY = 0; //reset the offset
@@ -230,17 +243,19 @@ int main(int argc, char * argv[]) {
 
 			//std::cout << shipCounter << std::endl;
 			shipCounter++;
-			if (shipCounter > 100){
-				if (beamCycles > 0) beamCycles--;
+			if(shipCounter > 100) {
+				if(beamCycles > 0) {
+					beamCycles--;
+				}
 				shipCounter = 0;
 				levelTitle = 0;
 				std::cout << enemyCount << " " << maxShips <<  std::endl;
 			}
-			if (enemyCount <= maxShips/2 && shipCounter == 70 && !addShips && maxShips != 0){
+			if((enemyCount <= (maxShips / 2)) && (shipCounter == 70) && !addShips && (maxShips != 0)) {
 				//std::cout << "counting ships" << std::endl;
 				maxShips = lev->getNextGroup();
 				//std::cout << "ok" << std::endl;
-				if (maxShips != 0){
+				if(maxShips != 0) {
 					shipType = lev->getNextType();
 				//std::cout << "not ok" << std::endl;
 					addShips = 1;
@@ -253,11 +268,13 @@ int main(int argc, char * argv[]) {
 				}
 			}
 
-			if (addShips && shipCounter == 50 && maxShips != 0){
+			if(addShips && (shipCounter == 50) && (maxShips != 0)) {
 				std::cout << "counting ships " << enemyCount + 1 << std::endl;
 				elements.push_back(new Enemy(50 + enemyCount * 50, -50 - 50*enemyCount, shipType));
 				enemyCount++;
-				if (enemyCount >= maxShips || maxShips == 0) addShips = 0;
+				if ((enemyCount >= maxShips) || (maxShips == 0)) {
+					addShips = 0;
+				}
 			}
 
 			//show background
@@ -367,6 +384,7 @@ int main(int argc, char * argv[]) {
 						//fire enemy bullets
 						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0, NRM));
 						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0, NRM));
+						//WHY DO WE NOT CONTINUE HERE?
 					}
 				} else if(xType == EXPLOSION) { //if element is explosion
 					if(elements[x]->update()) { //if explosion's updated status has a signal to process

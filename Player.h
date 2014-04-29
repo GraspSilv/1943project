@@ -57,8 +57,8 @@ class Player : public GraphElement {
 		void setYMom(int);
 	private:
 		playerSpriteType sprite; //enum that stores player's sprite
-		Counter ammo; //[xPos = 100, yPos = 300, value = 100, min = 0, max = 100, interval = 1]
-		Counter health; //[xPos = 100, yPos = 100, value = 100, min = 0, max = 100, interval = 5]
+		Counter ammo; //[xPos = 100, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 1]
+		Counter health; //[xPos = 180, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 5]
 		weaponType weapon; //enum that stores player's current weapon
 		int xMom; //x-momentum (unitless)
 		int yMom; //y-momentum (unitless)
