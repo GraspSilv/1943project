@@ -679,7 +679,7 @@ int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vect
 	int plDestroyed = 0; //player is not destroyed (yet)
 	int origin = b->getOrigin(); //extract bullet's origin
 	
-	if(origin == 0) { //if origin of bullet was player 
+	if(origin == 1) { //if origin of bullet was player 
 	
 	}	else if(origin == 0) { //if origin of bullet was enemy,
 		//delete bullets object and remove it from elements vector
