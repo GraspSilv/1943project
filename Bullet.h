@@ -23,10 +23,9 @@ typedef enum {
 	SPR_BLT_BEAM
 } bulletSpriteType;
 
-typedef enum {
-	PLAYERO,
-	ENEMYO
-} bulletOriginType;
+// origin
+// 0	ENEMY
+// 1	PLAYER
 
 class Bullet : public GraphElement {
 	public:

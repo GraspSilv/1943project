@@ -25,24 +25,23 @@ typedef enum {
 	SPR_PWRUP_COW
 } powerupSpriteType;
 
-typedef enum {
-			POWP,
-			SPREADP,
-			MISSILEP,
-			BEAMP,
-			AUTOP,
-			COWP
-} powerType;
+// power
+// 0	POW
+// 1	SPREAD
+// 2	MISSILE
+// 3	BEAM
+// 4	AUTO
+// 5	COW
 
 class Powerup : public GraphElement {
 	public:
-		Powerup(double, double, powerType); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos, power]
-		Powerup(double, double, double, double, powerType); //nondefault constructor, passes position, velocity, and type to GraphElement constructor [xPos, yPos, xVel, yVel, power]
+		Powerup(double, double, int); //nondefault constructor, passes position and type to GraphElement constructor [xPos, yPos, power]
+		Powerup(double, double, double, double, int); //nondefault constructor, passes position, velocity, and type to GraphElement constructor [xPos, yPos, xVel, yVel, power]
 		SDL_Rect getSprite();
-		powerType getPower();
+		int getPower();
 	private:
 		powerupSpriteType sprite; //enum that stores powerup's sprite
-		powerType power; //enum that stores powerup's power		
+		int power; //enum that stores powerup's power		
 };
 
 #endif //POWERUP_H

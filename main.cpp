@@ -101,7 +101,7 @@ int main(int argc, char * argv[]) {
 	//create test enemies and powerup
 	elements.push_back(new Enemy(200, -50, RED));
 	elements.push_back(new Enemy(280, -50, RED));
-	elements.push_back(new Powerup(200, 200, 1, 1, COWP));
+	elements.push_back(new Powerup(200, 200, 1, 1, 5));
 	elements.push_back(new Explosion(300, 300));
 	
 	Timer gameTimer;
@@ -139,8 +139,9 @@ int main(int argc, char * argv[]) {
 							break;
 						case SDLK_z: //if pressed Z
 							Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1)); //create left bullet
-							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1)); //create right bullet
+							//fire player bullets
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1));
+							elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1));
 							break;
 						default: //if other key,
 							break; //do nothing
@@ -216,31 +217,46 @@ int main(int argc, char * argv[]) {
 			applySurface(tempHealthCntr.getXPos(), tempHealthCntr.getYPos(), healthSurface, screen);
 			applySurface(score.getXPos(), score.getYPos(), scoreSurface, screen);
 			
+			int xDeleted; //signals if first element should be deleted
 			for(int x = 0; x < elements.size(); x++) { //for every element,
+				xDeleted = 0; //first element should not be deleted (yet)
 				GEType xType = elements[x]->getType(); //store that element's type
 				for(int y = x + 1; y < elements.size(); y++) { //for every following element,
 					GEType yType = elements[y]->getType(); //store that element's type
-					if(xType == ENEMY){
-						if(elements[x]->update()){
+					if(xType == BULLET) { //if element is bullet
+						if(elements[x]->update()) { //if bullet's updated status has a signal to process
+							//delete bullet object and remove it from elements vector
+							delete elements[x];
+							elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
+						}
+					} else if(xType == ENEMY) { //if element is enemy
+						if(elements[x]->update()) { //if enemy's updated status has a signal to process
+							Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+							//fire enemy bullets
 							elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0));
 							elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0));
+						}
+					} else if(xType == EXPLOSION) { //if element is explosion
+						if(elements[x]->update()) { //if explosion's updated status has a signal to process
+							//delete explosion object and remove it from elements vector
+							delete elements[x];
+							elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
 						}
 					}
 					if(xType != yType) { //if the two elements are not of the same type
 						if(checkCollide(elements[x], elements[y])) { //if the two objects collide,
-							int xDeleted = collide(elements[x], elements[y], xType, yType, &elements);
-							if(xDeleted) {
-								break;
+							xDeleted = collide(elements[x], elements[y], xType, yType, &elements); //run collision between two items, remembering if the first element was deleted
+							if(xDeleted == 1) { //if the first element was deleted,
+								break; //stop checking that element against the other elements
+							} else if(xDeleted == 0) {
+							} else {
+								std::cout << "Error: xDeleted not defined" << std::endl;
 							}
 						}
 					}
 				}
-				//if(elements[x]->isDone()) {
-					//delete elements[x];
-					//elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
-					//break;
-				//}
 				
+				//update screen positions
 				elements[x]->setXPos(elements[x]->getXPos() + elements[x]->getXVel());
 				elements[x]->setYPos(elements[x]->getYPos() + elements[x]->getYVel());
 				applySurface(elements[x]->getXPos(),elements[x]->getYPos(), spriteSheet, screen, &elements[x]->getSprite());  
@@ -317,7 +333,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 				case POWERUP:
 					break;
 				default:
-					std::cout << "Error: type of element[y] not defined" << std::endl;
+					std::cout << "Error: Type of element[y] not defined" << std::endl;
 					break;
 			}
 			break;
@@ -340,7 +356,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 				case POWERUP:
 					break;
 				default:
-					std::cout << "Error: type of element[y] not defined" << std::endl;
+					std::cout << "Error: Type of element[y] not defined" << std::endl;
 					break;
 			}		
 			break;
@@ -358,7 +374,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					std::cout << "Error: Trying to collide two explosions" << std::endl;
 					break;
 				default:
-					std::cout << "Error: type of element[y] not defined" << std::endl;
+					std::cout << "Error: Type of element[y] not defined" << std::endl;
 					break;
 			}
 		case PLAYER:
@@ -380,7 +396,7 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					GE1Destroyed = collidePlayerPowerup(1, GE1, GE2, elemPtr);
 					break;
 				default:
-					std::cout << "Error: type of element[y] not defined" << std::endl;
+					std::cout << "Error: Type of element[y] not defined" << std::endl;
 					break;
 			}			
 			break;
@@ -399,97 +415,150 @@ int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, 
 					std::cout << "Error: Trying to collide two powerups" << std::endl;
 					break;
 				default:
-					std::cout << "Error: type of element[y] not defined" << std::endl;
+					std::cout << "Error: Type of element[y] not defined" << std::endl;
 					break;
 			}			
 			break;
 		default:
-			std::cout << "Error: type of element[x] not defined" << std::endl;
+			std::cout << "Error: Type of element[x] not defined" << std::endl;
 	}
 	return GE1Destroyed;
 }
 
 
 int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr) {
-	int bDestroyed = 0;
-	int eDestroyed = 0;
+	int bDestroyed = 0; //bullet is not destroyed (yet)
+	int eDestroyed = 0; //enemy is not not destroyed (yet)
+	int origin = b->getOrigin(); //extract bullet's origin
 	
-	delete b;
-	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
-	bDestroyed = 1;
+	if(origin == 1) { //if origin of bullet was player,
+		//delete bullet object and remove it from elements vector
+		delete b;
+		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
+		bDestroyed = 1;
 	
-	elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos()));
-	delete e;
-	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
-	eDestroyed = 1;
+		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
+		
+		//delete enemy object and remove it from elements vector
+		delete e;
+		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
+		eDestroyed = 1;
+	} else if(origin == 0) { //if origin of bullet was enemy,
+		
+	} else {
+		std::cout << "Error in collideBulletEnemy: Bullet origin not defined" << std::endl;
+	}
 	
-	
+	//return correct xArg value
 	if(xArg == 1) {
 		return bDestroyed;
 	} else if(xArg == 2) {
 		return eDestroyed;
 	} else {
-		std::cout << "Error in collideBulletEnemy" << std::endl;
+		std::cout << "Error in collideBulletEnemy: xArg not defined" << std::endl;
+		return -1;
 	}
 }
 
 
 int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
-	int bDestroyed = 0;
-	int plDestroyed = 0;
+	int bDestroyed = 0; //bullet is not destroyed (yet)
+	int plDestroyed = 0; //player is not destroyed (yet)
+	int origin = b->getOrigin(); //extract bullet's origin
 	
-	if(1) {
+	if(origin == 0) { //if origin of bullet was player 
+	
+	}	else if(origin == 0) { //if origin of bullet was enemy,
+		//delete bullets object and remove it from elements vector
 		delete b;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 		bDestroyed = 1;
 		
-		//pl->sub1_IncHealth();
+		pl->hitByBullet(); //notify player that it was hit by a bullet (decrement health a little)
+	} else {
+		std::cout << "Error in collideBulletPlayer: Bullet origin not defined" << std::endl;
 	}
 	
+	//return correct xArg value
 	if(xArg == 1) {
 		return bDestroyed;
 	} else if(xArg == 2) {
 		return plDestroyed;
 	} else {
-		std::cout << "Error in collideBulletPlayer" << std::endl;
+		std::cout << "Error in collideBulletPlayer: xArg not defined" << std::endl;
+		return -1;
 	}
 }
 
 
 int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
-	int eDestroyed = 0;
-	int plDestroyed = 0;
+	int eDestroyed = 0; //enemy is not destroyed (yet)
+	int plDestroyed = 0; //player is not destroyed (yet)
 	
+	//delete enemy object and remove it from elements vector
 	delete e;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
 	eDestroyed = 1;
-	//pl->sub1_IncHealth();
 	
+	pl->hitByPlane(); //notify player that it was hit by a plane (decrement health a lot)
+	
+	//return correct xArg value
 	if(xArg == 1) {
 		return eDestroyed;
 	} else if(xArg == 2) {
 		return plDestroyed;
 	} else {
-		std::cout << "Error in collideEnemyPlayer" << std::endl;
+		std::cout << "Error in collideEnemyPlayer: xArg not defined" << std::endl;
+		return -1;
 	}
 }
 
 
 int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr) {
-	int plDestroyed = 0;
-	int poDestroyed = 0;
+	int plDestroyed = 0; //player is not destroyed (yet)
+	int poDestroyed = 0; //powerup is not destroyed (yet)
 	
+	switch(po->getPower()) {
+		case 0: //if powerup is pow,
+			pl->newAmmo(); //notify player that it gets more ammo
+			break;
+		case 1: //if powerup is spread,
+			
+			break;
+		case 2: //if powerup is missile,
+			
+			break;
+		case 3: //if powerup is beam,
+			
+			break;
+		case 4: //if powerup is auto,
+			
+			break;
+		case 5: //if powerup is cow,
+			pl->newAmmo(); //notify player that it gets more ammo
+			pl->newAmmo(); //notify player that it gets more ammo
+			pl->newAmmo(); //notify player that it gets more ammo
+			pl->newAmmo(); //notify player that it gets more ammo
+			pl->newAmmo(); //notify player that it gets more ammo
+			break;
+		default:
+			std::cout << "Error in collidePlayerPowerup: Powerup power not defined" << std::endl;
+			break;
+	}
+	
+	//delete powerup object and remove it from elements vector
 	delete po;
 	elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), po), elemPtr->end());
 	poDestroyed = 1;
-	//pl->add4_IncHealth();
 	
+	//return correct xArg value
 	if(xArg == 1) {
 		return plDestroyed;
 	} else if(xArg == 2) {
 		return poDestroyed;
 	} else {
-		std::cout << "Error in collidePlayerPowerup" << std::endl;
+		std::cout << "Error in collidePlayerPowerup: xArg not defined" << std::endl;
+		return -1;
 	}
 }
 

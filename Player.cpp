@@ -170,11 +170,11 @@ Counter Player::getHealthCntr() {
 	return health;
 }
 
-void Player::newBullets() {
+void Player::newAmmo() {
 	ammo.increment(100);
 }
 
-void Player::use2Bullets() {
+void Player::use2Ammo() {
 	ammo.increment(-2);
 }
 

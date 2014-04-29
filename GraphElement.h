@@ -47,14 +47,17 @@ class GraphElement {
 		void setYVel(double);
 		int isOnScreen();
 		std::vector<SDL_Rect> sprites;
-		virtual ~GraphElement(); //deconstructor, removes this pointer from pointers vector
+		virtual ~GraphElement();
 		
 		//following are functions that we were forced to virtualize
 		virtual int getOrigin();
-		virtual int isDone();
 		virtual int update();
-		//virtual void sub1_IncHealth();
-		//virtual void add4_IncHealth();
+		virtual int getPower();
+		virtual void newAmmo();
+		virtual void use2Ammo();
+		virtual void newHealth();
+		virtual void hitByBullet();
+		virtual void hitByPlane();
 	private:
 		GEType type;
 		double xPos;

@@ -95,27 +95,40 @@ int GraphElement::isOnScreen() {
 	return 1;
 }
 
-GraphElement::~GraphElement() { //deconstructor, removes this pointer from pointers vector
+GraphElement::~GraphElement() {
 
 }
 
 int GraphElement::getOrigin() {
-	std::cout << "You should not be in this getOrigin()!" << std::endl;
-	return 0;
+	std::cout << "Error: getOrigin() used on non-Bullet object" << std::endl;
+	return -1;
 }
 
-int GraphElement::isDone() {
-	return 0;
+int GraphElement::update() {
+	return -1;
 }
 
-int GraphElement::update(){
-
+int GraphElement::getPower() {
+	std::cout << "Error: getPower() used on non-Powerup object" << std::endl;
+	return -1;
 }
 
-//void GraphElement::sub1_IncHealth() {
-//	std::cout << "You should not be in this sub1_IncHealth()!" << std::endl;
-//}
+void GraphElement::newAmmo() {
+	std::cout << "Error: newBullets() used on non-Player object" << std::endl;
+}
 
-//void GraphElement::add4_IncHealth() {
-//	std::cout << "You should not be in this add4_IncHealth()!" << std::endl;
-//}
+void GraphElement::use2Ammo() {
+	std::cout << "Error: use2Bullets() used on non-Player object" << std::endl;
+}
+
+void GraphElement::newHealth() {
+	std::cout << "Error: newHealth() used on non-Player object" << std::endl;
+}
+
+void GraphElement::hitByBullet() {
+	std::cout << "Error: hitByBullet() used on non-Player object" << std::endl;
+}
+
+void GraphElement::hitByPlane() {
+	std::cout << "Error: hitByPlane() used on non-Player object" << std::endl;
+}

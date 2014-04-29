@@ -46,8 +46,8 @@ class Player : public GraphElement {
 		SDL_Rect getSprite();
 		Counter getAmmoCntr();
 		Counter getHealthCntr();
-		void newBullets();
-		void use2Bullets();
+		void newAmmo();
+		void use2Ammo();
 		void newHealth();
 		void hitByBullet();
 		void hitByPlane();
