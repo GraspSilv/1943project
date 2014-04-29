@@ -37,7 +37,7 @@ GraphElement::GraphElement(double xP, double yP, double xV, double yV, GEType t)
 	type = t;
 }
 
-void GraphElement::addSprite(SDL_Rect clip) { //adds sprite struct to sprites array [name, clip]
+void GraphElement::addSprite(SDL_Rect clip) { //adds SDL_Rect to sprites array [clip]
 	sprites.push_back(clip);
 }
 
@@ -78,25 +78,24 @@ void GraphElement::setYVel(double yV) {
 }
 
 int GraphElement::isOnScreen() {
-	if(xPos < 0) {
-		return 0;
-	} else if(yPos < 0) {
-		return 0;
+	if(xPos < 0) { //if left side of Element is off left side of screen,
+		return 0; //Element is not on screen
+	} else if(yPos < 0) { //else, if top of Element is off top of screen,
+		return 0; //Element is not on screen
 	}	
 	
-	SDL_Rect sprite = getSprite();
+	SDL_Rect sprite = getSprite(); //extract sprite of Element to read width and height
 
-	if((xPos + sprite.w) > WINDOW_WIDTH) {
-		return 0;
-	} else if((yPos + sprite.h) > WINDOW_HEIGHT) {
-		return 0;
+	if((xPos + sprite.w) > WINDOW_WIDTH) { //if right side of Element is off right side of screen,
+		return 0; //Element is not on screen
+	} else if((yPos + sprite.h) > WINDOW_HEIGHT) { //else, if bottom of Element is off bottom of screen,
+		return 0; //Element is not on screen
 	}
-	
-	return 1;
+	return 1; //Otherwise, Element is on screen
 }
 
 GraphElement::~GraphElement() {
-
+	
 }
 
 int GraphElement::getOrigin() {

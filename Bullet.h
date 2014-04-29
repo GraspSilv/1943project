@@ -30,15 +30,12 @@ typedef enum {
 class Bullet : public GraphElement {
 	public:
 		Bullet(double, double, double, double, int); //nondefault constructor, passes position and velocity to GraphElement constructor and sets origin [xPos, yPos, xVel, yVel, origin]
-		~Bullet();
 		SDL_Rect getSprite();
 		int getOrigin();
-		int getCount();
 		int update(); //returns 1 if bullet if off the screen
 	private:
 		bulletSpriteType sprite; //enum that stores player bullet's sprite
 		int origin; //enum that store's bullet's origin
-		static int count;
 };
 
 #endif //BULLET_H

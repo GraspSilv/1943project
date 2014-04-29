@@ -34,7 +34,7 @@ class GraphElement {
 	public:
 		GraphElement(double, double, GEType); //nondefault constructor, sets position and type [xPos, yPos, type]
 		GraphElement(double, double, double, double, GEType); //nondefault constructor, sets position, velocity, and type [xPos, yPos, xVel, yVel, type]
-		void addSprite(SDL_Rect); //adds sprite struct to sprites array [clip]
+		void addSprite(SDL_Rect); //adds SDL_Rect to sprites array [clip]
 		virtual SDL_Rect getSprite() = 0; //returns SDL_Rect of sprite based on derived class behavior
 		GEType getType();
 		double getXPos();
