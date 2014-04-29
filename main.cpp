@@ -592,7 +592,7 @@ int init() {
 
 int loadFiles(){
 	//open font
-	font = TTF_OpenFont("arial.ttf", 28); 
+	font = TTF_OpenFont("joystix.ttf", 28); 
 	if(!font) {
 		return 0;
 	}
