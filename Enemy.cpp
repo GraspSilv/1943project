@@ -300,6 +300,36 @@ SDL_Rect Enemy::getSprite(){
 			if (yv > 0 && xv < 0) return sprites[SPR_LILGRAY_SW];
 			if (yv < 0 && xv < 0) return sprites[SPR_LILGRAY_NW];
 		}
+	} else if (enemy == SINGLEGREEN) {
+		double xv = getXVel();
+		double yv = getYVel();
+//		std::cout << xv << ", " << yv << std::endl;
+		if ((yv <= .15) && (yv >= .05)) {
+			return sprites[SPR_SINGGREEN_HVERT];
+		} else if ((yv < .05) && (yv >= -.05)){
+//			std::cout << yv << std::endl;
+			return sprites[SPR_SINGGREEN_FVERT];
+		} else if (yv < -.05) {
+			return sprites[SPR_SINGGREEN_UPDOWN];
+		} else {
+			return sprites[SPR_SINGGREEN_STRAIGHT];
+		}
+	} else if (enemy == DOUBLEGREEN) {
+		double xv = getXVel();
+		double yv = getYVel();
+//		std::cout << xv << ", " << yv << std::endl;
+		if ((xv <= .15) && (xv >= .05)) {
+			return sprites[SPR_DOUBGREEN_ROLL1];
+		} else if ((xv < .05) && (xv >= -.05)){
+//			std::cout << yv << std::endl;
+			return sprites[SPR_DOUBGREEN_STRAIGHT];
+		} else if ((xv < -.05) && (xv >= -.15)) {
+			return sprites[SPR_DOUBGREEN_ROLL7];
+		} else if (xv > .15) {
+			return sprites[SPR_DOUBGREEN_ROLL6];
+		} else {
+			return sprites[SPR_DOUBGREEN_ROLL2];
+		}		
 	}
 	return sprites[SPR_RED_N];
 }
