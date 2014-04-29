@@ -77,6 +77,7 @@ int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 
 int enemyCount = 0;
+int beamCycles = 0;
 
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
@@ -85,6 +86,7 @@ int main(int argc, char * argv[]) {
 	int levelTitle = 1;
 
 	int isLaser = 0;
+	
 	
 	//initialize
 	if(!init()) {
@@ -229,6 +231,7 @@ int main(int argc, char * argv[]) {
 			//std::cout << shipCounter << std::endl;
 			shipCounter++;
 			if (shipCounter > 100){
+				if (beamCycles > 0) beamCycles--;
 				shipCounter = 0;
 				levelTitle = 0;
 				std::cout << enemyCount << " " << maxShips <<  std::endl;
@@ -272,9 +275,9 @@ int main(int argc, char * argv[]) {
 						case SDLK_ESCAPE: //if pressed escape,
 							gameRunning = 0; //quit game
 							break;
-						case SDLK_z: //if pressed Z
-							
+						case SDLK_z: //if pressed Z							
 							//fire player bullets
+								isLaser = (beamCycles > 0);
 							if (isLaser){
 								elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -8, 1, BEAM));
 								elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -8, 1, BEAM));
@@ -285,7 +288,8 @@ int main(int argc, char * argv[]) {
 							}
 							break;
 						case SDLK_x:
-							isLaser = !isLaser;
+							//isLaser = !isLaser;
+							break;
 						default: //if other key,
 							break; //do nothing
 					}
@@ -616,9 +620,9 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			delete b;
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
-	
-			elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		}
+		if (rand() % 15 + 1 == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
+		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
 		delete e;
 		elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), e), elemPtr->end());
@@ -715,7 +719,7 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 			
 			break;
 		case 3: //if powerup is beam,
-			
+			beamCycles += 10;
 			break;
 		case 4: //if powerup is auto,
 			
