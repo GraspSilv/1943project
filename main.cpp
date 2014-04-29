@@ -142,7 +142,7 @@ int main(int argc, char * argv[]) {
 	levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
 	
 	while(gameRunning) {
-
+		std::cout << shipCounter << std::endl;
 		shipCounter++;
 		if (shipCounter > 2000000) shipCounter = 0;
 		if (enemyCount <= maxShips/2 && shipCounter == 100 && !addShips && maxShips != 0){
@@ -166,8 +166,6 @@ int main(int argc, char * argv[]) {
 			enemyCount++;
 			if (enemyCount >= maxShips || maxShips == 0) addShips = 0;
 		}
-
-		
 		
 
 		//reset player's velocity
