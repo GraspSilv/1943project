@@ -279,9 +279,11 @@ void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect 
 }
 
 int checkCollide(GraphElement * a, GraphElement * b) {
+	//extract sprites of Elements to read width and height
 	SDL_Rect aClip = a->getSprite();
 	SDL_Rect bClip = b->getSprite();
 	
+	//calculate left, right, top, and bottom of elements
 	int leftA = a->getXPos();
 	int leftB = b->getXPos();
 	int rightA = leftA + aClip.w;
@@ -291,7 +293,7 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 	int topA = bottomA + aClip.h;
 	int topB = bottomB + bClip.h;
 
-	if(leftA >= rightB || rightA <= leftB || bottomA >= topB || topA <= bottomB) {
+	if(leftA > rightB || rightA < leftB || bottomA > topB || topA < bottomB) { //if there is no way for elements to overlap,
 		return 0;
 	}
 	return 1;
