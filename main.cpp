@@ -34,10 +34,13 @@ const std::string WINDOW_TITLE = "Blitz";
 
 const int GAME_FPS = 80;
 
-const int playerSpeed1 = 2;
-const int playerSpeed2 = 4;
-const int playerSpeed3 = 6;
+const int PL_SPEED1 = 2;
+const int PL_SPEED2 = 4;
+const int PL_SPEED3 = 6;
 const int momThresh = 60;
+
+const int BUL_SPEED = 4;
+const int LAS_SPEED = 8;
 
 SDL_Surface * spriteSheet = NULL;
 SDL_Surface * screen = NULL;
@@ -297,14 +300,14 @@ int main(int argc, char * argv[]) {
 								isLaser = (beamCycles > 0); //check if laser enabled
 								if(isLaser) { //if laser enabled,
 									//create two laser bullets and subtract 2 ammo from Player
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -8, 1, BEAM));
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -8, 1, BEAM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -LAS_SPEED, 1, BEAM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -LAS_SPEED, 1, BEAM));
 									currentPlayer->use2Ammo();
 								} else { //if laser not enabled,
 									//create two normal bullets and subtract 2 ammo from Player
 									Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -4, 1, NRM));
-									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -4, 1, NRM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 16), currentPlayer->getYPos(), 0, -BUL_SPEED, 1, NRM));
+									elements.push_back(new Bullet((currentPlayer->getXPos() + 5), currentPlayer->getYPos(), 0, -BUL_SPEED, 1, NRM));
 									currentPlayer->use2Ammo();
 								}
 							}
@@ -327,10 +330,10 @@ int main(int argc, char * argv[]) {
 			//handle upward movement
 			if(keystates[SDLK_UP] && currentPlayer->getYPos() >= WINDOW_BUFF) { //if up is pressed and player is not about to fly off top of screen,
 				if(yMom < -momThresh) { //if y-momentum is significant,
-					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed2); //make the y-velocity be playerSpeed2 pixels/frame upwards (greater than it currently is, 0)
+					currentPlayer->setYVel(currentPlayer->getYVel() - PL_SPEED2); //make the y-velocity be PL_SPEED2 pixels/frame upwards (greater than it currently is, 0)
 				} else { //otherwise,
 					currentPlayer->setYMom(yMom - 1); //give player more y-momentum upwards
-					currentPlayer->setYVel(currentPlayer->getYVel() - playerSpeed1); //make the y-velocity be playerSpeed1 pixels/frame upwards (greater than it currently is, 0)
+					currentPlayer->setYVel(currentPlayer->getYVel() - PL_SPEED1); //make the y-velocity be PL_SPEED1 pixels/frame upwards (greater than it currently is, 0)
 				}
 			} else if (!keystates[SDLK_DOWN]) { //if down is pressed when up is not pressed,
 				currentPlayer->setYMom(0); //reset player's y-momentum
@@ -339,9 +342,9 @@ int main(int argc, char * argv[]) {
 			//handle downward movement
 			if(keystates[SDLK_DOWN] && currentPlayer->getYPos() <= (WINDOW_HEIGHT - WINDOW_BUFF - currentPlayer->getSprite().h)) {
 				if(yMom > momThresh) {
-					currentPlayer->setYVel(currentPlayer->getYVel() + playerSpeed2);
+					currentPlayer->setYVel(currentPlayer->getYVel() + PL_SPEED2);
 				} else {
-					currentPlayer->setYVel(currentPlayer->getYVel() + playerSpeed1);
+					currentPlayer->setYVel(currentPlayer->getYVel() + PL_SPEED1);
 					currentPlayer->setYMom(yMom + 1);
 				}
 			} else if(!keystates[SDLK_UP]) {
@@ -351,9 +354,9 @@ int main(int argc, char * argv[]) {
 			//handle left movment
 			if(keystates[SDLK_LEFT] && currentPlayer->getXPos() >= WINDOW_BUFF) {
 				if(xMom < -momThresh) {
-					currentPlayer->setXVel(currentPlayer->getXVel() - playerSpeed2);
+					currentPlayer->setXVel(currentPlayer->getXVel() - PL_SPEED2);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() - playerSpeed1);
+					currentPlayer->setXVel(currentPlayer->getXVel() - PL_SPEED1);
 					currentPlayer->setXMom(xMom - 1);
 				}
 			} else if(!keystates[SDLK_RIGHT]) {
@@ -363,9 +366,9 @@ int main(int argc, char * argv[]) {
 			//handle right movement
 			if(keystates[SDLK_RIGHT] && currentPlayer->getXPos() <= (WINDOW_WIDTH - WINDOW_BUFF - currentPlayer->getSprite().w)) {
 				if(xMom > momThresh) {
-					currentPlayer->setXVel(currentPlayer->getXVel() + playerSpeed2);
+					currentPlayer->setXVel(currentPlayer->getXVel() + PL_SPEED2);
 				} else {
-					currentPlayer->setXVel(currentPlayer->getXVel() + playerSpeed1);
+					currentPlayer->setXVel(currentPlayer->getXVel() + PL_SPEED1);
 					currentPlayer->setXMom(xMom + 1);
 				}
 			} else if(!keystates[SDLK_LEFT]) {
@@ -387,8 +390,8 @@ int main(int argc, char * argv[]) {
 					if(elements[x]->update()) { //if enemy's updated status has a signal to process
 						Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
 						//fire enemy bullets
-						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, 4, 0, NRM));
-						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, 4, 0, NRM));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 16), elements[x]->getYPos(), 0, BUL_SPEED, 0, NRM));
+						elements.push_back(new Bullet((elements[x]->getXPos() + 4), elements[x]->getYPos(), 0, BUL_SPEED, 0, NRM));
 						//WHY DO WE NOT CONTINUE HERE?
 					}
 				} else if(xType == EXPLOSION) { //if element is explosion
