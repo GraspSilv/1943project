@@ -301,7 +301,7 @@ SDL_Rect Enemy::getSprite(){
 			if (yv < 0 && xv < 0) return sprites[SPR_LILGRAY_NW];
 		}
 	} else if (enemy == SINGLEGREEN) {
-		double xv = getXVel();
+		// double xv = getXVel();
 		double yv = getYVel();
 //		std::cout << xv << ", " << yv << std::endl;
 		if ((yv <= .15) && (yv >= .05)) {
@@ -368,7 +368,7 @@ int Enemy::update(){
 	if (AIcount > 7000) AIcount = 0;
 
 	double yP = getYPos();
-	double xP = getXPos();
+	// double xP = getXPos();
 
 /*	if (yP < 200 && yP > 0){
 		setYVel(getYVel() + .005);

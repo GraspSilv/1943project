@@ -57,6 +57,7 @@ SDL_Surface * scoreLabelSurface = NULL;
 SDL_Surface * levelLabelSurface = NULL;
 SDL_Surface * splashScreen = NULL;
 SDL_Surface * bombNotification = NULL;
+SDL_Surface * spacePrompt = NULL;
 
 TTF_Font * font = NULL;
 
@@ -64,12 +65,14 @@ Mix_Music * music = NULL;
 Mix_Music * starship = NULL;
 Mix_Chunk * gunfire = NULL;
 Mix_Chunk * guncock = NULL;
+Mix_Chunk * fireAtWill = NULL;
+Mix_Chunk * enemyDown = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
 SDL_Color textColor = {255, 255, 255};
 
-Counter score(300, (WINDOW_HEIGHT - 30), 0, 0, 1000000, 1);
+Counter score(300, (WINDOW_HEIGHT - 30), 0, 0, 1000000, 10);
 
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
 void cleanUp();
@@ -199,15 +202,17 @@ int main(int argc, char * argv[]) {
 	scoreLabelSurface = TTF_RenderText_Solid(		font, "Score",								textColor);
 	levelLabelSurface = TTF_RenderText_Solid(		font, lev->getLevelText().c_str(),	textColor);
 	bombNotification = TTF_RenderText_Solid(font, "Press X for Air Support", textColor);
+	spacePrompt = TTF_RenderText_Solid(font, "Press [SPACE] to continue", textColor);
 	
 	applySurface(0,0,splashScreen,screen);
+	applySurface(20,WINDOW_HEIGHT - 30,spacePrompt,screen);
 	SDL_Flip(screen);
 
 	while (1){
 		//std::cout<<"applying"<<std::endl;
 		
 		if (SDL_PollEvent(&event)){
-			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_z) break;
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) break;
 			else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) return 1;
 		}
 	}
@@ -219,15 +224,18 @@ int main(int argc, char * argv[]) {
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
 			if(levelBreak) {
+				applySurface(50, 350,spacePrompt,screen);
 				if(finishLevel) {
 					shipCounter = 0; //reset ship counter			
 					if(lastLevel || levels.empty()) { //if there are no remaining levels,
 						levelLabelSurface = TTF_RenderText_Solid(font, "GAME CLEAR", textColor);
+
 						//std::cout << "in loop" << std::endl;
 						applySurface(150,300,levelLabelSurface,screen);
+						applySurface(50, 350,spacePrompt,screen);
 						SDL_Flip(screen);
 						if (SDL_PollEvent(&event)){
-							if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_z){
+							if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE){
 								gameIsOver = 1;
 								goto gameStart;
 							}
@@ -236,12 +244,14 @@ int main(int argc, char * argv[]) {
 						continue;
 
 					} else {
-						levels.erase(levels.begin()); //erase previous level
+						
 						finishLevel = 0; //new level will not be finished
 						lastLevel = 0;
+						lev = levels.front(); //load next level
+						lev->init();
+						levels.erase(levels.begin()); //erase current level from levels vector
 					}
-					lev = levels.front(); //load next level
-					lev->init(); //initiate next level
+					 //initiate next level
 
 					if(levels.empty()) lastLevel = 1;
 					
@@ -265,10 +275,11 @@ int main(int argc, char * argv[]) {
 						return 1;
 					}
 					levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
+
 				}
 
 				if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
-					if (event.key.keysym.sym == SDLK_z) {
+					if (event.key.keysym.sym == SDLK_SPACE) {
 						levelTitle = 1;
 						levelBreak = 0;
 						shipCounter = 0;
@@ -295,10 +306,11 @@ int main(int argc, char * argv[]) {
 					if (lives.getValue() == 0){
 						levelLabelSurface = TTF_RenderText_Solid(font, "GAME OVER",	textColor);
 						applySurface(150,300,levelLabelSurface,screen);
+						applySurface(50, 350,spacePrompt,screen);
 						SDL_Flip(screen);
 						gameIsOver = 1;
 						if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
-							if (event.key.keysym.sym == SDLK_z) {
+							if (event.key.keysym.sym == SDLK_SPACE) {
 								goto gameStart;
 							}
 						}
@@ -320,6 +332,7 @@ int main(int argc, char * argv[]) {
 				//std::cout << "in isBombing " << shipCounter << std::endl;
 				if (bombStart == 0) bombStart = shipCounter;
 				else if (bombStart -1 == shipCounter){
+					Mix_PlayChannel(-1, enemyDown, 0);
 					Mix_ResumeMusic();
 					isBombing = 0;
 					bombStart = 0;
@@ -350,6 +363,7 @@ int main(int argc, char * argv[]) {
 				} else {
 					if (lastLevel == 0 && !levels.empty()) {
 						levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
+						score.increment(12);
 					}
 					addShips = 0;
 					maxShips = 0;
@@ -371,7 +385,12 @@ int main(int argc, char * argv[]) {
 			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
 			bg->apply_surface(bgX, bgY,							bg->background, bg->screen);
 			bg->apply_surface(bgX, bgY - bg->background->h,	bg->background, bg->screen);
-			if (levelTitle) applySurface(150,300,levelLabelSurface,screen);
+			if (levelTitle) {
+				applySurface(150,300,levelLabelSurface,screen);
+				//applySurface(20, 350,spacePrompt,screen);
+			} else if (finishLevel){
+				applySurface(50, 350,spacePrompt,screen);
+			}
 
 			if(SDL_PollEvent(&event)) { //if there is event to handle,
 				if(event.type == SDL_QUIT) { //if user has Xed out of window,
@@ -390,6 +409,7 @@ int main(int argc, char * argv[]) {
 										//create two normal bullets and subtract 2 ammo from player
 										gunfire->volume=20;
 										Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+										score.increment(1);
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
 										currentPlayer->useAmmo(2);
@@ -398,6 +418,7 @@ int main(int argc, char * argv[]) {
 										//create seven spread bullets and subtract 7 ammo from player
 										gunfire->volume=20;
 										Mix_PlayChannel(-1, gunfire, 0);
+										score.increment(3);
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(30) * BUL_SPEED), -(sinDeg(30) * BUL_SPEED), 1, 1));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(45) * BUL_SPEED), -(sinDeg(45) * BUL_SPEED), 1, 1));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(70) * BUL_SPEED), -(sinDeg(70) * BUL_SPEED), 1, 1));
@@ -415,7 +436,8 @@ int main(int argc, char * argv[]) {
 										break;
 									case 4: //BEAM
 										//create two beam bullets and subtract 2 ammo from Player
-										std::cout << "laser" << std::endl;
+										score.increment(3);
+										// std::cout << "laser" << std::endl;
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BEAM_SPEED, 1, 4));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BEAM_SPEED, 1, 4));
 										//currentPlayer->useAmmo(2);
@@ -429,7 +451,8 @@ int main(int argc, char * argv[]) {
 						case SDLK_x:
 							if (currentPlayer->getBomb()){
 								// std::cout << "bombing" << std::endl;
-								currentPlayer->setBomb(0);
+								Mix_PlayChannel(-1, fireAtWill, 0);
+								currentPlayer->setBomb(currentPlayer->getBomb() - 1);
 								isBombing = 1;
 							}
 							break;
@@ -586,6 +609,7 @@ int main(int argc, char * argv[]) {
 				if(!levels.empty()){
 					std::cout << "printing" << std::endl;
 					applySurface(150,300,levelLabelSurface,screen);
+					//applySurface(50, 350,spacePrompt,screen);
 				}
 				levelBreak = 1;
 			}
@@ -644,7 +668,8 @@ void cleanUp() {
 	SDL_FreeSurface(scoreSurface);
 	SDL_FreeSurface(scoreLabelSurface);
 	SDL_FreeSurface(levelLabelSurface);
-	
+	SDL_FreeSurface(spacePrompt);
+	SDL_FreeSurface(bombNotification);
 	//free audio
 	Mix_FreeMusic(music);
 	Mix_FreeChunk(gunfire);
@@ -771,6 +796,8 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	int origin = b->getOrigin(); //extract bullet's origin
 	int powProb;
 
+	// score.increment(10);
+
 	srand(time(NULL));
 
 	if(origin == 0) { //if origin of bullet was enemy
@@ -781,10 +808,13 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			delete b;
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
+			score.increment(10);
 		}
+		score.increment(5);
 		powProb = rand() % 7 + 1;
-		std::cout << powProb << std::endl;
-		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, rand() % 4));
+		//std::cout << powProb << std::endl;
+		srand(time(NULL));
+		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, rand() % 4));//rand() % 4));
 
 		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
@@ -843,6 +873,9 @@ int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vect
 int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr) {
 	int eDestroyed = 0; //enemy is not destroyed (yet)
 	int plDestroyed = 0; //player is not destroyed (yet)
+
+	score.increment(15);
+	std::cout << "enemyPlayer" << std::endl;
 	
 	elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 	
@@ -868,7 +901,8 @@ int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vecto
 int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr) {
 	int plDestroyed = 0; //player is not destroyed (yet)
 	int poDestroyed = 0; //powerup is not destroyed (yet)
-	
+	score.increment(5);
+	std::cout << "playerPowerup" << std::endl;
 	switch(po->getPower()) {
 		case 0: //if powerup is pow,
 			pl->newAmmo(); //notify player that it gets more ammo
@@ -978,6 +1012,18 @@ int loadFiles() {
 	guncock = Mix_LoadWAV("reload3.wav");
 	if (!guncock) {
 		std::cout << "Error: Could not load reload.wav" << std::endl;
+		return 0;
+	}
+
+	fireAtWill = Mix_LoadWAV("fireatwill.wav");
+	if (!guncock) {
+		std::cout << "Error: Could not load fireatwill.wav" << std::endl;
+		return 0;
+	}
+
+	enemyDown = Mix_LoadWAV("enemydown.wav");
+	if (!guncock) {
+		std::cout << "Error: Could not load enemyDown.wav" << std::endl;
 		return 0;
 	}
 	

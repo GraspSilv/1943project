@@ -198,7 +198,7 @@ int Player::getWeapon() {
 
 void Player::setWeapon(int w) {
 	if (w == 2){
-		setBomb(1);
+		setBomb(getBomb()+1);
 		w = 0;
 	}
 	weapon = w;

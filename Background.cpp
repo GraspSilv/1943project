@@ -55,7 +55,7 @@ SDL_Surface * Background::load_image(std::string filename)
     return optimizedImage;
 }
 
-SDL_Surface * Background::getBG(int x, int y){
+/*SDL_Surface * Background::getBG(int x, int y){
     SDL_Surface * tempSurf;
     SDL_Rect bgRect;
     bgRect.x = x;
@@ -64,7 +64,7 @@ SDL_Surface * Background::getBG(int x, int y){
     bgRect.h = 640;
     SDL_BlitSurface(background,&bgRect,tempSurf,&bgRect);
     return tempSurf;
-}
+}*/
 
 void Background::apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip )
 {

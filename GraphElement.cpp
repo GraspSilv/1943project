@@ -149,6 +149,7 @@ void GraphElement::setWeapon(int w) {
 
 int GraphElement::getCycles() {
 	std::cout << "Error: getCycles() called on non-Player object" << std::endl;
+	return -1;
 }
 
 void GraphElement::setCycles(int) {
