@@ -403,7 +403,7 @@ int main(int argc, char * argv[]) {
 							break;
 						case SDLK_x:
 							if (currentPlayer->getBomb()){
-								std::cout << "bombing" << std::endl;
+								// std::cout << "bombing" << std::endl;
 								currentPlayer->setBomb(0);
 								isBombing = 1;
 							}
@@ -486,7 +486,7 @@ int main(int argc, char * argv[]) {
 						//fire enemy bullets
 						elements.push_back(new Bullet((elements[x]->getXPos() + 16),	elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
 						elements.push_back(new Bullet((elements[x]->getXPos() + 4),		elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
-						//WHY DO WE NOT CONTINUE HERE?
+						//WHY DO WE NOT CONTINUE HERE? -- because we only continue when something is deleted
 					}
 				} else if(xType == EXPLOSION) { //if element is explosion
 					if(elements[x]->update()) { //if explosion's updated status has a signal to process
@@ -508,6 +508,7 @@ int main(int argc, char * argv[]) {
 						elements.push_back(currentPlayer);
 						lives.increment(-1);
 						playerIsDead = 1;
+						Mix_PlayChannel(-1,guncock,0);
 						continue;
 					}
 				} else if (xType == POWERUP){
