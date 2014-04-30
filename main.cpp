@@ -88,6 +88,7 @@ int beamCycles = 0; //what is this?
 
 int main(int argc, char * argv[]) {
 	int gameRunning = 1;
+	int playerIsDead = 0;
 
 	//initialize
 	if(!init()) {
@@ -256,6 +257,7 @@ int main(int argc, char * argv[]) {
 				} else {
 					currentPlayer->setWeapon(0);
 				}
+				if (playerIsDead) playerIsDead = 0;
 				shipCounter = 0;
 				levelTitle = 0;
 				std::cout << enemyCount << " " << maxShips <<  std::endl;
@@ -431,7 +433,18 @@ int main(int argc, char * argv[]) {
 						continue;
 					}
 				} else if (xType == PLAYER){
-					if (elements[x]->getCycles() % 2){
+					if (elements[x]->getCycles() % 2 || playerIsDead){
+						continue;
+					}
+					if (currentPlayer->getHealthCntr().getValue() == 0){
+						std::cout << "Dead" << std::endl;
+						elements.push_back(new Explosion(elements[x]->getXPos(), elements[x]->getYPos()));
+						delete elements[x];
+						elements.erase(std::remove(elements.begin(), elements.end(), elements[x]), elements.end());
+						currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
+						elements.push_back(currentPlayer);
+						lives.increment(-1);
+						playerIsDead = 1;
 						continue;
 					}
 				}
