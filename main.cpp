@@ -61,7 +61,7 @@ TTF_Font * font = NULL;
 Mix_Music * music = NULL;
 Mix_Music * starship = NULL;
 Mix_Chunk * gunfire = NULL;
-Mix_Chunk * load = NULL;
+Mix_Chunk * guncock = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
@@ -182,7 +182,7 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 	
-	Mix_PlayChannel(-1,load,0);
+	Mix_PlayChannel(-1,guncock,0);
 
 	//render labels
 	ammoLabelSurface = TTF_RenderText_Solid(		font, "Ammo",								textColor);
@@ -911,8 +911,8 @@ int loadFiles() {
 	}
 
 	//load gun-cocking-01.wav
-	load = Mix_LoadWAV("guncock.wav");
-	if (!load) {
+	guncock = Mix_LoadWAV("guncock.wav");
+	if (!guncock) {
 		std::cout << "Error: Could not load guncock.wav" << std::endl;
 		return 0;
 	}
