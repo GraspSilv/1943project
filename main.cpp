@@ -295,17 +295,27 @@ int main(int argc, char * argv[]) {
 				}
 				shipCounter = 0;
 				levelTitle = 0;
-				std::cout << enemyCount << " " << maxShips <<  std::endl;
+				// std::cout << enemyCount << " " << maxShips <<  std::endl;
+
+				//BEGIN BOMBING
 			} else if (isBombing) {
+				Mix_PauseMusic();
+				std::cout << "in isBombing " << shipCounter << std::endl;
 				if (bombStart == 0) bombStart = shipCounter;
-				else if (bombStart == shipCounter){
+				else if (bombStart -1 == shipCounter){
+					Mix_ResumeMusic();
 					isBombing = 0;
 					bombStart = 0;
-				} else if (shipCounter % 4 ){
-					elements.push_back(new Bullet((shipCounter/4)*10, WINDOW_HEIGHT - 5, 0, -BUL_SPEED, 1, 0));
-					elements.push_back(new Bullet((24 - shipCounter/4)*10, WINDOW_HEIGHT - 5, 0, -BUL_SPEED, 1, 0));
+				} else if (shipCounter % 4 == 1){
+					std::cout << "in creating " << shipCounter << std::endl;
+					gunfire->volume=20;
+					Mix_PlayChannel(-1, gunfire, 0);
+					elements.push_back(new Bullet((24 - shipCounter/4)*10, WINDOW_HEIGHT - 20, 0, -BUL_SPEED * 1.5, 1, 0));
+					elements.push_back(new Bullet((24 + shipCounter/4)*10, WINDOW_HEIGHT - 20, 0, -BUL_SPEED * 1.5, 1, 0));
 				}
 			}
+
+
 			if((enemyCount <= (maxShips / 2)) && (shipCounter == 70) && !addShips && (maxShips != 0)) {
 				//std::cout << "counting ships" << std::endl;
 				maxShips = lev->getNextGroup();
@@ -353,6 +363,7 @@ int main(int argc, char * argv[]) {
 								switch(currentPlayer->getWeapon()) {
 									case 0: //STANDARD
 										//create two normal bullets and subtract 2 ammo from player
+										gunfire->volume=20;
 										Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 16),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 5),	currentPlayer->getYPos(), 0, -BUL_SPEED, 1, 0));
@@ -360,6 +371,8 @@ int main(int argc, char * argv[]) {
 										break;
 									case 1: //SPREAD
 										//create seven spread bullets and subtract 7 ammo from player
+										gunfire->volume=20;
+										Mix_PlayChannel(-1, gunfire, 0);
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(30) * BUL_SPEED), -(sinDeg(30) * BUL_SPEED), 1, 1));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(45) * BUL_SPEED), -(sinDeg(45) * BUL_SPEED), 1, 1));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(70) * BUL_SPEED), -(sinDeg(70) * BUL_SPEED), 1, 1));
@@ -468,7 +481,8 @@ int main(int argc, char * argv[]) {
 					}
 				} else if(xType == ENEMY) { //if element is enemy
 					if(elements[x]->update()) { //if enemy's updated status has a signal to process
-						Mix_PlayChannel(1, gunfire, 0); //play gunfire sound
+						gunfire->volume=5;
+						Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
 						//fire enemy bullets
 						elements.push_back(new Bullet((elements[x]->getXPos() + 16),	elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
 						elements.push_back(new Bullet((elements[x]->getXPos() + 4),		elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
@@ -738,9 +752,9 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
 		}
-		powProb = rand() % 8 + 1;
+		powProb = rand() % 7 + 1;
 		std::cout << powProb << std::endl;
-		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 2));
+		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, rand() % 4));
 
 		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
@@ -922,6 +936,7 @@ int loadFiles() {
 		std::cout << "Error: Could not load gunfire.wav" << std::endl;
 		return 0;
 	}
+	
 
 	splashScreen = loadImage("splash.png");
 	if(!splashScreen) {
@@ -930,7 +945,7 @@ int loadFiles() {
 	}
 
 	//load gun-cocking-01.wav
-	guncock = Mix_LoadWAV("reload.wav");
+	guncock = Mix_LoadWAV("guncock.wav");
 	if (!guncock) {
 		std::cout << "Error: Could not load reload.wav" << std::endl;
 		return 0;
