@@ -277,12 +277,6 @@ int main(int argc, char * argv[]) {
 					currentPlayer->setWeapon(0);
 				}
 
-				if (spreadCycles > 0) {
-					spreadCycles--;
-				} else {
-					currentPlayer->setWeapon(0);
-				}
-
 				if (playerIsDead){
 					if (lives.getValue() == 0){
 						levelLabelSurface = TTF_RenderText_Solid(font, "GAME OVER",	textColor);
@@ -474,7 +468,7 @@ int main(int argc, char * argv[]) {
 					}
 				} else if(xType == ENEMY) { //if element is enemy
 					if(elements[x]->update()) { //if enemy's updated status has a signal to process
-						Mix_PlayChannel(-1, gunfire, 0); //play gunfire sound
+						Mix_PlayChannel(1, gunfire, 0); //play gunfire sound
 						//fire enemy bullets
 						elements.push_back(new Bullet((elements[x]->getXPos() + 16),	elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
 						elements.push_back(new Bullet((elements[x]->getXPos() + 4),		elements[x]->getYPos(), 0, BUL_SPEED, 0, 0));
@@ -611,6 +605,7 @@ void cleanUp() {
 	//free audio
 	Mix_FreeMusic(music);
 	Mix_FreeChunk(gunfire);
+	Mix_FreeChunk(guncock);
 	Mix_FreeMusic(starship);
 	
 	TTF_Quit(); //quit SDL_ttf
