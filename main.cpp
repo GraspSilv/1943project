@@ -87,8 +87,10 @@ int enemyCount = 0;
 int beamCycles = 0; //what is this?
 
 int main(int argc, char * argv[]) {
+	gameStart:
 	int gameRunning = 1;
 	int playerIsDead = 0;
+	int gameIsOver = 0;
 
 	//initialize
 	if(!init()) {
@@ -149,7 +151,7 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
-	Counter lives(10, (WINDOW_HEIGHT - 30), 10, 0, 100, 1);
+	Counter lives(10, (WINDOW_HEIGHT - 30), 5, 0, 100, 1);
 	
 	//create initial player
 	Player * currentPlayer = new Player((WINDOW_WIDTH / 2), (WINDOW_HEIGHT - 100));
@@ -232,7 +234,7 @@ int main(int argc, char * argv[]) {
 						boxRect.y = 160;
 						boxRect.w = 240;
 						boxRect.h = 320;
-					SDL_FillRect(screen, &boxRect, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
+					// zSDL_FillRect(screen, &boxRect, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
 				}
 				if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
 					if (event.key.keysym.sym == SDLK_z) {
@@ -257,7 +259,21 @@ int main(int argc, char * argv[]) {
 				} else {
 					currentPlayer->setWeapon(0);
 				}
-				if (playerIsDead) playerIsDead = 0;
+				if (playerIsDead){
+					if (lives.getValue() == 0){
+						levelLabelSurface = TTF_RenderText_Solid(font, "GAME OVER",	textColor);
+						applySurface(150,300,levelLabelSurface,screen);
+						gameIsOver = 1;
+						if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
+							if (event.key.keysym.sym == SDLK_z) {
+								goto gameStart;
+							}
+						}
+						continue;
+					} else {
+						playerIsDead = 0;
+					}
+				}
 				shipCounter = 0;
 				levelTitle = 0;
 				std::cout << enemyCount << " " << maxShips <<  std::endl;
@@ -491,7 +507,7 @@ int main(int argc, char * argv[]) {
 			applySurface(lives.getXPos(),				lives.getYPos(),				livesSurface,	screen);
 			applySurface(score.getXPos(),				score.getYPos(),				scoreSurface,	screen);
 		
-			if (maxShips == 0 && enemyCount == 0 && finishLevel){
+			if (maxShips == 0 && enemyCount == 0 && finishLevel || gameIsOver){
 				applySurface(150,300,levelLabelSurface,screen);
 				levelBreak = 1;
 			}
@@ -779,7 +795,7 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 			break;
 		case 3: //if powerup is beam,
 			beamCycles += 10;
-			std::cout << beamCycles << std::endl;
+			//std::cout << beamCycles << std::endl;
 			pl->setWeapon(4);
 			break;
 		case 4: //if powerup is auto,

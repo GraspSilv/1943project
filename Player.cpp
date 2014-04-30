@@ -184,11 +184,11 @@ void Player::newHealth() {
 }
 
 void Player::hitByBullet() {
-	health.increment(-1);
+	health.increment(-2);
 }
 
 void Player::hitByPlane() {
-	health.increment(-2);
+	health.increment(-3);
 }
 
 int Player::getWeapon() {
