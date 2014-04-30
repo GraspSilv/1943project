@@ -85,6 +85,7 @@ double cosDeg(double deg);
 
 int enemyCount = 0;
 int beamCycles = 0; //what is this?
+int spreadCycles = 0;
 
 int main(int argc, char * argv[]) {
 	gameStart:
@@ -258,6 +259,11 @@ int main(int argc, char * argv[]) {
 					beamCycles--;
 				} else {
 					currentPlayer->setWeapon(0);
+				}
+				if (spreadCycles > 0) {
+					spreadCycles--;
+				} else {
+					currentyPlayer->setWeapon(0);
 				}
 				if (playerIsDead){
 					if (lives.getValue() == 0){
@@ -689,6 +695,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	int bDestroyed = 0; //bullet is not destroyed (yet)
 	int eDestroyed = 0; //enemy is not not destroyed (yet)
 	int origin = b->getOrigin(); //extract bullet's origin
+	int powProb;
 
 	if(origin == 0) { //if origin of bullet was enemy
 	
@@ -699,7 +706,9 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
 		}
-		if (rand() % 10 + 1 == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
+		powProb = rand() % 10 + 1;
+		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
+		if (powProb == 4) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 1));
 		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
 		delete e;
@@ -788,7 +797,8 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 			pl->newAmmo(); //notify player that it gets more ammo
 			break;
 		case 1: //if powerup is spread,
-			
+			spreadCycles += 10;
+			pl->setWeapon(1);
 			break;
 		case 2: //if powerup is missile,
 			
