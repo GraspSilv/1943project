@@ -50,6 +50,10 @@ int Level::init(){
 				types.push_back(RED);
 			} else if (hold == "grey"){
 				types.push_back(LITTLEGRAY);
+			} else if (hold == "green1"){
+				types.push_back(SINGLEGREEN);
+			} else if (hold == "green2"){
+				types.push_back(DOUBLEGREEN);
 			}
 			j--;
 		}

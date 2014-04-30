@@ -315,21 +315,33 @@ SDL_Rect Enemy::getSprite(){
 			return sprites[SPR_SINGGREEN_STRAIGHT];
 		}
 	} else if (enemy == DOUBLEGREEN) {
-		double xv = getXVel();
-		double yv = getYVel();
-//		std::cout << xv << ", " << yv << std::endl;
-		if ((xv <= .15) && (xv >= .05)) {
-			return sprites[SPR_DOUBGREEN_ROLL1];
-		} else if ((xv < .05) && (xv >= -.05)){
-//			std::cout << yv << std::endl;
-			return sprites[SPR_DOUBGREEN_STRAIGHT];
-		} else if ((xv < -.05) && (xv >= -.15)) {
-			return sprites[SPR_DOUBGREEN_ROLL7];
-		} else if (xv > .15) {
-			return sprites[SPR_DOUBGREEN_ROLL6];
-		} else {
-			return sprites[SPR_DOUBGREEN_ROLL2];
-		}		
+		int temp = (AIcount % 140)/20;
+		switch(temp){
+			case 0:
+				return sprites[SPR_DOUBGREEN_ROLL1];
+				break;
+			case 1:
+				return sprites[SPR_DOUBGREEN_ROLL2];
+				break;
+			case 2:
+				return sprites[SPR_DOUBGREEN_ROLL3];
+				break;
+			case 3:
+				return sprites[SPR_DOUBGREEN_ROLL4];
+				break;
+			case 4:
+				return sprites[SPR_DOUBGREEN_ROLL5];
+				break;
+			case 5:
+				return sprites[SPR_DOUBGREEN_ROLL6];
+				break;
+			case 6:
+				return sprites[SPR_DOUBGREEN_ROLL7];
+				break;
+			default:
+				return sprites[SPR_DOUBGREEN_ROLL1];
+				break;
+		}
 	}
 	return sprites[SPR_RED_N];
 }
@@ -408,5 +420,5 @@ int Enemy::update(){
 	if ((getYVel()>-1) && (getYVel()<0)) setYVel(-1);
 	if ((getYVel()<1) && (getYVel()>0)) setYVel(1);
 	// std::cout << AIcount << std::endl;
-	return ((AIcount % 50 == 20 || AIcount % 1000 == 30 ) && canFire());
+	return ((AIcount % 50 == 20 || AIcount % 50 == 30 ) && canFire());
 }
