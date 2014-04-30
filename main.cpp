@@ -86,7 +86,7 @@ double cosDeg(double deg);
 
 int enemyCount = 0;
 int beamCycles = 0; //what is this?
-int spreadCycles = 0;
+
 
 int main(int argc, char * argv[]) {
 	gameStart:
@@ -273,15 +273,11 @@ int main(int argc, char * argv[]) {
 				} else {
 					currentPlayer->setWeapon(0);
 				}
-				if (spreadCycles > 0) {
-					spreadCycles--;
-				} else {
-					currentyPlayer->setWeapon(0);
-				}
 				if (playerIsDead){
 					if (lives.getValue() == 0){
 						levelLabelSurface = TTF_RenderText_Solid(font, "GAME OVER",	textColor);
 						applySurface(150,300,levelLabelSurface,screen);
+						SDL_Flip(screen);
 						gameIsOver = 1;
 						if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
 							if (event.key.keysym.sym == SDLK_z) {
@@ -358,7 +354,7 @@ int main(int argc, char * argv[]) {
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(110) * BUL_SPEED), -(sinDeg(110) * BUL_SPEED), 1, 1));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(135) * BUL_SPEED), -(sinDeg(135) * BUL_SPEED), 1, 1));
 										elements.push_back(new Bullet((currentPlayer->getXPos() + 10), currentPlayer->getYPos(), (cosDeg(150) * BUL_SPEED), -(sinDeg(150) * BUL_SPEED), 1, 1));
-										currentPlayer->useAmmo(7);
+										currentPlayer->useAmmo(2);
 										break;
 									case 2: //MISSILE
 										std::cout << "Error: Cannot fire missile Bullet because behavior not defined" << std::endl;
@@ -482,6 +478,8 @@ int main(int argc, char * argv[]) {
 						playerIsDead = 1;
 						continue;
 					}
+				} else if (xType == POWERUP){
+					elements[x]->update();
 				}
 				for(int y = x + 1; y < elements.size(); y++) { //for every following element,
 					GEType yType = elements[y]->getType(); //store that element's type
@@ -711,6 +709,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	int origin = b->getOrigin(); //extract bullet's origin
 	int powProb;
 
+
 	if(origin == 0) { //if origin of bullet was enemy
 	
 	} else if(origin == 1) { //if origin of bullet was player,
@@ -720,9 +719,11 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
 		}
-		powProb = rand() % 10 + 1;
+		powProb = rand() % 12 + 1;
+		std::cout << powProb << std::endl;
 		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
 		if (powProb == 4) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 1));
+		if (powProb == 3) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 0));
 		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
 		delete e;
@@ -811,7 +812,7 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 			pl->newAmmo(); //notify player that it gets more ammo
 			break;
 		case 1: //if powerup is spread,
-			spreadCycles += 10;
+			beamCycles += 10;
 			pl->setWeapon(1);
 			break;
 		case 2: //if powerup is missile,

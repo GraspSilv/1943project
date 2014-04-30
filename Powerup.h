@@ -15,6 +15,7 @@ To Do
 
 #include"SDL/SDL.h"
 #include"GraphElement.h"
+#include <cmath>
 
 typedef enum {
 	SPR_PWRUP_POW,
@@ -39,9 +40,11 @@ class Powerup : public GraphElement {
 		Powerup(double, double, double, double, int); //nondefault constructor, passes position, velocity, and type to GraphElement constructor [xPos, yPos, xVel, yVel, power]
 		SDL_Rect getSprite(); //returns sprite based on power
 		int getPower();
+		int update();
 	private:
 		powerupSpriteType sprite; //enum that stores powerup's sprite
-		int power; //enum that stores powerup's power		
+		int power; //enum that stores powerup's power	
+		int mvCount;	
 };
 
 #endif //POWERUP_H

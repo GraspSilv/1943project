@@ -17,6 +17,7 @@ History
 
 Powerup::Powerup(double xP, double yP, int p) : GraphElement(xP, yP, POWERUP) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos, power]
 	power = p;
+	mvCount = 0;
 	
 	SDL_Rect rect_pwrup_pow; //sprite of POW powerup
 		rect_pwrup_pow.x = 10;
@@ -65,6 +66,7 @@ Powerup::Powerup(double xP, double yP, int p) : GraphElement(xP, yP, POWERUP) { 
 
 Powerup::Powerup(double xP, double yP, double xV, double yV, int p) : GraphElement(xP, yP, xV, yV, POWERUP) { //nondefault constructor, passes position and velocity to GraphElement constructor [xPos, yPos, xVel, yVel, power]
 	power = p;
+	mvCount = 0;
 	
 	SDL_Rect rect_pwrup_pow; //sprite of POW powerup
 		rect_pwrup_pow.x = 10;
@@ -117,4 +119,14 @@ SDL_Rect Powerup::getSprite() { //returns sprite based on power
 
 int Powerup::getPower() {
 	return power;
+}
+
+int Powerup::update(){
+	mvCount++;
+	if (mvCount > 1000){
+		mvCount = 0;
+	}
+	setXVel(cos(6.28*mvCount/1000));
+	setYVel(sin(6.28*mvCount/1000));
+	return 0;
 }

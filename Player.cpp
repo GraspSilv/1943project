@@ -13,7 +13,7 @@ Player.cpp
 
 Player::Player(double xP, double yP) :
 	GraphElement(xP, yP, PLAYER),
-	ammo(100, (640 - 30), 100, 0, 100, 1),
+	ammo(100, (640 - 30), 100, 0, 200, 1),
 	health(180, (640 - 30), 100, 0, 100, 5) { //nondefault constructor, passes position to GraphElement constructor [xPos, yPos]
 	sprite = SPR_PLYR_HLTHY_STRAIGHT;
 	weapon = 0;
