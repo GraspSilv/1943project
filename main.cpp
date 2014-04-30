@@ -54,6 +54,7 @@ SDL_Surface * livesLabelSurface = NULL;
 SDL_Surface * scoreSurface = NULL;
 SDL_Surface * scoreLabelSurface = NULL;
 SDL_Surface * levelLabelSurface = NULL;
+SDL_Surface * splashScreen = NULL;
 
 TTF_Font * font = NULL;
 
@@ -190,6 +191,18 @@ int main(int argc, char * argv[]) {
 	scoreLabelSurface = TTF_RenderText_Solid(		font, "Score",								textColor);
 	levelLabelSurface = TTF_RenderText_Solid(		font, lev->getLevelText().c_str(),	textColor);
 	
+	applySurface(0,0,splashScreen,screen);
+	SDL_Flip(screen);
+
+	while (1){
+		//std::cout<<"applying"<<std::endl;
+		
+		if (SDL_PollEvent(&event)){
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_z) break;
+			else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) return 1;
+		}
+	}
+
 	while(gameRunning) {
 		//reset player's velocity
 		currentPlayer->setXVel(0);
@@ -202,7 +215,7 @@ int main(int argc, char * argv[]) {
 					finishLevel = 0; //new level will not be finished
 					levels.erase(levels.begin()); //erase previous level
 					if(levels.empty()) { //if there are no remaining levels,
-						return 1; //quit game (change to gameRunning?)
+						goto gameStart; //quit game (change to gameRunning?)
 					}
 					lev = levels.front(); //load next level
 					lev->init(); //initiate next level
@@ -458,7 +471,7 @@ int main(int argc, char * argv[]) {
 					if (elements[x]->getCycles() % 2 || playerIsDead){
 						continue;
 					}
-					if (currentPlayer->getHealthCntr().getValue() == 0){
+					if (currentPlayer->getHealthCntr().getValue() <= 0){
 						std::cout << "Dead" << std::endl;
 						elements.push_back(new Explosion(elements[x]->getXPos(), elements[x]->getYPos()));
 						delete elements[x];
@@ -562,6 +575,7 @@ void cleanUp() {
 	TTF_CloseFont(font); //close font
 	//free surfaces
 	SDL_FreeSurface(spriteSheet);
+	SDL_FreeSurface(splashScreen);
 	SDL_FreeSurface(ammoSurface);
 	SDL_FreeSurface(ammoLabelSurface);
 	SDL_FreeSurface(healthSurface);
@@ -887,6 +901,12 @@ int loadFiles() {
 	gunfire = Mix_LoadWAV("gunfire.wav");
 	if(!gunfire) {
 		std::cout << "Error: Could not load gunfire.wav" << std::endl;
+		return 0;
+	}
+
+	splashScreen = loadImage("splash.png");
+	if(!splashScreen) {
+		std::cout << "Error: Could not load splash.png" << std::endl;
 		return 0;
 	}
 
