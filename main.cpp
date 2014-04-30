@@ -946,7 +946,7 @@ int loadFiles() {
 	}
 
 	//load gun-cocking-01.wav
-	guncock = Mix_LoadWAV("guncock.wav");
+	guncock = Mix_LoadWAV("reload3.wav");
 	if (!guncock) {
 		std::cout << "Error: Could not load reload.wav" << std::endl;
 		return 0;
