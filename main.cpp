@@ -94,6 +94,9 @@ int main(int argc, char * argv[]) {
 	int playerIsDead = 0;
 	int gameIsOver = 0;
 
+	int isBombing = 0;
+	int bombStart = 0;
+
 	//initialize
 	if(!init()) {
 		std::cout << "Error: Could not initialize main()" << std::endl;
@@ -292,6 +295,15 @@ int main(int argc, char * argv[]) {
 				shipCounter = 0;
 				levelTitle = 0;
 				std::cout << enemyCount << " " << maxShips <<  std::endl;
+			} else if (isBombing) {
+				if (bombStart == 0) bombStart = shipCounter;
+				else if (bombStart == shipCounter){
+					isBombing = 0;
+					bombStart = 0;
+				} else if (shipCounter % 4 ){
+					elements.push_back(new Bullet((shipCounter/4)*10, WINDOW_HEIGHT - 5, 0, -BUL_SPEED, 1, 0));
+					elements.push_back(new Bullet((24 - shipCounter/4)*10, WINDOW_HEIGHT - 5, 0, -BUL_SPEED, 1, 0));
+				}
 			}
 			if((enemyCount <= (maxShips / 2)) && (shipCounter == 70) && !addShips && (maxShips != 0)) {
 				//std::cout << "counting ships" << std::endl;
@@ -376,6 +388,11 @@ int main(int argc, char * argv[]) {
 							}
 							break;
 						case SDLK_x:
+							if (currentPlayer->getBomb()){
+								std::cout << "bombing" << std::endl;
+								currentPlayer->setBomb(0);
+								isBombing = 1;
+							}
 							break;
 						default: //if other key,
 							break; //do nothing
@@ -719,11 +736,10 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 			elemPtr->erase(std::remove(elemPtr->begin(), elemPtr->end(), b), elemPtr->end());
 			bDestroyed = 1;
 		}
-		powProb = rand() % 12 + 1;
+		powProb = rand() % 8 + 1;
 		std::cout << powProb << std::endl;
-		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 3));
-		if (powProb == 4) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 1));
-		if (powProb == 3) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 0));
+		if (powProb == 5) elemPtr->push_back(new Powerup(e->getXPos(), e->getYPos(), 1, 1, 2));
+
 		elemPtr->push_back(new Explosion(e->getXPos(), e->getYPos())); //create explosion at site of enemy's death
 		//delete enemy object and remove it from elements vector
 		delete e;
@@ -816,7 +832,7 @@ int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::ve
 			pl->setWeapon(1);
 			break;
 		case 2: //if powerup is missile,
-			
+			pl->setWeapon(2);
 			break;
 		case 3: //if powerup is beam,
 			beamCycles += 10;

@@ -20,6 +20,7 @@ Player::Player(double xP, double yP) :
 	cycles = 200;
 	xMom = 0;
 	yMom = 0;
+	hasBomb = 0;
 
 	SDL_Rect rect_plyr_hlthy_fRollLeft; //sprite of healthy player full roll left
 		rect_plyr_hlthy_fRollLeft.x = 15;
@@ -196,6 +197,10 @@ int Player::getWeapon() {
 }
 
 void Player::setWeapon(int w) {
+	if (w == 2){
+		setBomb(1);
+		w = 0;
+	}
 	weapon = w;
 }
 
@@ -220,8 +225,16 @@ int Player::getYMom(){
 	return yMom;
 }
 
+int Player::getBomb(){
+	return hasBomb;
+}
+
 void Player::setXMom(int xM){
 	xMom = xM;
+}
+
+void Player::setBomb(int b){
+	hasBomb = b;
 }
 
 void Player::setYMom(int yM){

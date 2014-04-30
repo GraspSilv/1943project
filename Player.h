@@ -59,6 +59,8 @@ class Player : public GraphElement {
 		int getYMom();
 		void setXMom(int);
 		void setYMom(int);
+		void setBomb(int);
+		int getBomb();
 	private:
 		playerSpriteType sprite; //enum that stores player's sprite
 		Counter ammo; //[xPos = 100, yPos = (640 - 30), value = 100, min = 0, max = 100, interval = 1]
@@ -67,6 +69,7 @@ class Player : public GraphElement {
 		int cycles;
 		int xMom; //x-momentum (unitless)
 		int yMom; //y-momentum (unitless)
+		int hasBomb;
 };
 
 #endif //PLAYER_H
