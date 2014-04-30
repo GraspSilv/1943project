@@ -37,7 +37,7 @@ int Level::init(){
 		int j = intString.size();
 		for (int i = 0; i < j; i++){
 			h = intString[i] - '0';
-			std::cout << h << std::endl;
+			//std::cout << h << std::endl;
 			groups.push_back(h);
 		}
 		groups.push_back(0);

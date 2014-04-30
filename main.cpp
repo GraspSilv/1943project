@@ -26,6 +26,7 @@ main.cpp
 #include"Player.h"
 #include"Powerup.h"
 #include"Timer.h"
+#include <time.h>
 
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
@@ -55,6 +56,7 @@ SDL_Surface * scoreSurface = NULL;
 SDL_Surface * scoreLabelSurface = NULL;
 SDL_Surface * levelLabelSurface = NULL;
 SDL_Surface * splashScreen = NULL;
+SDL_Surface * bombNotification = NULL;
 
 TTF_Font * font = NULL;
 
@@ -93,9 +95,11 @@ int main(int argc, char * argv[]) {
 	int gameRunning = 1;
 	int playerIsDead = 0;
 	int gameIsOver = 0;
+	int lastLevel = 0;
 
 	int isBombing = 0;
 	int bombStart = 0;
+	int alternate = 0;
 
 	//initialize
 	if(!init()) {
@@ -137,6 +141,7 @@ int main(int argc, char * argv[]) {
 
 	Level * lev = levels.front(); //load first level
 	lev->init(); //initiate first level
+	levels.erase(levels.begin());
 	//std::cout << "out" << std::endl;
 	int maxShips = lev->getNextGroup(); //set maxShips for first level
 	enemyType shipType = lev->getNextType(); //set initial shipType for first level
@@ -193,6 +198,7 @@ int main(int argc, char * argv[]) {
 	livesLabelSurface = TTF_RenderText_Solid(		font, "Lives",								textColor);
 	scoreLabelSurface = TTF_RenderText_Solid(		font, "Score",								textColor);
 	levelLabelSurface = TTF_RenderText_Solid(		font, lev->getLevelText().c_str(),	textColor);
+	bombNotification = TTF_RenderText_Solid(font, "Press X for Air Support", textColor);
 	
 	applySurface(0,0,splashScreen,screen);
 	SDL_Flip(screen);
@@ -214,14 +220,30 @@ int main(int argc, char * argv[]) {
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
 			if(levelBreak) {
 				if(finishLevel) {
-					shipCounter = 0; //reset ship counter
-					finishLevel = 0; //new level will not be finished
-					levels.erase(levels.begin()); //erase previous level
-					if(levels.empty()) { //if there are no remaining levels,
-						goto gameStart; //quit game (change to gameRunning?)
+					shipCounter = 0; //reset ship counter			
+					if(lastLevel || levels.empty()) { //if there are no remaining levels,
+						levelLabelSurface = TTF_RenderText_Solid(font, "GAME CLEAR", textColor);
+						//std::cout << "in loop" << std::endl;
+						applySurface(150,300,levelLabelSurface,screen);
+						SDL_Flip(screen);
+						if (SDL_PollEvent(&event)){
+							if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_z){
+								gameIsOver = 1;
+								goto gameStart;
+							}
+							else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) return 1;
+						}
+						continue;
+
+					} else {
+						levels.erase(levels.begin()); //erase previous level
+						finishLevel = 0; //new level will not be finished
+						lastLevel = 0;
 					}
 					lev = levels.front(); //load next level
 					lev->init(); //initiate next level
+
+					if(levels.empty()) lastLevel = 1;
 					
 					maxShips = lev->getNextGroup();
 					enemyType shipType = lev->getNextType();
@@ -244,15 +266,7 @@ int main(int argc, char * argv[]) {
 					}
 					levelLabelSurface = TTF_RenderText_Solid(font, lev->getLevelText().c_str(), textColor);
 				}
-				shipCounter++;
-				if(shipCounter > 200) {
-					SDL_Rect boxRect;
-						boxRect.x = 120;
-						boxRect.y = 160;
-						boxRect.w = 240;
-						boxRect.h = 320;
-					// zSDL_FillRect(screen, &boxRect, SDL_MapRGB(screen->format, backgroundColor.r, backgroundColor.g, backgroundColor.b));
-				}
+
 				if(SDL_PollEvent(&event) && event.type == SDL_KEYDOWN) {
 					if (event.key.keysym.sym == SDLK_z) {
 						levelTitle = 1;
@@ -289,30 +303,39 @@ int main(int argc, char * argv[]) {
 							}
 						}
 						continue;
+
 					} else {
 						playerIsDead = 0;
 					}
 				}
 				shipCounter = 0;
 				levelTitle = 0;
+				if (!alternate) alternate = 1;
+				else alternate = 0;
 				// std::cout << enemyCount << " " << maxShips <<  std::endl;
 
 				//BEGIN BOMBING
 			} else if (isBombing) {
 				Mix_PauseMusic();
-				std::cout << "in isBombing " << shipCounter << std::endl;
+				//std::cout << "in isBombing " << shipCounter << std::endl;
 				if (bombStart == 0) bombStart = shipCounter;
 				else if (bombStart -1 == shipCounter){
 					Mix_ResumeMusic();
 					isBombing = 0;
 					bombStart = 0;
 				} else if (shipCounter % 4 == 1){
-					std::cout << "in creating " << shipCounter << std::endl;
+					//std::cout << "in creating " << shipCounter << std::endl;
 					gunfire->volume=20;
 					Mix_PlayChannel(-1, gunfire, 0);
 					elements.push_back(new Bullet((24 - shipCounter/4)*10, WINDOW_HEIGHT - 20, 0, -BUL_SPEED * 1.5, 1, 0));
 					elements.push_back(new Bullet((24 + shipCounter/4)*10, WINDOW_HEIGHT - 20, 0, -BUL_SPEED * 1.5, 1, 0));
 				}
+			}
+			//std::cout << currentPlayer->getBomb() << std::endl;
+
+			if (alternate && currentPlayer->getBomb() > 0){
+				applySurface(50,10,bombNotification,screen);
+				SDL_Flip(screen);
 			}
 
 
@@ -325,16 +348,18 @@ int main(int argc, char * argv[]) {
 				//std::cout << "not ok" << std::endl;
 					addShips = 1;
 				} else {
+					if (lastLevel == 0 && !levels.empty()) {
+						levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
+					}
 					addShips = 0;
 					maxShips = 0;
 					std::cout << "Done\n";
-					levelLabelSurface = TTF_RenderText_Solid(font, "LEVEL CLEAR", textColor);
 					finishLevel = 1;
 				}
 			}
 
 			if(addShips && (shipCounter == 50) && (maxShips != 0)) {
-				std::cout << "counting ships " << enemyCount + 1 << std::endl;
+				// std::cout << "counting ships " << enemyCount + 1 << std::endl;
 				elements.push_back(new Enemy(50 + enemyCount * 50, -50 - 50*enemyCount, shipType));
 				enemyCount++;
 				if ((enemyCount >= maxShips) || (maxShips == 0)) {
@@ -557,8 +582,11 @@ int main(int argc, char * argv[]) {
 			applySurface(lives.getXPos(),				lives.getYPos(),				livesSurface,	screen);
 			applySurface(score.getXPos(),				score.getYPos(),				scoreSurface,	screen);
 		
-			if (maxShips == 0 && enemyCount == 0 && finishLevel || gameIsOver){
-				applySurface(150,300,levelLabelSurface,screen);
+			if (maxShips == 0 && enemyCount == 0 && finishLevel){
+				if(!levels.empty()){
+					std::cout << "printing" << std::endl;
+					applySurface(150,300,levelLabelSurface,screen);
+				}
 				levelBreak = 1;
 			}
 		
@@ -743,6 +771,7 @@ int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector
 	int origin = b->getOrigin(); //extract bullet's origin
 	int powProb;
 
+	srand(time(NULL));
 
 	if(origin == 0) { //if origin of bullet was enemy
 	
