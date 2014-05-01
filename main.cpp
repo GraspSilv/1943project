@@ -8,14 +8,15 @@ main.cpp
 #include<algorithm>
 #include<cmath>
 #include<cstdlib>
+#include<ctime>
 #include<dirent.h>
 #include<fstream>
 #include<iostream>
 #include<string>
 #include"SDL/SDL.h"
 #include"SDL/SDL_image.h"
-#include"SDL/SDL_ttf.h"
 #include"SDL/SDL_mixer.h"
+#include"SDL/SDL_ttf.h"
 #include"Background.h"
 #include"Bullet.h"
 #include"Counter.h"
@@ -26,7 +27,6 @@ main.cpp
 #include"Player.h"
 #include"Powerup.h"
 #include"Timer.h"
-#include <time.h>
 
 const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 640;
@@ -44,29 +44,30 @@ const int momThresh = 60;
 const int BUL_SPEED = 4;
 const int BEAM_SPEED = 8;
 
-SDL_Surface * spriteSheet = NULL;
-SDL_Surface * screen = NULL;
 SDL_Surface * ammoSurface = NULL;
 SDL_Surface * ammoLabelSurface = NULL;
+SDL_Surface * bombNotification = NULL;
 SDL_Surface * healthSurface = NULL;
 SDL_Surface * healthLabelSurface = NULL;
+SDL_Surface * levelLabelSurface = NULL;
 SDL_Surface * livesSurface = NULL;
 SDL_Surface * livesLabelSurface = NULL;
 SDL_Surface * scoreSurface = NULL;
 SDL_Surface * scoreLabelSurface = NULL;
-SDL_Surface * levelLabelSurface = NULL;
-SDL_Surface * splashScreen = NULL;
-SDL_Surface * bombNotification = NULL;
+SDL_Surface * screen = NULL;
 SDL_Surface * spacePrompt = NULL;
+SDL_Surface * splashScreen = NULL;
+SDL_Surface * spriteSheet = NULL;
 
 TTF_Font * font = NULL;
 
 Mix_Music * music = NULL;
 Mix_Music * starship = NULL;
-Mix_Chunk * gunfire = NULL;
-Mix_Chunk * guncock = NULL;
-Mix_Chunk * fireAtWill = NULL;
+
 Mix_Chunk * enemyDown = NULL;
+Mix_Chunk * fireAtWill = NULL;
+Mix_Chunk * guncock = NULL;
+Mix_Chunk * gunfire = NULL;
 
 SDL_Color backgroundColor = {0, 0, 0};
 SDL_Color keyColor = {0, 0x2A, 0x88};
@@ -980,17 +981,24 @@ int init() {
 
 
 int loadFiles() {
-	//load joystix.ttf (with possibility of error)
-	font = TTF_OpenFont("joystix.ttf", 18); 
-	if(!font) {
-		std::cout << "Error: Could not load joystix.ttf" << std::endl;
+	//load enemyDown.wav (with possibility of erro
+	enemyDown = Mix_LoadWAV("enemyDown.wav");
+	if (!enemyDown) {
+		std::cout << "Error: Could not load enemyDown.wav" << std::endl;
 		return 0;
 	}
 	
-	//load sprites.png (with possibility of error)
-	spriteSheet = loadImage("sprites.png");
-	if(!spriteSheet) {
-		std::cout << "Error: Could not load sprites.png" << std::endl;
+	//load fireAtWill.wav (with possibility of error)
+	fireAtWill = Mix_LoadWAV("fireAtWill.wav");
+	if (!fireAtWill) {
+		std::cout << "Error: Could not load fireAtWill.wav" << std::endl;
+		return 0;
+	}
+	
+	//load guncock.wav (with possibility of error)
+	guncock = Mix_LoadWAV("guncock.wav");
+	if (!guncock) {
+		std::cout << "Error: Could not load guncock.wav" << std::endl;
 		return 0;
 	}
 	
@@ -1001,29 +1009,24 @@ int loadFiles() {
 		return 0;
 	}
 	
-
+	//load joystix.ttf (with possibility of error)
+	font = TTF_OpenFont("joystix.ttf", 18); 
+	if(!font) {
+		std::cout << "Error: Could not load joystix.ttf" << std::endl;
+		return 0;
+	}
+	
+	//load splash.png (with possibility of error)
 	splashScreen = loadImage("splash.png");
 	if(!splashScreen) {
 		std::cout << "Error: Could not load splash.png" << std::endl;
 		return 0;
 	}
-
-	//load gun-cocking-01.wav
-	guncock = Mix_LoadWAV("reload3.wav");
-	if (!guncock) {
-		std::cout << "Error: Could not load reload.wav" << std::endl;
-		return 0;
-	}
-
-	fireAtWill = Mix_LoadWAV("fireatwill.wav");
-	if (!guncock) {
-		std::cout << "Error: Could not load fireatwill.wav" << std::endl;
-		return 0;
-	}
-
-	enemyDown = Mix_LoadWAV("enemydown.wav");
-	if (!guncock) {
-		std::cout << "Error: Could not load enemyDown.wav" << std::endl;
+	
+	//load sprites.png (with possibility of error)
+	spriteSheet = loadImage("sprites.png");
+	if(!spriteSheet) {
+		std::cout << "Error: Could not load sprites.png" << std::endl;
 		return 0;
 	}
 	
