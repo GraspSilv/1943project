@@ -75,24 +75,22 @@ SDL_Color textColor = {255, 255, 255};
 
 Counter score(300, (WINDOW_HEIGHT - 30), 0, 0, 1000000, 10);
 
+int enemyCount = 0;
+int beamCycles = 0; //what is this?
+
 void applySurface(int x, int y, SDL_Surface * src, SDL_Surface * dest, SDL_Rect * clip = NULL);
-void cleanUp();
 int checkCollide(GraphElement * a, GraphElement * b);
+void cleanUp();
 int collide(GraphElement * GE1, GraphElement * GE2, GEType type1, GEType type2, std::vector<GraphElement *> * elemPtr);
-//the following collide functions deal with consequences for both objects, including whether the operand specified by the first argument or second argument (1 or 2) was destroyed
-int collideBulletEnemy(		int xArg, GraphElement * b,	GraphElement * e,		std::vector<GraphElement *> * elemPtr);
-int collideBulletPlayer(	int xArg, GraphElement * b,	GraphElement * pl,	std::vector<GraphElement *> * elemPtr);
-int collideEnemyPlayer(		int xArg, GraphElement * e,	GraphElement * pl,	std::vector<GraphElement *> * elemPtr);
-int collidePlayerPowerup(	int xArg, GraphElement * pl,	GraphElement * po,	std::vector<GraphElement *> * elemPtr);
+int collideBulletEnemy(int xArg, GraphElement * b, GraphElement * e, std::vector<GraphElement *> * elemPtr);
+int collideBulletPlayer(int xArg, GraphElement * b, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
+int collideEnemyPlayer(int xArg, GraphElement * e, GraphElement * pl, std::vector<GraphElement *> * elemPtr);
+int collidePlayerPowerup(int xArg, GraphElement * pl, GraphElement * po, std::vector<GraphElement *> * elemPtr);
 int init();
 int loadFiles();
 SDL_Surface * loadImage(std::string filename);
 double sinDeg(double deg);
 double cosDeg(double deg);
-
-int enemyCount = 0;
-int beamCycles = 0; //what is this?
-
 
 int main(int argc, char * argv[]) {
 	gameStart:
@@ -107,7 +105,7 @@ int main(int argc, char * argv[]) {
 
 	//initialize
 	if(!init()) {
-		std::cout << "Error: Could not initialize main()" << std::endl;
+		std::cout << "Error: Could not initialize in main()" << std::endl;
 		return 1;
 	}
 		
@@ -124,9 +122,7 @@ int main(int argc, char * argv[]) {
 	int levelBreak = 0;
 	int finishLevel = 0;
 	int levelTitle = 1;
-
-	//Level * lev = new Level("level1.lev");
-	//if (!lev->init()) return 1;
+	
 	//Jon wants to comment and understand this later
 	std::string temp;
 	DIR * pDir;
@@ -145,8 +141,7 @@ int main(int argc, char * argv[]) {
 
 	Level * lev = levels.front(); //load first level
 	lev->init(); //initiate first level
-	levels.erase(levels.begin());
-	//std::cout << "out" << std::endl;
+	levels.erase(levels.begin()); //remove first level from levels vector
 	int maxShips = lev->getNextGroup(); //set maxShips for first level
 	enemyType shipType = lev->getNextType(); //set initial shipType for first level
 
@@ -179,6 +174,8 @@ int main(int argc, char * argv[]) {
 
 	int addShips = 0; //tell program we are no longer adding ships
 
+	levelLabelSurface = TTF_RenderText_Solid(		font, lev->getLevelText().c_str(),	textColor); //set first level's label
+
 	//create and start timer
 	Timer gameTimer;
 	gameTimer.start();
@@ -187,34 +184,34 @@ int main(int argc, char * argv[]) {
 	
 	int shipCounter = 0;
 	
-	music = starship; //manually set "Starship" as music
+	music = starship; //manually set starship as music
 	
 	//start music
 	if(Mix_PlayMusic(music, 5) == -1){
 		return 1;
 	}
 	
-	Mix_PlayChannel(-1,guncock,0);
+	Mix_PlayChannel(-1, guncock, 0); //play guncock
 
 	//render labels
-	ammoLabelSurface = TTF_RenderText_Solid(		font, "Ammo",								textColor);
-	healthLabelSurface = TTF_RenderText_Solid(	font, "Health",							textColor);
-	livesLabelSurface = TTF_RenderText_Solid(		font, "Lives",								textColor);
-	scoreLabelSurface = TTF_RenderText_Solid(		font, "Score",								textColor);
-	levelLabelSurface = TTF_RenderText_Solid(		font, lev->getLevelText().c_str(),	textColor);
-	bombNotification = TTF_RenderText_Solid(font, "Press X for Air Support", textColor);
-	spacePrompt = TTF_RenderText_Solid(font, "Press [SPACE] to continue", textColor);
+	ammoLabelSurface =	TTF_RenderText_Solid(font, "Ammo",								textColor);
+	bombNotification =	TTF_RenderText_Solid(font, "Press X for Air Support",		textColor);
+	healthLabelSurface =	TTF_RenderText_Solid(font, "Health",							textColor);
+	livesLabelSurface =	TTF_RenderText_Solid(font, "Lives",								textColor);
+	scoreLabelSurface =	TTF_RenderText_Solid(font, "Score",								textColor);
+	spacePrompt = 			TTF_RenderText_Solid(font, "Press [SPACE] to Continue",	textColor);
 	
-	applySurface(0,0,splashScreen,screen);
-	applySurface(20,WINDOW_HEIGHT - 30,spacePrompt,screen);
-	SDL_Flip(screen);
+	applySurface(0, 0, splashScreen, screen); //apply splash screen
+	applySurface(20, (WINDOW_HEIGHT - 30), spacePrompt, screen); //apply space prompt
+	SDL_Flip(screen); //update screen
 
-	while (1){
-		//std::cout<<"applying"<<std::endl;
-		
-		if (SDL_PollEvent(&event)){
-			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) break;
-			else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) return 1;
+	while(1) { //wait...
+		if(SDL_PollEvent(&event)) { //if there is event to handle
+			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) { //if user pressed key and user pressed SPACE,
+				break; //break out of wait
+			} else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) { //else, if user pressed key and user pressed ESC,
+				return 1; //quit game
+			}
 		}
 	}
 
@@ -224,40 +221,38 @@ int main(int argc, char * argv[]) {
 		currentPlayer->setYVel(0);
 		
 		if((gameTimer.get_ticks() % frameTime) == 0) { //if enough time has passed to create a new frame,
-			if(levelBreak) {
-				applySurface(50, 350,spacePrompt,screen);
-				if(finishLevel) {
+			if(levelBreak) { //if at break in level,
+				applySurface(50, 350, spacePrompt, screen); //apply space prompt
+				if(finishLevel) { //if user has finished level,
 					shipCounter = 0; //reset ship counter			
 					if(lastLevel || levels.empty()) { //if there are no remaining levels,
-						levelLabelSurface = TTF_RenderText_Solid(font, "GAME CLEAR", textColor);
-
-						//std::cout << "in loop" << std::endl;
-						applySurface(150,300,levelLabelSurface,screen);
-						applySurface(50, 350,spacePrompt,screen);
-						SDL_Flip(screen);
-						if (SDL_PollEvent(&event)){
-							if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE){
-								gameIsOver = 1;
-								goto gameStart;
+						levelLabelSurface = TTF_RenderText_Solid(font, "GAME CLEAR", textColor); //set level label to game end message
+						applySurface(150, 300, levelLabelSurface, screen); //apply level label
+						applySurface(50, 350, spacePrompt, screen); //apply space prompt
+						SDL_Flip(screen); //update screen
+						if(SDL_PollEvent(&event)) { //if there is event to handle,
+							if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) { //if user pressed key and key is SPACE,
+								gameIsOver = 1; //set game is over
+								goto gameStart; //restart game
+							} else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) { //else, if user pressed key and key is ESC,
+								return 1; //quit game
 							}
-							else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) return 1;
 						}
-						continue;
-
-					} else {
-						
+						continue; //restart at top of gameRunning loop
+					} else { //else, if there are remaining levels
 						finishLevel = 0; //new level will not be finished
-						lastLevel = 0;
+						lastLevel = 0; //this is not the last level
 						lev = levels.front(); //load next level
-						lev->init();
-						levels.erase(levels.begin()); //erase current level from levels vector
+						lev->init(); //initialize new level
+						levels.erase(levels.begin()); //erase new level from levels vector
 					}
-					 //initiate next level
 
-					if(levels.empty()) lastLevel = 1;
+					if(levels.empty()) { //if levels vector is empty,
+						lastLevel = 1; //this is the last level
+					}
 					
-					maxShips = lev->getNextGroup();
-					enemyType shipType = lev->getNextType();
+					maxShips = lev->getNextGroup(); //load maxShips from level
+					enemyType shipType = lev->getNextType(); //load shipType from level
 					for(int i = maxShips; i > 0; i--) {
 						elements.push_back(new Enemy((50 + (i * 50)), (-500 - (50 * i)), shipType));
 						enemyCount++;
@@ -656,31 +651,34 @@ int checkCollide(GraphElement * a, GraphElement * b) {
 
 
 void cleanUp() {
-	TTF_CloseFont(font); //close font
 	//free surfaces
-	SDL_FreeSurface(spriteSheet);
-	SDL_FreeSurface(splashScreen);
 	SDL_FreeSurface(ammoSurface);
 	SDL_FreeSurface(ammoLabelSurface);
+	SDL_FreeSurface(bombNotification);
 	SDL_FreeSurface(healthSurface);
 	SDL_FreeSurface(healthLabelSurface);
+	SDL_FreeSurface(levelLabelSurface);
 	SDL_FreeSurface(livesSurface);
 	SDL_FreeSurface(livesLabelSurface);
 	SDL_FreeSurface(scoreSurface);
 	SDL_FreeSurface(scoreLabelSurface);
-	SDL_FreeSurface(levelLabelSurface);
 	SDL_FreeSurface(spacePrompt);
-	SDL_FreeSurface(bombNotification);
+	SDL_FreeSurface(splashScreen);
+	SDL_FreeSurface(spriteSheet);
+	
+	TTF_CloseFont(font); //close font
+	
 	//free audio
 	Mix_FreeMusic(music);
-	Mix_FreeChunk(gunfire);
-	Mix_FreeChunk(guncock);
 	Mix_FreeMusic(starship);
+	Mix_FreeChunk(enemyDown);
+	Mix_FreeChunk(fireAtWill);
+	Mix_FreeChunk(guncock);
+	Mix_FreeChunk(gunfire);
 	
 	TTF_Quit(); //quit SDL_ttf
 	Mix_CloseAudio(); //quit audio
 	SDL_Quit(); //quit SDL
-
 }
 
 
